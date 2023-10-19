@@ -201,27 +201,15 @@ public class Main extends Application {
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-        try {
-            FileInputStream inputstream = new FileInputStream("/Documents/GitHub/CS370/Hi/src/application/momma.jpg");
-            Image image = new Image(inputstream);
-            imageView.setImage(image);
-            imageView.setFitHeight(400);
-            imageView.setFitWidth(400);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-            System.err.println("Security exception: Operation not permitted");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.err.println("File not found: " + e.getMessage());
-        }
 
         Label promptLabel = new Label("Enter a Prompt:");
         TextField promptTextField = new TextField();
 
         Button generateImageButton = new Button("Generate Image");
+        
         generateImageButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent arg0) {
+            public void handle(ActionEvent event) {
                 String prompt = promptTextField.getText();
                 onGenerateImageButtonClicked(prompt);
             }
@@ -230,7 +218,6 @@ public class Main extends Application {
         grid.add(promptLabel, 0, 0);
         grid.add(promptTextField, 1, 0);
         grid.add(generateImageButton, 1, 1);
-        grid.add(imageView, 0, 2, 2, 1);
 
         Scene imageScene = new Scene(grid, 800, 800);
         primaryStage.setScene(imageScene);
@@ -244,20 +231,18 @@ public class Main extends Application {
 		    grid.setHgap(10);
 		    grid.setVgap(10);
 		    grid.setPadding(new Insets(25, 25, 25, 25));
-		         
-		    Button generateImageButton = new Button("Generate Image");
-		    
+
 		    // Create label and text field
 		    Label promptLabel = new Label("Enter a Prompt:");
 		    TextField promptTextField = new TextField();
 
 		    // If you want to preset the text field with the previous prompt
-		    promptTextField.setText(prompt);
+		    prompt = promptTextField.getText().toString();
 
-		    generateImageButton.setOnAction(e -> {
+		    /*generateImageButton.setOnAction(e -> {
 		        String newPrompt = promptTextField.getText();
 		        System.out.println("GENERATE IMAGE BUTTON CLICKED");
-		        // Initiating image generation and retrieval could go here
+		        // Initiating image generation and retrieval
 		        CompletableFuture<String> hashFuture = 
 		            (CompletableFuture<String>) initiateImageGeneration(newPrompt, Optional.empty());
 		        
@@ -268,15 +253,62 @@ public class Main extends Application {
 		                e2.printStackTrace();
 		                return null;
 		            });
-		    });
+		    });*/
+		    
+		   /* return CompletableFuture.supplyAsync(() -> {
+		        try {
+		            // HTTP POST request to generate the image
+		            MultipartBody request = Unirest.post("https://arimagesynthesizer.p.rapidapi.com/generate")
+		                    .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
+		                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
+		                    .field("prompt", prompt);
+		            
+		            // Add ID field
+		            //id = request.field("id", id);
 
+		            HttpResponse<String> response = request.asString();
+
+		            int status = response.getStatus();
+		            String hash = extractHash(response.getBody());
+		            
+		            if(hash != null) {
+		            	getImage(hash);
+		                return hash;
+		            }
+		            else {
+		                System.err.println("Unexpected response status: " + status);
+		                System.err.println("Response body: (initiateImageGeneration())" + response.getBody());
+		                return null;
+		            }
+		        } catch (UnirestException e) {
+		            e.printStackTrace();
+		            return null;
+		        }
+		    });
+		    */
+		    
+		    
+		    //String hash = extractHash(response.getBody());
+		    
+	        try {
+	            FileInputStream inputstream = new FileInputStream("/Users/aprilmiller/CS370/src/application/momma.jpg");
+	            Image image = new Image(inputstream);
+	            imageView.setImage(image);
+	            imageView.setFitHeight(400);
+	            imageView.setFitWidth(400);
+	            initiateImageGeneration(prompt, "123");
+	            //getImage(hash);
+	        } catch (SecurityException e) {
+	            e.printStackTrace();
+	            System.err.println("Security exception: Operation not permitted");
+	        } catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	            System.err.println("File not found: " + e.getMessage());
+	        }
 		    // Add to grid
 		    grid.add(promptLabel, 0, 0);
 		    grid.add(promptTextField, 1, 0);
-		    grid.add(generateImageButton, 1, 1);
 		    grid.add(imageView, 0, 2, 2, 1);
-
-		    // Create new scene and show
 		    Scene generatedImageScene = new Scene(grid, 800, 800);
 		    Platform.runLater(() -> {
 		        primaryStage.setScene(generatedImageScene);
@@ -284,21 +316,26 @@ public class Main extends Application {
 		    });
 		
 	 
+
+	        
+
+		    // Create new scene and show
+
 	}
 
 //TODO: fix this so ID is not optional
-public CompletableFuture<String> initiateImageGeneration(String prompt, Optional<String> idOptional) {
+public CompletableFuture<String> initiateImageGeneration(String prompt, String id) {
 	 	System.out.println("INITIATE IMAGE GENERATION");
 	    return CompletableFuture.supplyAsync(() -> {
 	        try {
-	            // Prepare an HTTP POST request to generate the image
+	            // HTTP POST request to generate the image
 	            MultipartBody request = Unirest.post("https://arimagesynthesizer.p.rapidapi.com/generate")
 	                    .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
 	                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
 	                    .field("prompt", prompt);
 	            
-	            // Add ID field if it's provided
-	            idOptional.ifPresent(id -> request.field("id", id));
+	            // Add ID field
+	            //id = request.field("id", id);
 
 	            HttpResponse<String> response = request.asString();
 
@@ -306,6 +343,7 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, Optional
 	            String hash = extractHash(response.getBody());
 	            
 	            if(hash != null) {
+	            	getImage(hash);
 	                return hash;
 	            }
 	            else {
@@ -355,7 +393,7 @@ private void updateUIWithImage(InputStream imageStream) {
 	}
 
 
-private CompletableFuture<InputStream> getImageWithRetry(String hash, int maxRetries, long delayMs) {
+/*private CompletableFuture<InputStream> getImageWithRetry(String hash, int maxRetries, long delayMs) {
 	    return CompletableFuture.supplyAsync(() -> {
 	        for (int i = 0; i < maxRetries; i++) {
 	            try {
@@ -376,7 +414,7 @@ private CompletableFuture<InputStream> getImageWithRetry(String hash, int maxRet
 	        throw new RuntimeException("Image retrieval failed after " + maxRetries + " retries");
 	    });
 	}
-
+*/
 public InputStream getImage(String hash) {
 	 System.out.println("GET IMAGE: " + hash);
 	    try {
