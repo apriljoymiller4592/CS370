@@ -202,6 +202,19 @@ public class Main extends Application {
         grid.setPadding(new Insets(25, 25, 25, 25));
 
 
+        try {
+            FileInputStream inputstream = new FileInputStream("/Users/aprilmiller/Documents/GitHub/CS370/Hi/src/application/momma.jpg");
+            Image image = new Image(inputstream);
+            imageView.setImage(image);
+            imageView.setFitHeight(400);
+            imageView.setFitWidth(400);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            System.err.println("Security exception: Operation not permitted");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.err.println("File not found: " + e.getMessage());
+        }
         Label promptLabel = new Label("Enter a Prompt:");
         TextField promptTextField = new TextField();
 
@@ -449,9 +462,8 @@ public InputStream getImage(String hash) {
 	
 	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException{
-		launch(args);
-		
 		//panacea123
+		launch(args);
 		Scanner reader = new Scanner(System.in);//for user input
 		System.out.println("Enter Sql Pasword: ");
 		String password = reader.nextLine();//grabs input
@@ -465,6 +477,7 @@ public InputStream getImage(String hash) {
 		Connection c = DriverManager.getConnection(CONNECTION,p);
 		System.out.println("It works");
 		
+
 		c.close();
 	}
 }
