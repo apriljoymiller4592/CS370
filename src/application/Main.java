@@ -202,7 +202,7 @@ public class Main extends Application {
         grid.setPadding(new Insets(25, 25, 25, 25));
 
         try {
-            FileInputStream inputstream = new FileInputStream("/Users/aprilmiller/Documents/GitHub/CS370/Hi/src/application/momma.jpg");
+            FileInputStream inputstream = new FileInputStream("/Documents/GitHub/CS370/Hi/src/application/momma.jpg");
             Image image = new Image(inputstream);
             imageView.setImage(image);
             imageView.setFitHeight(400);
@@ -411,6 +411,8 @@ public InputStream getImage(String hash) {
 	
 	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException{
+		launch(args);
+		
 		//panacea123
 		Scanner reader = new Scanner(System.in);//for user input
 		System.out.println("Enter Sql Pasword: ");
@@ -425,7 +427,6 @@ public InputStream getImage(String hash) {
 		Connection c = DriverManager.getConnection(CONNECTION,p);
 		System.out.println("It works");
 		
-		launch(args);
 		c.close();
 	}
 }
