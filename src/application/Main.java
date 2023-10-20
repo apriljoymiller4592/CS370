@@ -46,6 +46,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
+import application.databaseHandler;
 
 public class Main extends Application {
 	private static final String dbClassname = "com.mysql.cj.jdbc.Driver";
