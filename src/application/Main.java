@@ -1,6 +1,5 @@
 package application;
 	
-
 import java.io.InputStream;
 
 import java.sql.Connection;
@@ -13,9 +12,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
@@ -38,11 +37,15 @@ import com.mashape.unirest.request.body.MultipartBody;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+
 import javafx.application.Application;
 import javafx.application.Platform;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+
 import javafx.stage.Stage;
+
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -57,21 +60,21 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
-
+//TODO: Make code more modular, separate into classes?
 public class Main extends Application {
-  private static final String dbClassname = "com.mysql.cj.jdbc.Driver";
-  private static final String CONNECTION = "jdbc:mysql://127.0.0.1/ArtFacedb";
-  private Stage primaryStage = new Stage();
-  private final ReentrantLock lock = new ReentrantLock();
-  private static final int MAX_RETRIES = 3;  // Adjust as needed
-  private static final long RETRY_DELAY_MS = 1000;
+     private static final String dbClassname = "com.mysql.cj.jdbc.Driver";
+     private static final String CONNECTION = "jdbc:mysql://127.0.0.1/ArtFacedb";
+     private Stage primaryStage = new Stage();
+     private final ReentrantLock lock = new ReentrantLock();
+     private static final int MAX_RETRIES = 3;  // Adjust as needed
+     private static final long RETRY_DELAY_MS = 1000;
   
     private ImageView imageView = new ImageView();
 
     @Override
     public void start(Stage primaryStage) {
         try {
-            this.primaryStage = primaryStage; // Store the primary stage for later use
+            this.primaryStage = primaryStage;
             createHomePage();
         } catch(Exception e) {
             e.printStackTrace();
@@ -115,7 +118,7 @@ public class Main extends Application {
         gridPane.add(signInBtn, 0, 1, 1, 1);
         gridPane.add(signUpBtn, 1, 1, 1, 1);
 
-        primaryStage.setTitle("ArtFace Application"); // Set a title for your application
+        primaryStage.setTitle("ArtFace Application");
         primaryStage.setScene(homeScene);
         primaryStage.show();
     }
@@ -124,55 +127,50 @@ public class Main extends Application {
     //TODO: save the username and password into the database for later retrieval
     public void createSignUpPage() 
     {
-     GridPane signUpGrid = new GridPane();
-     signUpGrid.setStyle("-fx-background-color: yellow;");
+	GridPane signUpGrid = new GridPane();
+	signUpGrid.setStyle("-fx-background-color: yellow;");
+	
+	signUpGrid.setAlignment(Pos.CENTER);
+	signUpGrid.setHgap(10);
+	signUpGrid.setVgap(10);
+	signUpGrid.setPadding(new Insets(25, 25, 25, 25));
 
-    signUpGrid.setAlignment(Pos.CENTER);
-    signUpGrid.setHgap(10);
-    signUpGrid.setVgap(10);
-    signUpGrid.setPadding(new Insets(25, 25, 25, 25));
+	Label userName = new Label("User Name:");
+	signUpGrid.add(userName, 0, 1);
+	
+	TextField userTextField = new TextField();
+	signUpGrid.add(userTextField, 1, 1);
 
-    // Username
-    Label userName = new Label("User Name:");
-    signUpGrid.add(userName, 0, 1);
+	Label pw = new Label("Password:");
+	signUpGrid.add(pw, 0, 2);
+	
+	PasswordField pwBox = new PasswordField();
+	signUpGrid.add(pwBox, 1, 2);
 
-    TextField userTextField = new TextField();
-    signUpGrid.add(userTextField, 1, 1);
+	Label name = new Label("Name:");
+	signUpGrid.add(name, 0, 3);
+	
+	TextField nameField = new TextField();
+	signUpGrid.add(nameField, 1, 3);
 
-    // Password
-    Label pw = new Label("Password:");
-    signUpGrid.add(pw, 0, 2);
+	Label email = new Label("Email:");
+	signUpGrid.add(email, 0, 4);
+	
+	TextField emailField = new TextField();
+	signUpGrid.add(emailField, 1, 4);
 
-    PasswordField pwBox = new PasswordField();
-    signUpGrid.add(pwBox, 1, 2);
-
-    // Name
-    Label name = new Label("Name:");
-    signUpGrid.add(name, 0, 3);
-
-    TextField nameField = new TextField();
-    signUpGrid.add(nameField, 1, 3);
-
-    // Email
-    Label email = new Label("Email:");
-    signUpGrid.add(email, 0, 4);
-
-    TextField emailField = new TextField();
-    signUpGrid.add(emailField, 1, 4);
-
-    // Create a new scene for the sign-up page and set it to the stage
-    Scene signUpScene = new Scene(signUpGrid, 700, 800);
-    signUpScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-
-    primaryStage.setScene(signUpScene);
-    primaryStage.show();
+	Scene signUpScene = new Scene(signUpGrid, 700, 800);
+	signUpScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+	
+	primaryStage.setScene(signUpScene);
+	primaryStage.show();
     }
 
     //create sign in page for user to log in
     public void createSignInPage()
     {
-	     GridPane signInGrid = new GridPane();
-	     signInGrid.setStyle("-fx-background-color: pink;");
+	GridPane signInGrid = new GridPane();
+	signInGrid.setStyle("-fx-background-color: pink;");
 
         signInGrid.setAlignment(Pos.CENTER);
         signInGrid.setHgap(10);
@@ -180,45 +178,45 @@ public class Main extends Application {
         signInGrid.setPadding(new Insets(25, 25, 25, 25));
 
         //Username
-        Label user = new Label("User Name:");
-        signInGrid.add(user, 0, 1);
+	Label user = new Label("User Name:");
+	signInGrid.add(user, 0, 1);
+	
+	TextField userText = new TextField();
+	signInGrid.add(userText, 1, 1);
+	
+	// Password
+	Label pass = new Label("Password:");
+	signInGrid.add(pass, 0, 2);
+	
+	PasswordField passwordTF = new PasswordField();
+	signInGrid.add(passwordTF, 1, 2);
+	
+	Button signInBtn2 = new Button("Sign in");
+	signInGrid.add(signInBtn2, 1, 4);
+	
+	System.out.println("IN CREATE SIGN IN PAGE");
 
-        TextField userText = new TextField();
-        signInGrid.add(userText, 1, 1);
-
-        // Password
-        Label pass = new Label("Password:");
-        signInGrid.add(pass, 0, 2);
-
-    PasswordField passwordTF = new PasswordField();
-    signInGrid.add(passwordTF, 1, 2);
-
-    Button signInBtn2 = new Button("Sign in");
-    signInGrid.add(signInBtn2, 1, 4);
-
-    System.out.println("IN CREATE SIGN IN PAGE");
-
-    signInBtn2.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent event) {
-            String enteredUsername = userText.getText();
-            String enteredPassword = passwordTF.getText();
-        if (enteredUsername.trim().length() == 0)
-        {
-          showAlert("Error", "Please enter a username.");
-          return;
-        }
-
-        if (enteredPassword.trim().length() < 5)
-        {
-          showAlert("Error", "Please enter a password longer than 5 characters.");
-          return;
-        }
-
-          createImageGenerationPage();		
-      }
-
-    });
+	signInBtn2.setOnAction(new EventHandler<ActionEvent>() {
+	@Override
+	public void handle(ActionEvent event) {
+	    String enteredUsername = userText.getText();
+	    String enteredPassword = passwordTF.getText();
+	if (enteredUsername.trim().length() == 0)
+	{
+	  showAlert("Error", "Please enter a username.");
+	  return;
+	}
+	
+	if (enteredPassword.trim().length() < 5)
+	{
+	  showAlert("Error", "Please enter a password longer than 5 characters.");
+	  return;
+	}
+	
+	  createImageGenerationPage();		
+	}
+	
+	});
 
         Scene signInScene = new Scene(signInGrid, 700, 800);
         signInScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
@@ -269,10 +267,8 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    //when the generate image button is clicked, a new scene will pop up with the generated image
+  //when the generate image button is clicked, a new scene will pop up with the generated image
   public void onGenerateImageButtonClicked(String prompt) {
-
-    System.out.println("ON GENERATE IMAGE BUTTON CLICKED");
       GridPane grid = new GridPane();
       grid.setAlignment(Pos.CENTER);
       grid.setHgap(10);
@@ -293,8 +289,9 @@ public class Main extends Application {
       });
   }
 
+  //retrieve the image from the API and display it
   public void retrieveAndDisplayImage(String hash) throws CancellationException {
-      final int MAX_ATTEMPTS = 10; // Adjust this as needed
+      final int MAX_ATTEMPTS = 10;
       ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
       AtomicInteger attempts = new AtomicInteger(0);
@@ -340,7 +337,6 @@ public class Main extends Application {
       
   }
   
-
   //gets the image from the API
   public void getImage(String hash) {
 	    int retryCount = 0;
@@ -365,7 +361,6 @@ public class Main extends Application {
 	                    Thread.sleep(RETRY_DELAY_MS);
 	                }
 	            }
-
 	            response.getBody().close();
 
 	        } catch (UnirestException e) {
@@ -375,13 +370,12 @@ public class Main extends Application {
 	                try {
 	                    Thread.sleep(RETRY_DELAY_MS);
 	                } catch (InterruptedException ie) {
-	                    Thread.currentThread().interrupt();  // Preserve the interrupt status
+	                    Thread.currentThread().interrupt();
 	                }
 	            }
 	        } catch (IOException e) {
 	            e.printStackTrace();
 	        } catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	    }
@@ -389,8 +383,7 @@ public class Main extends Application {
 	}
 
 
-//... Your other methods remain unchanged ...
-
+        //iniate image generation
 	public CompletableFuture<String> initiateImageGeneration(String prompt, String id) {
 	   System.out.println("INITIATE IMAGE GENERATION");
 	   return CompletableFuture.supplyAsync(() -> {
@@ -410,7 +403,7 @@ public class Main extends Application {
 	           if(hash != null) {
 	               // Introduce a delay before attempting to fetch the image
 	               try {
-	                   Thread.sleep(5000);  // Delay for 5 seconds. Adjust this value as needed.
+	                   Thread.sleep(5000);
 	               } catch (InterruptedException e) {
 	                   // Handle interruption
 	                   Thread.currentThread().interrupt();
@@ -430,12 +423,8 @@ public class Main extends Application {
 	   });
 	}
 
-
   //extracts the hash of the image
   private synchronized String extractHash(String body) {
-	  
-         System.out.println("EXTRACT HASH | HASH: ");
-         
       try {
           JSONObject jsonResponse = new JSONObject(body);
           String hash = jsonResponse.getString("hash");
@@ -449,13 +438,13 @@ public class Main extends Application {
       }
   }
   
-
+  //main method
   public static void main(String[] args) throws ClassNotFoundException, SQLException{
 
     launch(args);
 
-    //panacea123
-   /* Scanner reader = new Scanner(System.in); //for user input
+    panacea123
+    Scanner reader = new Scanner(System.in); //for user input
     System.out.println("Enter Sql Pasword: ");
     String password = reader.nextLine(); //grabs input
 
@@ -468,6 +457,6 @@ public class Main extends Application {
     Connection c = DriverManager.getConnection(CONNECTION,p);
     System.out.println("It works");
 
-    c.close();*/
+    c.close();
   }
 }
