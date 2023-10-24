@@ -57,7 +57,12 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
+<<<<<<< Updated upstream
             this.primaryStage = primaryStage; // Store the primary stage for later use
+=======
+            this.primaryStage = primaryStage;
+            if (promptSQLConnection())
+>>>>>>> Stashed changes
             createHomePage();
         } catch(Exception e) {
             e.printStackTrace();
@@ -372,6 +377,7 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String i
 	    });
 	}
 
+<<<<<<< Updated upstream
 private String extractHash(String body) {
        System.out.println("EXTRACT HASH | HASH: ");
     try {
@@ -481,4 +487,135 @@ public InputStream getImage(String hash) {
 
 		c.close();
 	}
+=======
+
+        //iniate image generation
+	public CompletableFuture<String> initiateImageGeneration(String prompt, String id) {
+	   System.out.println("INITIATE IMAGE GENERATION");
+	   return CompletableFuture.supplyAsync(() -> {
+	       try {
+	           //POST request to generate the image
+	           MultipartBody request = Unirest.post("https://arimagesynthesizer.p.rapidapi.com/generate")
+	                   .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
+	                   .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
+	                   .field("prompt", prompt)
+	                   .field("id", id); // include the ID field
+	
+	           HttpResponse<String> response = request.asString();
+	
+	           int status = response.getStatus();
+	           String hash = extractHash(response.getBody());
+	
+	           if(hash != null) {
+	               // Introduce a delay before attempting to fetch the image
+	               try {
+	                   Thread.sleep(5000);
+	               } catch (InterruptedException e) {
+	                   // Handle interruption
+	                   Thread.currentThread().interrupt();
+	               }
+	
+	               getImage(hash);
+	               return hash;
+	           } else {
+	               System.err.println("Unexpected response status: " + status);
+	               System.err.println("Response body: (initiateImageGeneration())" + response.getBody());
+	               return null;
+	           }
+	       } catch (UnirestException e) {
+	           e.printStackTrace();
+	           return null;
+	       }
+	   });
+	}
+
+  //extracts the hash of the image
+  private synchronized String extractHash(String body) {
+      try {
+          JSONObject jsonResponse = new JSONObject(body);
+          String hash = jsonResponse.getString("hash");
+          hash.replace(" ", "");
+          System.out.println("Extracted hash: " + hash);
+          return hash;
+      } catch (JSONException e) {
+          e.printStackTrace();
+          System.err.println("Failed to parse hash from response body: " + body);
+          return null;
+      }
+  }
+  
+  private boolean promptSQLConnection()
+  {
+	  boolean connectionEstablished = false;
+	  while (!connectionEstablished) {
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.setVgap(5);
+        grid.setHgap(5);
+        Scene sqlScene = new Scene(grid, 300,200);
+
+        Label nameLabel = new Label("Username:");
+        TextField nameInput = new TextField();
+        nameInput.setText("root"); // Set default username
+        GridPane.setConstraints(nameLabel, 0, 0);
+        GridPane.setConstraints(nameInput, 1, 0);
+
+        Label passLabel = new Label("Password:");
+        PasswordField passInput = new PasswordField();
+        passInput.setPromptText("Enter your password");
+        GridPane.setConstraints(passLabel, 0, 1);
+        GridPane.setConstraints(passInput, 1, 1);
+
+        Button submitButton = new Button("Submit");
+        GridPane.setConstraints(submitButton, 1, 2);
+        grid.getChildren().addAll(nameLabel, nameInput, passLabel, passInput, submitButton);
+        primaryStage.setTitle("SQL Login");
+        primaryStage.setScene(sqlScene);
+        primaryStage.show();
+        
+        submitButton.setOnAction(e -> {
+            System.out.println("Username: " + nameInput.getText());
+            System.out.println("Password: " + passInput.getText());
+            
+            // Add your SQL server connection logic here
+            //String CONNECTION = ""; // Your connection string
+            Properties properties = new Properties();
+            properties.setProperty("user", nameInput.getText());
+            properties.setProperty("password", passInput.getText());
+
+            try {
+				Connection c = DriverManager.getConnection(CONNECTION,properties);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				showAlert("Error", "Connection failed. Please try again.");
+				e1.printStackTrace();
+			}
+        });
+        connectionEstablished = true;
+	  }
+      return false;
+  }
+  
+  //main method
+  public static void main(String[] args) throws ClassNotFoundException, SQLException{
+
+    launch(args);
+    
+    //panacea123
+    Scanner reader = new Scanner(System.in); //for user input
+    System.out.println("Enter Sql Pasword: ");
+    String password = reader.nextLine(); //grabs input
+
+    //connection
+    System.out.println(dbClassname);
+    Properties p = new Properties();
+    p.put("user", "root");
+    p.put("password",password);
+    reader.close();
+    Connection c = DriverManager.getConnection(CONNECTION,p);
+    System.out.println("It works");
+
+    c.close();
+  }
+>>>>>>> Stashed changes
 }
