@@ -67,8 +67,22 @@ public class Database {
 		if(!galleryFile.exists()) {
 			galleryFile.mkdirs();
 		}
+		
+		//---------------------------insert Image---------------------------------
+		System.out.println("Enter hash ");
+		String hash = reader.nextLine();
+		
+		String sqlInput3 = "INSERT INTO SAVES(UserName,image) VALUES('"+newUserName+"','"+hash+"')";
+		int y = stmt.executeUpdate(sqlInput3);
+		if(y>0)//if x = 1 then it went through
+			System.out.println("image successful");
+		else
+			System.out.println("Error with image");
+		//-------------------------------------------------------------------------------
 		reader.close();
 		c.close();
 	}
 	
 }
+
+
