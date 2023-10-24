@@ -14,7 +14,7 @@ import java.net.URLEncoder;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
+import java.util.Base64;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
@@ -43,7 +43,7 @@ import javafx.application.Platform;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javafx.scene.Scene;
@@ -194,7 +194,9 @@ public class Main extends Application {
 	Button signInBtn2 = new Button("Sign in");
 	signInGrid.add(signInBtn2, 1, 4);
 	
-	System.out.println("IN CREATE SIGN IN PAGE");
+	Button profileButton = new Button("Go to Profile");
+	signInGrid.add(profileButton, 0, 0);
+	profileButton.setAlignment(Pos.TOP_RIGHT);
 
 	signInBtn2.setOnAction(new EventHandler<ActionEvent>() {
 	@Override
@@ -244,7 +246,10 @@ public class Main extends Application {
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
-
+        
+        Button uploadButton = new Button("Upload Image");
+        uploadButton.setAlignment(Pos.TOP_CENTER);
+        
         Label promptLabel = new Label("Enter a Prompt:");
         TextField promptTextField = new TextField();
 
@@ -257,16 +262,45 @@ public class Main extends Application {
                 onGenerateImageButtonClicked(prompt);
             }
         });
+        
+        uploadButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FileChooser fileChooser = new FileChooser();
 
-        grid.add(promptLabel, 0, 0);
-        grid.add(promptTextField, 1, 0);
-        grid.add(generateImageButton, 1, 1);
+                fileChooser.setTitle("Select a File to Upload");
+                
+                File uploadedImage = fileChooser.showOpenDialog(primaryStage);
+                
+                if (uploadedImage != null) {
+                    try {
+                        String base64String = convertImageToBase64(uploadedImage);
+                        System.out.println("Base64 String:\n" + base64String);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+            }
+           }
+        });
+        
+        grid.add(uploadButton, 1, 0);
+        grid.add(promptLabel, 1, 1);
+        grid.add(promptTextField, 1, 2);
+        grid.add(generateImageButton, 1, 3);
 
         Scene imageScene = new Scene(grid, 800, 800);
         primaryStage.setScene(imageScene);
         primaryStage.show();
     }
 
+  private String convertImageToBase64(File imageFile) throws IOException {
+        try (FileInputStream fileInputStream = new FileInputStream(imageFile)) {
+            byte[] imageData = new byte[(int) imageFile.length()];
+            fileInputStream.read(imageData);
+            return Base64.getEncoder().encodeToString(imageData);
+        }
+   }
+    
   //when the generate image button is clicked, a new scene will pop up with the generated image
   public void onGenerateImageButtonClicked(String prompt) {
       GridPane grid = new GridPane();
@@ -442,8 +476,8 @@ public class Main extends Application {
   public static void main(String[] args) throws ClassNotFoundException, SQLException{
 
     launch(args);
-
-    panacea123
+/*
+    //panacea123
     Scanner reader = new Scanner(System.in); //for user input
     System.out.println("Enter Sql Pasword: ");
     String password = reader.nextLine(); //grabs input
@@ -457,6 +491,6 @@ public class Main extends Application {
     Connection c = DriverManager.getConnection(CONNECTION,p);
     System.out.println("It works");
 
-    c.close();
+    c.close();*/
   }
 }
