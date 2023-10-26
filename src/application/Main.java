@@ -11,7 +11,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Base64;
@@ -56,6 +58,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -172,10 +175,10 @@ public class Main extends Application {
 	GridPane signInGrid = new GridPane();
 	signInGrid.setStyle("-fx-background-color: pink;");
 
-        signInGrid.setAlignment(Pos.CENTER);
-        signInGrid.setHgap(10);
-        signInGrid.setVgap(10);
-        signInGrid.setPadding(new Insets(25, 25, 25, 25));
+    signInGrid.setAlignment(Pos.CENTER);
+    signInGrid.setHgap(10);
+    signInGrid.setVgap(10);
+    signInGrid.setPadding(new Insets(25, 25, 25, 25));
 
         //Username
 	Label user = new Label("User Name:");
@@ -193,37 +196,88 @@ public class Main extends Application {
 	
 	Button signInBtn2 = new Button("Sign in");
 	signInGrid.add(signInBtn2, 1, 4);
-	
-	Button profileButton = new Button("Go to Profile");
-	signInGrid.add(profileButton, 0, 0);
-	profileButton.setAlignment(Pos.TOP_RIGHT);
 
 	signInBtn2.setOnAction(new EventHandler<ActionEvent>() {
 	@Override
 	public void handle(ActionEvent event) {
 	    String enteredUsername = userText.getText();
 	    String enteredPassword = passwordTF.getText();
-	if (enteredUsername.trim().length() == 0)
-	{
-	  showAlert("Error", "Please enter a username.");
-	  return;
-	}
-	
-	if (enteredPassword.trim().length() < 5)
-	{
-	  showAlert("Error", "Please enter a password longer than 5 characters.");
-	  return;
-	}
-	
-	  createImageGenerationPage();		
-	}
+		if (enteredUsername.trim().length() == 0)
+		{
+		  showAlert("Error", "Please enter a username.");
+		  return;
+		}
+		
+		if (enteredPassword.trim().length() < 5)
+		{
+		  showAlert("Error", "Please enter a password longer than 5 characters.");
+		  return;
+		}
+		
+		  createImageGenerationPage();		
+		}
 	
 	});
+	
 
-        Scene signInScene = new Scene(signInGrid, 700, 800);
-        signInScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
-        primaryStage.setScene(signInScene);
+     Scene signInScene = new Scene(signInGrid, 700, 800);
+     signInScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+
+     primaryStage.setScene(signInScene);
+     primaryStage.show();
+
+    }
+    
+    //create the profile page
+    public void createProfilePage()
+    {
+    	GridPane profileGrid = new GridPane();
+    	profileGrid.setStyle("-fx-background-color: lightyellow;");
+    	profileGrid.setHgap(10);
+    	
+    	Label profileLabel = new Label("My Profile");
+    	profileLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
+    	profileGrid.add(profileLabel, 0, 0);
+    	
+    	Label spacerLabel = new Label();
+    	spacerLabel.setPadding(new Insets(80, 80, 80, 80));
+    	profileGrid.add(spacerLabel, 0, 1);
+    	
+    	Button uploadProfileBtn = new Button("Upload Profile Photo");
+    	profileGrid.add(uploadProfileBtn, 0,2);
+    	
+        Scene profileScene = new Scene(profileGrid, 700, 800);
+        profileScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        
+        uploadProfileBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                	FileChooser fileChooser = new FileChooser();
+	
+	                fileChooser.setTitle("Select a File to Upload");
+	                
+	                File uploadedImage = fileChooser.showOpenDialog(primaryStage);
+	                
+	                if (uploadedImage != null) {
+	                    try {
+	                        Image image = new Image(uploadedImage.toURI().toString());
+	                    	ImageView imageViewUpl = new ImageView(image);
+	                    	
+	                    	imageViewUpl.setFitWidth(200);
+	                    	imageViewUpl.setFitHeight(200);
+	                    	imageViewUpl.setPreserveRatio(true);
+	                    	profileGrid.add(imageViewUpl, 0, 1);
+	                    	
+	                    } catch (Exception e) {
+	                        e.printStackTrace();
+	                    }
+	            }
+           }
+        });
+        
+
+        primaryStage.setScene(profileScene);
         primaryStage.show();
 
     }
@@ -254,6 +308,9 @@ public class Main extends Application {
         TextField promptTextField = new TextField();
 
         Button generateImageButton = new Button("Generate Image");
+        
+    	Button profileButton = new Button("Go to Profile");
+    	grid.add(profileButton, 0, 0);
 
         generateImageButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -266,22 +323,32 @@ public class Main extends Application {
         uploadButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                FileChooser fileChooser = new FileChooser();
-
-                fileChooser.setTitle("Select a File to Upload");
-                
-                File uploadedImage = fileChooser.showOpenDialog(primaryStage);
-                
-                if (uploadedImage != null) {
-                    try {
-                        String base64String = convertImageToBase64(uploadedImage);
-                        System.out.println("Base64 String:\n" + base64String);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-            }
+                	FileChooser fileChooser = new FileChooser();
+	
+	                fileChooser.setTitle("Select a File to Upload");
+	                
+	                File uploadedImage = fileChooser.showOpenDialog(primaryStage);
+	                
+	                if (uploadedImage != null) {
+	                    try {
+	                    	String base64Image = encodeToBase64(uploadedImage.toPath());
+	                    	String hash = generateHash(base64Image);
+	                        System.out.println("Base64 String:\n" + hash);
+	                        onGenerateImageButtonClicked(hash);
+	                    } catch (Exception e) {
+	                        e.printStackTrace();
+	                    }
+	            }
            }
         });
+        
+        profileButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+            	createProfilePage();
+            }
+        });
+        
         
         grid.add(uploadButton, 1, 0);
         grid.add(promptLabel, 1, 1);
@@ -293,14 +360,30 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-  private String convertImageToBase64(File imageFile) throws IOException {
-        try (FileInputStream fileInputStream = new FileInputStream(imageFile)) {
-            byte[] imageData = new byte[(int) imageFile.length()];
-            fileInputStream.read(imageData);
-            return Base64.getEncoder().encodeToString(imageData);
-        }
-   }
-    
+
+  
+  public static String encodeToBase64(Path imagePath) throws Exception {
+      //read image bytes
+      byte[] imageBytes = Files.readAllBytes(imagePath);
+      
+      //encode bytes to Base64
+      String encodedString = Base64.getEncoder().encodeToString(imageBytes);
+      
+      return encodedString;
+  }
+  
+  public static String generateHash(String base64Image) throws Exception {
+      MessageDigest digest = MessageDigest.getInstance("SHA-1");
+      byte[] hashBytes = digest.digest(base64Image.getBytes("UTF-8"));
+
+      StringBuilder sb = new StringBuilder();
+      for (byte b : hashBytes) {
+          sb.append(String.format("%02x", b));
+      }
+      
+      return sb.toString();
+  }
+
   //when the generate image button is clicked, a new scene will pop up with the generated image
   public void onGenerateImageButtonClicked(String prompt) {
       GridPane grid = new GridPane();
@@ -326,16 +409,14 @@ public class Main extends Application {
   //retrieve the image from the API and display it
   public void retrieveAndDisplayImage(String hash) throws CancellationException {
       final int MAX_ATTEMPTS = 10;
-      ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+      //ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
       AtomicInteger attempts = new AtomicInteger(0);
-
-      scheduler.scheduleAtFixedRate(() -> {
           try {
               int currentAttempt = attempts.incrementAndGet();
               if (currentAttempt > MAX_ATTEMPTS) {
                   System.out.println("Max attempts reached.");
-                  scheduler.shutdown(); 
+             //     scheduler.shutdown(); 
                   return;
               }
 
@@ -353,7 +434,7 @@ public class Main extends Application {
                       imageView.setImage(image);
                   });
                   System.out.println("Image retrieved successfully.");
-                  scheduler.shutdown();
+               //   scheduler.shutdown();
               }
               else if (status == 204 || status == 202) {
                   System.out.println("Image in queue.");
@@ -366,8 +447,6 @@ public class Main extends Application {
           } catch (UnirestException | IOException e) {
               e.printStackTrace();
           }
-
-      }, 0, 1, TimeUnit.SECONDS);
       
   }
   
@@ -377,17 +456,16 @@ public class Main extends Application {
 	    while (retryCount < MAX_RETRIES) {
 	        try {
 	            HttpResponse<InputStream> response = Unirest.get("https://arimagesynthesizer.p.rapidapi.com/get")
-	                    .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
+	                    .header("X-RapidAPI-Key", "c14eeaac84msh30ee8af59f8edb0p16c902jsn2912c477cc80")
 	                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
 	                    .queryString("hash", hash)
 	                    .asBinary();
-
-	            if (response.getStatus() == 200) {
+	            if (response.getStatus() == 200 || response.getStatus() == 204) {
 	                Image image = new Image(response.getBody());
 	                Platform.runLater(() -> {
 	                    imageView.setImage(image);
 	                });
-	                return;  // Successful, exit the method
+	                return;
 	            } else {
 	                System.err.println("Failed to get the image with status: " + response.getStatusText());
 	                retryCount++;
@@ -424,7 +502,7 @@ public class Main extends Application {
 	       try {
 	           //POST request to generate the image
 	           MultipartBody request = Unirest.post("https://arimagesynthesizer.p.rapidapi.com/generate")
-	                   .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
+	                   .header("X-RapidAPI-Key", "c14eeaac84msh30ee8af59f8edb0p16c902jsn2912c477cc80")
 	                   .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
 	                   .field("prompt", prompt)
 	                   .field("id", id); // include the ID field
@@ -435,7 +513,6 @@ public class Main extends Application {
 	           String hash = extractHash(response.getBody());
 	
 	           if(hash != null) {
-	               // Introduce a delay before attempting to fetch the image
 	               try {
 	                   Thread.sleep(5000);
 	               } catch (InterruptedException e) {
