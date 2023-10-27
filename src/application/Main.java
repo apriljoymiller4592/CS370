@@ -394,7 +394,12 @@ public class Main extends Application {
 
       initiateImageGeneration(prompt, "123").thenAccept(hash -> {
           if(hash != null) {
-              retrieveAndDisplayImage(hash);
+              try {
+				getImage(hash);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
           }
       });
 
@@ -407,7 +412,7 @@ public class Main extends Application {
   }
 
   //retrieve the image from the API and display it
-  public void retrieveAndDisplayImage(String hash) throws CancellationException {
+/*  public void retrieveAndDisplayImage(String hash) throws CancellationException {
       final int MAX_ATTEMPTS = 10;
       //ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -448,33 +453,46 @@ public class Main extends Application {
               e.printStackTrace();
           }
       
-  }
-  
-  //gets the image from the API
-  public void getImage(String hash) {
+  }*/
+  public void getImage(String hash) throws InterruptedException {
+	    final int MAX_RETRIES = 5; // Ensure this constant is set, or define it as needed
+	    final long RETRY_DELAY_MS = 5000; // Ensure this constant is set, or define it as needed
 	    int retryCount = 0;
+	    Thread.sleep(5000);
 	    while (retryCount < MAX_RETRIES) {
 	        try {
 	            HttpResponse<InputStream> response = Unirest.get("https://arimagesynthesizer.p.rapidapi.com/get")
-	                    .header("X-RapidAPI-Key", "c14eeaac84msh30ee8af59f8edb0p16c902jsn2912c477cc80")
+	                    .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
 	                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
 	                    .queryString("hash", hash)
 	                    .asBinary();
-	            if (response.getStatus() == 200 || response.getStatus() == 204) {
+
+	            int status = response.getStatus();
+
+	            if (status == 200) {
+		    	    System.out.println("IN GET IMAGE");
 	                Image image = new Image(response.getBody());
 	                Platform.runLater(() -> {
+	                	
 	                    imageView.setImage(image);
 	                });
-	                return;
+	                break; // exit the loop once the image is retrieved
+	            } else if (status == 204) { 
+	                // If status 204 means that the image generation is in progress, you can wait and retry
+	                System.out.println("Image still in generation process.");
 	            } else {
-	                System.err.println("Failed to get the image with status: " + response.getStatusText());
+	                System.err.println("Failed to get the image with status: " + status + " - " + response.getStatusText());
 	                retryCount++;
 	                if (retryCount < MAX_RETRIES) {
-	                    Thread.sleep(RETRY_DELAY_MS);
+	                    try {
+	                        Thread.sleep(RETRY_DELAY_MS);
+	                    } catch (InterruptedException ie) {
+	                        Thread.currentThread().interrupt();
+	                    }
 	                }
 	            }
 	            response.getBody().close();
-
+	            
 	        } catch (UnirestException e) {
 	            e.printStackTrace();
 	            retryCount++;
@@ -487,53 +505,52 @@ public class Main extends Application {
 	            }
 	        } catch (IOException e) {
 	            e.printStackTrace();
+	        }
+	    }
+
+	    if (retryCount >= MAX_RETRIES) {
+	        System.err.println("Exceeded maximum retries for hash: " + hash);
+	    }
+	}
+
+public CompletableFuture<String> initiateImageGeneration(String prompt, String id) {
+	    System.out.println("INITIATE IMAGE GENERATION");
+	    return CompletableFuture.supplyAsync(() -> {
+	        try {
+	            //POST request to generate the image
+	            MultipartBody request = Unirest.post("https://arimagesynthesizer.p.rapidapi.com/generate")
+	                    .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
+	                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
+	                    .field("prompt", prompt)
+	                    .field("id", id);
+
+	            HttpResponse<String> response = request.asString();
+	            int status = response.getStatus();
+	            String hash = extractHash(response.getBody());
+
+	            if(hash != null) {
+	                try {
+	                    Thread.sleep(5000);
+	                } catch (InterruptedException e) {
+	                    Thread.currentThread().interrupt();
+	                }
+	                getImage(hash);
+	            } else {
+	                System.err.println("Unexpected response status: " + status);
+	                System.err.println("Response body: " + response.getBody());
+	            }
+	            return hash;
+
+	        } catch (UnirestException e) {
+	            e.printStackTrace();
+	            return null;
 	        } catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	    }
-	    System.err.println("Exceeded maximum retries for hash: " + hash);
+	        return null;
+	    });
 	}
-
-
-        //iniate image generation
-	public CompletableFuture<String> initiateImageGeneration(String prompt, String id) {
-	   System.out.println("INITIATE IMAGE GENERATION");
-	   return CompletableFuture.supplyAsync(() -> {
-	       try {
-	           //POST request to generate the image
-	           MultipartBody request = Unirest.post("https://arimagesynthesizer.p.rapidapi.com/generate")
-	                   .header("X-RapidAPI-Key", "c14eeaac84msh30ee8af59f8edb0p16c902jsn2912c477cc80")
-	                   .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
-	                   .field("prompt", prompt)
-	                   .field("id", id); // include the ID field
-	
-	           HttpResponse<String> response = request.asString();
-	
-	           int status = response.getStatus();
-	           String hash = extractHash(response.getBody());
-	
-	           if(hash != null) {
-	               try {
-	                   Thread.sleep(5000);
-	               } catch (InterruptedException e) {
-	                   // Handle interruption
-	                   Thread.currentThread().interrupt();
-	               }
-	
-	               getImage(hash);
-	               return hash;
-	           } else {
-	               System.err.println("Unexpected response status: " + status);
-	               System.err.println("Response body: (initiateImageGeneration())" + response.getBody());
-	               return null;
-	           }
-	       } catch (UnirestException e) {
-	           e.printStackTrace();
-	           return null;
-	       }
-	   });
-	}
-
   //extracts the hash of the image
   private synchronized String extractHash(String body) {
       try {
