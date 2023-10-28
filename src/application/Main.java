@@ -42,7 +42,7 @@ import javafx.event.EventHandler;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.stage.FileChooser;
@@ -53,6 +53,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -386,30 +387,58 @@ public class Main extends Application {
 
   //when the generate image button is clicked, a new scene will pop up with the generated image
   public void onGenerateImageButtonClicked(String prompt) {
-      GridPane grid = new GridPane();
-      grid.setAlignment(Pos.CENTER);
-      grid.setHgap(10);
-      grid.setVgap(10);
-      grid.setPadding(new Insets(25, 25, 25, 25));
+	    GridPane grid = new GridPane();
+	    grid.setAlignment(Pos.CENTER);
+	    grid.setHgap(10);
+	    grid.setVgap(10);
+	    grid.setPadding(new Insets(25, 25, 25, 25));
 
-      initiateImageGeneration(prompt, "123").thenAccept(hash -> {
-          if(hash != null) {
-              try {
-				getImage(hash);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-          }
-      });
+	    StackPane stack = new StackPane();
+	    grid.add(stack, 0, 1, 2, 1); 
 
-      grid.add(imageView, 0, 2, 2, 1);
-      Scene generatedImageScene = new Scene(grid, 800, 800);
-      Platform.runLater(() -> {
-          primaryStage.setScene(generatedImageScene);
-          primaryStage.show();
-      });
-  }
+	    ProgressIndicator progressIndicator = new ProgressIndicator();
+	    stack.getChildren().add(progressIndicator);
+	    progressIndicator.setVisible(true);
+
+	    Task<String> imageGenerationTask = new Task<String>() {
+	        @Override
+	        protected String call() throws Exception {
+	            return initiateImageGeneration(prompt, "123").get(); // Assuming initiateImageGeneration returns CompletableFuture
+	        }
+	    };
+
+	    imageGenerationTask.setOnSucceeded(e -> {
+	        progressIndicator.setVisible(false);
+	        String hash = imageGenerationTask.getValue();
+	        if(hash != null) {
+	            try {
+					getImage(hash);
+					stack.getChildren().add(imageView);
+				} catch (InterruptedException ex) {
+					ex.printStackTrace();
+				}
+	        }
+	    });
+
+	    imageGenerationTask.setOnFailed(e -> {
+	        progressIndicator.setVisible(false);
+	        Throwable exception = imageGenerationTask.getException();
+	        exception.printStackTrace();
+	        // Handle the failure if needed.
+	    });
+
+	    // Start the task on a new background thread.
+	    new Thread(imageGenerationTask).start();
+
+	    Scene generatedImageScene = new Scene(grid, 800, 800);
+	    Platform.runLater(() -> {
+	        primaryStage.setScene(generatedImageScene);
+	        primaryStage.show();
+	    });
+	}
+
+
+
 
   //retrieve the image from the API and display it
 /*  public void retrieveAndDisplayImage(String hash) throws CancellationException {
