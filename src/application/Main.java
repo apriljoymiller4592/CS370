@@ -2,31 +2,21 @@ package application;
 	
 import java.io.InputStream;
 
-import java.sql.Connection;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
 import java.security.MessageDigest;
+
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
 import java.util.Base64;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.json.JSONException;
@@ -57,7 +47,6 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
@@ -403,7 +392,7 @@ public class Main extends Application {
 	    Task<String> imageGenerationTask = new Task<String>() {
 	        @Override
 	        protected String call() throws Exception {
-	            return initiateImageGeneration(prompt, "123").get(); // Assuming initiateImageGeneration returns CompletableFuture
+	            return initiateImageGeneration(prompt, "123").get(); 
 	        }
 	    };
 
@@ -427,7 +416,7 @@ public class Main extends Application {
 	        // Handle the failure if needed.
 	    });
 
-	    // Start the task on a new background thread.
+	   
 	    new Thread(imageGenerationTask).start();
 
 	    Scene generatedImageScene = new Scene(grid, 800, 800);
@@ -438,56 +427,11 @@ public class Main extends Application {
 	}
 
 
-
-
-  //retrieve the image from the API and display it
-/*  public void retrieveAndDisplayImage(String hash) throws CancellationException {
-      final int MAX_ATTEMPTS = 10;
-      //ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-      AtomicInteger attempts = new AtomicInteger(0);
-          try {
-              int currentAttempt = attempts.incrementAndGet();
-              if (currentAttempt > MAX_ATTEMPTS) {
-                  System.out.println("Max attempts reached.");
-             //     scheduler.shutdown(); 
-                  return;
-              }
-
-              HttpResponse<InputStream> response = Unirest.get("https://arimagesynthesizer.p.rapidapi.com/get")
-                      .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
-                      .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
-                      .queryString("hash", hash)
-                      .asBinary();
-
-              int status = response.getStatus();
-
-              if (status == 200) {
-                  Image image = new Image(response.getBody());
-                  Platform.runLater(() -> {
-                      imageView.setImage(image);
-                  });
-                  System.out.println("Image retrieved successfully.");
-               //   scheduler.shutdown();
-              }
-              else if (status == 204 || status == 202) {
-                  System.out.println("Image in queue.");
-              } else {
-                  System.err.println("Failed to retrieve the image: " + response.getStatusText());
-              }
-
-              response.getBody().close();
-
-          } catch (UnirestException | IOException e) {
-              e.printStackTrace();
-          }
-      
-  }*/
   public void getImage(String hash) throws InterruptedException {
 	    final int MAX_RETRIES = 5; // Ensure this constant is set, or define it as needed
 	    final long RETRY_DELAY_MS = 5000; // Ensure this constant is set, or define it as needed
 	    int retryCount = 0;
-	    Thread.sleep(5000);
+	    Thread.sleep(3000);
 	    while (retryCount < MAX_RETRIES) {
 	        try {
 	            HttpResponse<InputStream> response = Unirest.get("https://arimagesynthesizer.p.rapidapi.com/get")
