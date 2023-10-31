@@ -210,7 +210,6 @@ public class Main extends Application {
 	});
 	
 
-
      Scene signInScene = new Scene(signInGrid, 700, 800);
      signInScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
@@ -219,16 +218,29 @@ public class Main extends Application {
 
     }
     
+    //show an error if there is no username or the password is < 5 characters long
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.show();
+    }
+
+    
     //create the profile page
     public void createProfilePage()
     {
     	GridPane profileGrid = new GridPane();
     	profileGrid.setStyle("-fx-background-color: lightyellow;");
     	profileGrid.setHgap(10);
+    	profileGrid.setVgap(10);
+    	profileGrid.setPadding(new Insets(25, 25, 25, 25));
     	
     	Label profileLabel = new Label("My Profile");
     	profileLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
-    	profileGrid.add(profileLabel, 0, 0);
+    	profileLabel.setAlignment(Pos.CENTER);
+    	profileGrid.add(profileLabel, 7, 0);
     	
     	Label spacerLabel = new Label();
     	spacerLabel.setPadding(new Insets(80, 80, 80, 80));
@@ -272,14 +284,6 @@ public class Main extends Application {
 
     }
 
-    //show an error if there is no username or the password is < 5 characters long
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.show();
-    }
 
     //create the page to generate an image
     public void createImageGenerationPage() {
@@ -296,6 +300,9 @@ public class Main extends Application {
         
         Label promptLabel = new Label("Enter a Prompt:");
         TextField promptTextField = new TextField();
+        
+        Label styleLabel = new Label("Enter a Style:");
+        TextField styleTextField = new TextField();
 
         Button generateImageButton = new Button("Generate Image");
         
@@ -306,7 +313,15 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
                 String prompt = promptTextField.getText();
-                onGenerateImageButtonClicked(prompt);
+                String style = styleTextField.getText();
+                if (prompt.length() < 1)
+                {
+                	showAlert("Error", "Please enter a prompt");
+                	return;
+                }
+                else {
+                onGenerateImageButtonClicked(prompt, style);
+                }
             }
         });
         
@@ -321,10 +336,11 @@ public class Main extends Application {
 	                
 	                if (uploadedImage != null) {
 	                    try {
+	                    	String style = styleTextField.getText();
 	                    	String base64Image = encodeToBase64(uploadedImage.toPath());
 	                    	String hash = generateHash(base64Image);
 	                        System.out.println("Base64 String:\n" + hash);
-	                        onGenerateImageButtonClicked(hash);
+	                        onGenerateImageButtonClicked(hash, style);
 	                    } catch (Exception e) {
 	                        e.printStackTrace();
 	                    }
@@ -343,7 +359,9 @@ public class Main extends Application {
         grid.add(uploadButton, 1, 0);
         grid.add(promptLabel, 1, 1);
         grid.add(promptTextField, 1, 2);
-        grid.add(generateImageButton, 1, 3);
+        grid.add(styleLabel, 1, 3);
+        grid.add(styleTextField, 1, 4);
+        grid.add(generateImageButton, 1, 5);
 
         Scene imageScene = new Scene(grid, 800, 800);
         primaryStage.setScene(imageScene);
@@ -375,7 +393,7 @@ public class Main extends Application {
   }
 
   //when the generate image button is clicked, a new scene will pop up with the generated image
-  public void onGenerateImageButtonClicked(String prompt) {
+  public void onGenerateImageButtonClicked(String prompt, String style) {
 	    GridPane grid = new GridPane();
 	    grid.setAlignment(Pos.CENTER);
 	    grid.setHgap(10);
@@ -392,7 +410,7 @@ public class Main extends Application {
 	    Task<String> imageGenerationTask = new Task<String>() {
 	        @Override
 	        protected String call() throws Exception {
-	            return initiateImageGeneration(prompt, "123").get(); 
+	            return initiateImageGeneration(prompt, style).get(); 
 	        }
 	    };
 
@@ -451,7 +469,6 @@ public class Main extends Application {
 	                });
 	                break; // exit the loop once the image is retrieved
 	            } else if (status == 204) { 
-	                // If status 204 means that the image generation is in progress, you can wait and retry
 	                System.out.println("Image still in generation process.");
 	            } else {
 	                System.err.println("Failed to get the image with status: " + status + " - " + response.getStatusText());
@@ -486,7 +503,7 @@ public class Main extends Application {
 	    }
 	}
 
-public CompletableFuture<String> initiateImageGeneration(String prompt, String id) {
+public CompletableFuture<String> initiateImageGeneration(String prompt, String style) {
 	    System.out.println("INITIATE IMAGE GENERATION");
 	    return CompletableFuture.supplyAsync(() -> {
 	        try {
@@ -495,7 +512,7 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String i
 	                    .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
 	                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
 	                    .field("prompt", prompt)
-	                    .field("id", id);
+	                    .field("style", style);
 
 	            HttpResponse<String> response = request.asString();
 	            int status = response.getStatus();
@@ -540,7 +557,7 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String i
   }
   
   //main method
-  public static void main(String[] args) throws ClassNotFoundException, SQLException{
+  public static void main(String[] args) throws ClassNotFoundException, SQLException {
 
     launch(args);
 /*
