@@ -61,6 +61,7 @@ public class Main extends Application {
      private final ReentrantLock lock = new ReentrantLock();
      private static final int MAX_RETRIES = 3;  // Adjust as needed
      private static final long RETRY_DELAY_MS = 1000;
+     private Scene[] sceneArray = new Scene[2];
   
     private ImageView imageView = new ImageView();
 
@@ -111,6 +112,7 @@ public class Main extends Application {
         gridPane.add(signInBtn, 0, 1, 1, 1);
         gridPane.add(signUpBtn, 1, 1, 1, 1);
 
+        sceneArray[0] = homeScene;
         primaryStage.setTitle("ArtFace Application");
         primaryStage.setScene(homeScene);
         primaryStage.show();
@@ -155,8 +157,12 @@ public class Main extends Application {
 	Scene signUpScene = new Scene(signUpGrid, 700, 800);
 	signUpScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 	
+	CreateBackButton(signUpGrid,sceneArray[0]);
+	
 	primaryStage.setScene(signUpScene);
 	primaryStage.show();
+	
+	
     }
 
     //create sign in page for user to log in
@@ -213,6 +219,8 @@ public class Main extends Application {
      Scene signInScene = new Scene(signInGrid, 700, 800);
      signInScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
+     CreateBackButton(signInGrid,sceneArray[0]);
+     
      primaryStage.setScene(signInScene);
      primaryStage.show();
 
@@ -277,7 +285,7 @@ public class Main extends Application {
 	            }
            }
         });
-        
+        CreateBackButton(profileGrid,sceneArray[1]);
 
         primaryStage.setScene(profileScene);
         primaryStage.show();
@@ -364,6 +372,11 @@ public class Main extends Application {
         grid.add(generateImageButton, 1, 5);
 
         Scene imageScene = new Scene(grid, 800, 800);
+        
+        sceneArray[1] = imageScene;
+        
+        CreateBackButton(grid,sceneArray[0]);
+        
         primaryStage.setScene(imageScene);
         primaryStage.show();
     }
@@ -421,6 +434,7 @@ public class Main extends Application {
 	            try {
 					getImage(hash);
 					stack.getChildren().add(imageView);
+					
 				} catch (InterruptedException ex) {
 					ex.printStackTrace();
 				}
@@ -439,6 +453,9 @@ public class Main extends Application {
 
 	    Scene generatedImageScene = new Scene(grid, 800, 800);
 	    Platform.runLater(() -> {
+	    	
+	    	CreateBackButton(grid,sceneArray[1]);//during loading
+	    	
 	        primaryStage.setScene(generatedImageScene);
 	        primaryStage.show();
 	    });
@@ -554,6 +571,21 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
           System.err.println("Failed to parse hash from response body: " + body);
           return null;
       }
+  }
+  
+  private void CreateBackButton(GridPane grid,Scene backScene){
+	  Button backButton = new Button("Back");
+	  	grid.add(backButton, 0,10);
+  		
+  		
+  		 backButton.setOnAction(new EventHandler<ActionEvent>() {
+             @Override
+             public void handle(ActionEvent event) {
+            	primaryStage.setScene(backScene);
+     	        primaryStage.show();
+             }
+         });
+  		
   }
   
   //main method
