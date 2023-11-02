@@ -1,7 +1,8 @@
 package application;
 	
 import java.io.InputStream;
-
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,19 +15,25 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import java.util.Base64;
-import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamEvent;
+import com.github.sarxos.webcam.WebcamListener;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.body.MultipartBody;
 
+import application.WebcamCapture.VideoFeedTaker;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -47,7 +54,9 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -58,12 +67,15 @@ public class Main extends Application {
      private static final String dbClassname = "com.mysql.cj.jdbc.Driver";
      private static final String CONNECTION = "jdbc:mysql://127.0.0.1/ArtFacedb";
      private Stage primaryStage = new Stage();
+
      private final ReentrantLock lock = new ReentrantLock();
      private static final int MAX_RETRIES = 3;  // Adjust as needed
      private static final long RETRY_DELAY_MS = 1000;
      private Scene[] sceneArray = new Scene[2];
   
+
     private ImageView imageView = new ImageView();
+    static Webcam webcam;
 
     @Override
     public void start(Stage primaryStage) {
@@ -78,7 +90,7 @@ public class Main extends Application {
     public void createHomePage() 
     {
         GridPane gridPane = new GridPane();
-        Scene homeScene = new Scene(gridPane, 700, 800);
+        Scene homeScene = new Scene(gridPane, 800, 800);
         homeScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
         Text sceneTitle = new Text("Hello, ArtFace!");
@@ -111,9 +123,9 @@ public class Main extends Application {
 
         gridPane.add(signInBtn, 0, 1, 1, 1);
         gridPane.add(signUpBtn, 1, 1, 1, 1);
-
         sceneArray[0] = homeScene;
-        primaryStage.setTitle("ArtFace Application");
+        primaryStage.setTitle("ArtFace Application")
+        primaryStage.setTitle("ArtFace");
         primaryStage.setScene(homeScene);
         primaryStage.show();
     }
@@ -154,7 +166,7 @@ public class Main extends Application {
 	TextField emailField = new TextField();
 	signUpGrid.add(emailField, 1, 4);
 
-	Scene signUpScene = new Scene(signUpGrid, 700, 800);
+	Scene signUpScene = new Scene(signUpGrid, 800, 800);
 	signUpScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 	
 	CreateBackButton(signUpGrid,sceneArray[0]);
@@ -216,7 +228,7 @@ public class Main extends Application {
 	});
 	
 
-     Scene signInScene = new Scene(signInGrid, 700, 800);
+     Scene signInScene = new Scene(signInGrid, 800, 800);
      signInScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
      CreateBackButton(signInGrid,sceneArray[0]);
@@ -295,40 +307,57 @@ public class Main extends Application {
 
     //create the page to generate an image
     public void createImageGenerationPage() {
-        GridPane grid = new GridPane();
-        grid.setStyle("-fx-background-color: lightblue;");
-        
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
-        
+        GridPane mainGrid = new GridPane();
+        mainGrid.setStyle("-fx-background-color: lightblue;");
+        mainGrid.setPadding(new Insets(25, 25, 25, 25));
+        mainGrid.setAlignment(Pos.TOP_LEFT);
+
+        Button profileButton = new Button("Go to Profile");
+        mainGrid.add(profileButton, 0, 0);
+        profileButton.setAlignment(Pos.TOP_LEFT);
+        profileButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                createProfilePage();
+            }
+        });
+
+        // Centered content grid
+        GridPane centeredGrid = new GridPane();
+        centeredGrid.setAlignment(Pos.CENTER);
+        centeredGrid.setHgap(10);
+        centeredGrid.setVgap(10);
+
+        Text uploadText = new Text("Create an AI version of you");
+        uploadText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        centeredGrid.add(uploadText, 25, 15);
+
         Button uploadButton = new Button("Upload Image");
-        uploadButton.setAlignment(Pos.TOP_CENTER);
+        centeredGrid.add(uploadButton, 25, 16);
         
+        Text promptText = new Text("...Or create someone new!");
+        promptText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        centeredGrid.add(promptText, 25, 17);
+
         Label promptLabel = new Label("Enter a Prompt:");
         TextField promptTextField = new TextField();
-        
-        Label styleLabel = new Label("Enter a Style:");
-        TextField styleTextField = new TextField();
+        centeredGrid.add(promptLabel, 25, 18);
+        centeredGrid.add(promptTextField, 25, 19);
 
         Button generateImageButton = new Button("Generate Image");
-        
-    	Button profileButton = new Button("Go to Profile");
-    	grid.add(profileButton, 0, 0);
+        centeredGrid.add(generateImageButton, 25, 20);
 
         generateImageButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 String prompt = promptTextField.getText();
-                String style = styleTextField.getText();
                 if (prompt.length() < 1)
                 {
                 	showAlert("Error", "Please enter a prompt");
                 	return;
                 }
                 else {
-                onGenerateImageButtonClicked(prompt, style);
+                onGenerateImageButtonClicked(prompt);
                 }
             }
         });
@@ -344,11 +373,10 @@ public class Main extends Application {
 	                
 	                if (uploadedImage != null) {
 	                    try {
-	                    	String style = styleTextField.getText();
 	                    	String base64Image = encodeToBase64(uploadedImage.toPath());
 	                    	String hash = generateHash(base64Image);
 	                        System.out.println("Base64 String:\n" + hash);
-	                        onGenerateImageButtonClicked(hash, style);
+	                        onGenerateImageButtonClicked(hash);
 	                    } catch (Exception e) {
 	                        e.printStackTrace();
 	                    }
@@ -359,17 +387,12 @@ public class Main extends Application {
         profileButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-            	createProfilePage();
+                createProfilePage();
             }
         });
         
-        
-        grid.add(uploadButton, 1, 0);
-        grid.add(promptLabel, 1, 1);
-        grid.add(promptTextField, 1, 2);
-        grid.add(styleLabel, 1, 3);
-        grid.add(styleTextField, 1, 4);
-        grid.add(generateImageButton, 1, 5);
+        mainGrid.add(centeredGrid, 0, 1);
+
 
         Scene imageScene = new Scene(grid, 800, 800);
         
@@ -377,12 +400,12 @@ public class Main extends Application {
         
         CreateBackButton(grid,sceneArray[0]);
         
+
+        Scene imageScene = new Scene(mainGrid, 800, 800);
         primaryStage.setScene(imageScene);
         primaryStage.show();
-    }
+  }
 
-
-  
   public static String encodeToBase64(Path imagePath) throws Exception {
       //read image bytes
       byte[] imageBytes = Files.readAllBytes(imagePath);
@@ -406,7 +429,7 @@ public class Main extends Application {
   }
 
   //when the generate image button is clicked, a new scene will pop up with the generated image
-  public void onGenerateImageButtonClicked(String prompt, String style) {
+  public void onGenerateImageButtonClicked(String prompt) {
 	    GridPane grid = new GridPane();
 	    grid.setAlignment(Pos.CENTER);
 	    grid.setHgap(10);
@@ -423,7 +446,7 @@ public class Main extends Application {
 	    Task<String> imageGenerationTask = new Task<String>() {
 	        @Override
 	        protected String call() throws Exception {
-	            return initiateImageGeneration(prompt, style).get(); 
+	            return initiateImageGeneration(prompt, "face").get(); 
 	        }
 	    };
 
@@ -461,65 +484,57 @@ public class Main extends Application {
 	    });
 	}
 
-
+//gets image based on given hash
   public void getImage(String hash) throws InterruptedException {
-	    final int MAX_RETRIES = 5; // Ensure this constant is set, or define it as needed
-	    final long RETRY_DELAY_MS = 5000; // Ensure this constant is set, or define it as needed
-	    int retryCount = 0;
 	    Thread.sleep(3000);
-	    while (retryCount < MAX_RETRIES) {
-	        try {
-	            HttpResponse<InputStream> response = Unirest.get("https://arimagesynthesizer.p.rapidapi.com/get")
-	                    .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
-	                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
-	                    .queryString("hash", hash)
-	                    .asBinary();
+	    GridPane imageGrid = new GridPane();
+	    imageGrid.setAlignment(Pos.CENTER);
+	    imageGrid.setHgap(10);
+	    imageGrid.setVgap(10);
+	    imageGrid.setPadding(new Insets(25, 25, 25, 25));
+	    
+        ImageView imageView2 = new ImageView();
+	    
+        try {
+            HttpResponse<InputStream> response = Unirest.get("https://arimagesynthesizer.p.rapidapi.com/get")
+                    .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
+                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
+                    .queryString("hash", hash)
+                    .asBinary();
 
-	            int status = response.getStatus();
+            int status = response.getStatus();
 
-	            if (status == 200) {
-		    	    System.out.println("IN GET IMAGE");
-	                Image image = new Image(response.getBody());
-	                Platform.runLater(() -> {
-	                	
-	                    imageView.setImage(image);
-	                });
-	                break; // exit the loop once the image is retrieved
-	            } else if (status == 204) { 
-	                System.out.println("Image still in generation process.");
-	            } else {
-	                System.err.println("Failed to get the image with status: " + status + " - " + response.getStatusText());
-	                retryCount++;
-	                if (retryCount < MAX_RETRIES) {
-	                    try {
-	                        Thread.sleep(RETRY_DELAY_MS);
-	                    } catch (InterruptedException ie) {
-	                        Thread.currentThread().interrupt();
-	                    }
-	                }
-	            }
-	            response.getBody().close();
-	            
-	        } catch (UnirestException e) {
-	            e.printStackTrace();
-	            retryCount++;
-	            if (retryCount < MAX_RETRIES) {
-	                try {
-	                    Thread.sleep(RETRY_DELAY_MS);
-	                } catch (InterruptedException ie) {
-	                    Thread.currentThread().interrupt();
-	                }
-	            }
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
+            if (status == 200) {
+	    	    System.out.println("IN GET IMAGE");
+                Image image = new Image(response.getBody());
+                Platform.runLater(() -> {
+                	imageView2.setImage(image);
+                    imageGrid.add(imageView2, 0, 0);
+                    imageView2.setFitHeight(500);
+                    imageView2.setFitWidth(500);
+                    Scene getImageScene = new Scene(imageGrid, 800, 800);
 
-	    if (retryCount >= MAX_RETRIES) {
-	        System.err.println("Exceeded maximum retries for hash: " + hash);
-	    }
+                    primaryStage.setScene(getImageScene);
+                    primaryStage.show();
+                });
+                // exit the loop once the image is retrieved
+            } else if (status == 204) { 
+                System.out.println("Image still in generation process.");
+            } else {
+                System.err.println("Failed to get the image with status: " + status + " - " + response.getStatusText());
+            }
+            response.getBody().close();
+            
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
 	}
 
+//initiates image generation
 public CompletableFuture<String> initiateImageGeneration(String prompt, String style) {
 	    System.out.println("INITIATE IMAGE GENERATION");
 	    return CompletableFuture.supplyAsync(() -> {
@@ -547,17 +562,16 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
 	                System.err.println("Response body: " + response.getBody());
 	            }
 	            return hash;
-
 	        } catch (UnirestException e) {
 	            e.printStackTrace();
 	            return null;
 	        } catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	        return null;
 	    });
 	}
+
   //extracts the hash of the image
   private synchronized String extractHash(String body) {
       try {
@@ -591,11 +605,11 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
   //main method
   public static void main(String[] args) throws ClassNotFoundException, SQLException {
 
-    launch(args);
+	launch(args);
 /*
     //panacea123
     Scanner reader = new Scanner(System.in); //for user input
-    System.out.println("Enter Sql Pasword: ");
+    System.out.println("Enter Sql Password: ");
     String password = reader.nextLine(); //grabs input
 
     //connection
