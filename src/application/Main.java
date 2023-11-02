@@ -551,8 +551,17 @@ public class Main extends Application {
   
   //main method
   public static void main(String[] args) throws ClassNotFoundException, SQLException{
-
-    launch(args);
+	  // CONNECT TO SQL SERVER
+	  Scanner reader = new Scanner(System.in); //for user input
+	  System.out.println("Enter Sql Pasword: ");
+	  String password = reader.nextLine(); //grabs input
+	  Properties p = new Properties();
+	  p.put("user", "root");
+	  p.put("password",password);
+	  Connection c = DriverManager.getConnection(CONNECTION,p);
+	  System.out.println("SQL DB Connected...");
+	  
+	  launch(args);
 /*
     //panacea123
     Scanner reader = new Scanner(System.in); //for user input
