@@ -261,21 +261,26 @@ public class Main extends Application {
     	profileGrid.setVgap(10);
     	profileGrid.setPadding(new Insets(25, 25, 25, 25));
     	
+    	Image defaultPic = new Image("application/icon.jpeg");
+    	if (defaultPic.isError()) {
+    	    System.out.println("Error loading default profile picture.");
+    	}
+    	ImageView defaultImView = new ImageView(defaultPic);
+    	profileGrid.add(defaultImView, 0, 1);
+    	defaultImView.setFitWidth(200);
+    	defaultImView.setFitHeight(200);
+    	defaultImView.setPreserveRatio(true);
+
     	Label profileLabel = new Label("My Profile");
     	profileLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
     	profileLabel.setAlignment(Pos.CENTER);
     	profileGrid.add(profileLabel, 7, 0);
     	
-    	Label spacerLabel = new Label();
-    	spacerLabel.setPadding(new Insets(80, 80, 80, 80));
-    	profileGrid.add(spacerLabel, 0, 1);
-    	
     	Button uploadProfileBtn = new Button("Upload Profile Photo");
     	profileGrid.add(uploadProfileBtn, 0,2);
     	
         Scene profileScene = new Scene(profileGrid, 700, 800);
-        profileScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        
+
         uploadProfileBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -287,6 +292,7 @@ public class Main extends Application {
 	                
 	                if (uploadedImage != null) {
 	                    try {
+	                		defaultImView.setVisible(false);
 	                        Image image = new Image(uploadedImage.toURI().toString());
 	                    	ImageView imageViewUpl = new ImageView(image);
 	                    	
@@ -301,6 +307,8 @@ public class Main extends Application {
 	            }
            }
         });
+        
+    	
         CreateBackButton(profileGrid, sceneArray[3], 0, 0);
         sceneArray[2] = profileScene;
         primaryStage.setScene(profileScene);
