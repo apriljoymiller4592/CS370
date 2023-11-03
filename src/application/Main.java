@@ -157,7 +157,7 @@ public class Main extends Application {
 	signUpGrid.setVgap(10);
 	signUpGrid.setPadding(new Insets(25, 25, 25, 25));
 	
-    Text signUpTitle = new Text("Sign In");
+    Text signUpTitle = new Text("Sign Up");
     signUpTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
     signUpGrid.add(signUpTitle, 0, 1);
 
@@ -245,9 +245,8 @@ public class Main extends Application {
     mainGrid.setPadding(new Insets(25, 25, 25, 25));
     mainGrid.setHgap(10);
     mainGrid.setVgap(10);
-    mainGrid.setStyle("-fx-background-color: pink;");
+    mainGrid.setStyle("-fx-background-color: lightsalmon;");
 
-    // Sign-In Grid that will contain the form fields
     GridPane signInGrid = new GridPane();
     signInGrid.setAlignment(Pos.CENTER);
     signInGrid.setHgap(10);
@@ -316,7 +315,7 @@ public class Main extends Application {
     public void createProfilePage()
     {
     	GridPane profileGrid = new GridPane();
-    	profileGrid.setStyle("-fx-background-color: lightyellow;");
+    	profileGrid.setStyle("-fx-background-color: green;");
     	profileGrid.setHgap(10);
     	profileGrid.setVgap(10);
     	profileGrid.setPadding(new Insets(25, 25, 25, 25));
@@ -380,7 +379,7 @@ public class Main extends Application {
     //create the page to generate an image
     public void createImageGenerationPage(Scene scene) {
     	GridPane mainGrid = new GridPane();
-        mainGrid.setStyle("-fx-background-color: lightblue;");
+        mainGrid.setStyle("-fx-background-color: plum;");
         mainGrid.setPadding(new Insets(15, 15, 15, 15));
         
         GridPane profileGrid = new GridPane();
@@ -554,6 +553,7 @@ public class Main extends Application {
   public void getImage(String hash) throws InterruptedException {
 	    Thread.sleep(3000);
 	    GridPane imageGrid = new GridPane();
+	    imageGrid.setStyle("-fx-background-color: lavenderblush;");
 	    imageGrid.setAlignment(Pos.CENTER);
 	    imageGrid.setHgap(10);
 	    imageGrid.setVgap(10);
@@ -579,7 +579,16 @@ public class Main extends Application {
                     imageView2.setFitHeight(500);
                     imageView2.setFitWidth(500);
                     
-                    CreateBackButton(imageGrid, sceneArray[3], 0, 0);
+                    //CreateBackButton(imageGrid, sceneArray[3], 0, 0);
+                    Button newImgBtn = new Button("Generate new Image");
+                    imageGrid.add(newImgBtn, 1, 0);
+                    newImgBtn.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                        	primaryStage.setScene(sceneArray[3]);
+                        	primaryStage.show();
+                        }
+                    });
                     
                     Scene getImageScene = new Scene(imageGrid, 800, 800);
 
