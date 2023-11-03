@@ -139,41 +139,97 @@ public class Main extends Application {
     //TODO: save the username and password into the database for later retrieval
     public void createSignUpPage() 
     {
-	GridPane signUpGrid = new GridPane();
-	signUpGrid.setStyle("-fx-background-color: yellow;");
+    GridPane mainGrid = new GridPane();
+    mainGrid.setAlignment(Pos.TOP_LEFT);
+    mainGrid.setPadding(new Insets(25, 25, 25, 25));
+    mainGrid.setHgap(10);
+    mainGrid.setVgap(10);
+    mainGrid.setStyle("-fx-background-color: pink;");
+
+    // Sign-In Grid that will contain the form fields
+    GridPane signUpGrid = new GridPane();
+    signUpGrid.setAlignment(Pos.CENTER);
+    signUpGrid.setHgap(10);
+    signUpGrid.setVgap(10);
 	
 	signUpGrid.setAlignment(Pos.CENTER);
 	signUpGrid.setHgap(10);
 	signUpGrid.setVgap(10);
 	signUpGrid.setPadding(new Insets(25, 25, 25, 25));
+	
+    Text signUpTitle = new Text("Sign In");
+    signUpTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
+    signUpGrid.add(signUpTitle, 0, 1);
 
 	Label userName = new Label("User Name:");
-	signUpGrid.add(userName, 0, 1);
+	signUpGrid.add(userName, 0, 2);
 	
 	TextField userTextField = new TextField();
-	signUpGrid.add(userTextField, 1, 1);
+	signUpGrid.add(userTextField, 1, 2);
 
 	Label pw = new Label("Password:");
-	signUpGrid.add(pw, 0, 2);
+	signUpGrid.add(pw, 0, 3);
 	
 	PasswordField pwBox = new PasswordField();
-	signUpGrid.add(pwBox, 1, 2);
+	signUpGrid.add(pwBox, 1, 3);
 
 	Label name = new Label("Name:");
-	signUpGrid.add(name, 0, 3);
+	signUpGrid.add(name, 0, 4);
 	
 	TextField nameField = new TextField();
-	signUpGrid.add(nameField, 1, 3);
+	signUpGrid.add(nameField, 1, 4);
 
 	Label email = new Label("Email:");
-	signUpGrid.add(email, 0, 4);
+	signUpGrid.add(email, 0, 5);
 	
 	TextField emailField = new TextField();
-	signUpGrid.add(emailField, 1, 4);
-
-	Scene signUpScene = new Scene(signUpGrid, 800, 800);
+	signUpGrid.add(emailField, 1, 5);
 	
-	CreateBackButton(signUpGrid,sceneArray[0], 0, 0);
+	Button signUpButton = new Button("Sign up");
+	signUpGrid.add(signUpButton, 0, 6);
+
+	Scene signUpScene = new Scene(mainGrid, 800, 800);
+	
+	signUpButton.setOnAction(new EventHandler<ActionEvent>() {
+	@Override
+	public void handle(ActionEvent event) {
+		    String enteredUsername = userTextField.getText();
+		    String enteredPassword = pwBox.getText();
+		    String enteredEmail = emailField.getText();
+		    String enteredName = nameField.getText();
+		    
+			if (enteredUsername.trim().length() == 0)
+			{
+			  showAlert("Error", "Please enter a username.");
+			  return;
+			}
+			
+			if (enteredPassword.trim().length() < 5)
+			{
+			  showAlert("Error", "Please enter a password longer than 5 characters.");
+			  return;
+			}
+			
+			if (!enteredEmail.contains("@"))
+			{
+			  showAlert("Error", "Please enter a valid email");
+			  return;
+			}
+			
+			if (enteredName.trim().length() == 0)
+			{
+			  showAlert("Error", "Please enter your name");
+			  return;
+			}
+		
+		  createImageGenerationPage(signUpScene);		
+		}
+	
+	});
+	
+	mainGrid.add(signUpGrid, 20, 27);
+	
+	CreateBackButton(mainGrid,sceneArray[0], 0, 0);
 	
 	sceneArray[1] = signUpScene;
 	primaryStage.setScene(signUpScene);
@@ -196,16 +252,20 @@ public class Main extends Application {
     signInGrid.setAlignment(Pos.CENTER);
     signInGrid.setHgap(10);
     signInGrid.setVgap(10);
+    
+    Text signInTitle = new Text("Sign in");
+    signInTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
+    signInGrid.add(signInTitle, 0, 1);
 
     Label userLabel = new Label("User Name:");
     TextField userTextField = new TextField();
-    signInGrid.add(userLabel, 0, 1);
-    signInGrid.add(userTextField, 1, 1);
+    signInGrid.add(userLabel, 0, 2);
+    signInGrid.add(userTextField, 1, 2);
 
     Label passLabel = new Label("Password:");
     PasswordField passwordField = new PasswordField();
-    signInGrid.add(passLabel, 0, 2);
-    signInGrid.add(passwordField, 1, 2);
+    signInGrid.add(passLabel, 0, 3);
+    signInGrid.add(passwordField, 1, 3);
 
     // Sign-in button
     Button signInBtn2 = new Button("Sign in");
@@ -279,7 +339,7 @@ public class Main extends Application {
     	Button uploadProfileBtn = new Button("Upload Profile Photo");
     	profileGrid.add(uploadProfileBtn, 0,2);
     	
-        Scene profileScene = new Scene(profileGrid, 700, 800);
+        Scene profileScene = new Scene(profileGrid, 800, 800);
 
         uploadProfileBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -478,7 +538,6 @@ public class Main extends Application {
 	        progressIndicator.setVisible(false);
 	        Throwable exception = imageGenerationTask.getException();
 	        exception.printStackTrace();
-	        // Handle the failure if needed.
 	    });
 
 	   
@@ -486,9 +545,6 @@ public class Main extends Application {
 
 	    Scene generatedImageScene = new Scene(grid, 800, 800);
 	    Platform.runLater(() -> {
-	    	
-	    	CreateBackButton(grid,sceneArray[1], 0, 0);
-	    	
 	        primaryStage.setScene(generatedImageScene);
 	        primaryStage.show();
 	    });
@@ -519,9 +575,12 @@ public class Main extends Application {
                 Image image = new Image(response.getBody());
                 Platform.runLater(() -> {
                 	imageView2.setImage(image);
-                    imageGrid.add(imageView2, 0, 0);
+                    imageGrid.add(imageView2, 1, 1);
                     imageView2.setFitHeight(500);
                     imageView2.setFitWidth(500);
+                    
+                    CreateBackButton(imageGrid, sceneArray[3], 0, 0);
+                    
                     Scene getImageScene = new Scene(imageGrid, 800, 800);
 
                     primaryStage.setScene(getImageScene);
