@@ -1,6 +1,9 @@
 package application;
 	
 import java.io.InputStream;
+
+import javafx.embed.swing.SwingFXUtils;
+
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,6 +44,7 @@ import javafx.event.EventHandler;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -49,6 +53,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -57,6 +62,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -315,7 +321,7 @@ public class Main extends Application {
     public void createProfilePage()
     {
     	GridPane profileGrid = new GridPane();
-    	profileGrid.setStyle("-fx-background-color: green;");
+    	profileGrid.setStyle("-fx-background-color: cornflowerblue;");
     	profileGrid.setHgap(10);
     	profileGrid.setVgap(10);
     	profileGrid.setPadding(new Insets(25, 25, 25, 25));
@@ -354,7 +360,7 @@ public class Main extends Application {
 	                		defaultImView.setVisible(false);
 	                        Image image = new Image(uploadedImage.toURI().toString());
 	                    	ImageView imageViewUpl = new ImageView(image);
-	                    	
+
 	                    	imageViewUpl.setFitWidth(200);
 	                    	imageViewUpl.setFitHeight(200);
 	                    	imageViewUpl.setPreserveRatio(true);
@@ -374,7 +380,6 @@ public class Main extends Application {
         primaryStage.show();
 
     }
-
 
     //create the page to generate an image
     public void createImageGenerationPage(Scene scene) {
@@ -574,7 +579,21 @@ public class Main extends Application {
 	    	    System.out.println("IN GET IMAGE");
                 Image image = new Image(response.getBody());
                 Platform.runLater(() -> {
+                	
                 	imageView2.setImage(image);
+                	
+                    WritableImage writableImage = new WritableImage((int) image.getWidth(), (int) image.getHeight());
+                    imageView2.snapshot(null, writableImage);
+                    
+                    File outputFile = new File("/Users/aprilmiller/CS370/src/application/savedImage.png");
+                    try {
+                        ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", outputFile);
+                        System.out.println("Image saved: " + outputFile.getAbsolutePath());
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }           
+                    
+                	
                     imageGrid.add(imageView2, 1, 1);
                     imageView2.setFitHeight(500);
                     imageView2.setFitWidth(500);
