@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.Base64;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,8 +41,10 @@ import javafx.event.EventHandler;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -54,8 +57,10 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
@@ -71,7 +76,7 @@ public class Main extends Application {
      private final ReentrantLock lock = new ReentrantLock();
      private static final int MAX_RETRIES = 3;  // Adjust as needed
      private static final long RETRY_DELAY_MS = 1000;
-     private Scene[] sceneArray = new Scene[2];
+     private Scene[] sceneArray = new Scene[4];
   
 
     private ImageView imageView = new ImageView();
@@ -124,7 +129,7 @@ public class Main extends Application {
         gridPane.add(signInBtn, 0, 1, 1, 1);
         gridPane.add(signUpBtn, 1, 1, 1, 1);
         sceneArray[0] = homeScene;
-        primaryStage.setTitle("ArtFace Application")
+        primaryStage.setTitle("ArtFace Application");
         primaryStage.setTitle("ArtFace");
         primaryStage.setScene(homeScene);
         primaryStage.show();
@@ -167,49 +172,50 @@ public class Main extends Application {
 	signUpGrid.add(emailField, 1, 4);
 
 	Scene signUpScene = new Scene(signUpGrid, 800, 800);
-	signUpScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 	
-	CreateBackButton(signUpGrid,sceneArray[0]);
+	CreateBackButton(signUpGrid,sceneArray[0], 0, 0);
 	
+	sceneArray[1] = signUpScene;
 	primaryStage.setScene(signUpScene);
 	primaryStage.show();
 	
 	
     }
 
-    //create sign in page for user to log in
-    public void createSignInPage()
-    {
-	GridPane signInGrid = new GridPane();
-	signInGrid.setStyle("-fx-background-color: pink;");
+//create sign in page for user to sign in
+    public void createSignInPage() {
+    GridPane mainGrid = new GridPane();
+    mainGrid.setAlignment(Pos.TOP_LEFT);
+    mainGrid.setPadding(new Insets(25, 25, 25, 25));
+    mainGrid.setHgap(10);
+    mainGrid.setVgap(10);
+    mainGrid.setStyle("-fx-background-color: pink;");
 
+    // Sign-In Grid that will contain the form fields
+    GridPane signInGrid = new GridPane();
     signInGrid.setAlignment(Pos.CENTER);
     signInGrid.setHgap(10);
     signInGrid.setVgap(10);
-    signInGrid.setPadding(new Insets(25, 25, 25, 25));
 
-        //Username
-	Label user = new Label("User Name:");
-	signInGrid.add(user, 0, 1);
-	
-	TextField userText = new TextField();
-	signInGrid.add(userText, 1, 1);
-	
-	// Password
-	Label pass = new Label("Password:");
-	signInGrid.add(pass, 0, 2);
-	
-	PasswordField passwordTF = new PasswordField();
-	signInGrid.add(passwordTF, 1, 2);
-	
-	Button signInBtn2 = new Button("Sign in");
-	signInGrid.add(signInBtn2, 1, 4);
+    Label userLabel = new Label("User Name:");
+    TextField userTextField = new TextField();
+    signInGrid.add(userLabel, 0, 1);
+    signInGrid.add(userTextField, 1, 1);
 
+    Label passLabel = new Label("Password:");
+    PasswordField passwordField = new PasswordField();
+    signInGrid.add(passLabel, 0, 2);
+    signInGrid.add(passwordField, 1, 2);
+
+    // Sign-in button
+    Button signInBtn2 = new Button("Sign in");
+    signInGrid.add(signInBtn2, 1, 4);
+    Scene signInScene = new Scene(mainGrid, 800, 800);
 	signInBtn2.setOnAction(new EventHandler<ActionEvent>() {
 	@Override
 	public void handle(ActionEvent event) {
-	    String enteredUsername = userText.getText();
-	    String enteredPassword = passwordTF.getText();
+	    String enteredUsername = userTextField.getText();
+	    String enteredPassword = passwordField.getText();
 		if (enteredUsername.trim().length() == 0)
 		{
 		  showAlert("Error", "Please enter a username.");
@@ -222,21 +228,19 @@ public class Main extends Application {
 		  return;
 		}
 		
-		  createImageGenerationPage();		
+		  createImageGenerationPage(signInScene);		
 		}
 	
 	});
-	
 
-     Scene signInScene = new Scene(signInGrid, 800, 800);
-     signInScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+    mainGrid.add(signInGrid, 20, 27);
+    
+    CreateBackButton(mainGrid, sceneArray[0], 0, 0);
 
-     CreateBackButton(signInGrid,sceneArray[0]);
-     
-     primaryStage.setScene(signInScene);
-     primaryStage.show();
+    primaryStage.setScene(signInScene);
+    primaryStage.show();
+}
 
-    }
     
     //show an error if there is no username or the password is < 5 characters long
     private void showAlert(String title, String message) {
@@ -297,8 +301,8 @@ public class Main extends Application {
 	            }
            }
         });
-        CreateBackButton(profileGrid,sceneArray[1]);
-
+        CreateBackButton(profileGrid, sceneArray[3], 0, 0);
+        sceneArray[2] = profileScene;
         primaryStage.setScene(profileScene);
         primaryStage.show();
 
@@ -306,14 +310,17 @@ public class Main extends Application {
 
 
     //create the page to generate an image
-    public void createImageGenerationPage() {
-        GridPane mainGrid = new GridPane();
+    public void createImageGenerationPage(Scene scene) {
+    	GridPane mainGrid = new GridPane();
         mainGrid.setStyle("-fx-background-color: lightblue;");
-        mainGrid.setPadding(new Insets(25, 25, 25, 25));
-        mainGrid.setAlignment(Pos.TOP_LEFT);
+        mainGrid.setPadding(new Insets(15, 15, 15, 15));
+        
+        GridPane profileGrid = new GridPane();
+        profileGrid.setPadding(new Insets(15, 0, 25, 0));
+        profileGrid.setAlignment(Pos.TOP_LEFT);
 
         Button profileButton = new Button("Go to Profile");
-        mainGrid.add(profileButton, 0, 0);
+        profileGrid.add(profileButton, 0, 0);
         profileButton.setAlignment(Pos.TOP_LEFT);
         profileButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -391,17 +398,12 @@ public class Main extends Application {
             }
         });
         
-        mainGrid.add(centeredGrid, 0, 1);
-
-
-        Scene imageScene = new Scene(grid, 800, 800);
-        
-        sceneArray[1] = imageScene;
-        
-        CreateBackButton(grid,sceneArray[0]);
-        
+        CreateBackButton(mainGrid, sceneArray[2], 0, 0);
+        profileGrid.add(centeredGrid, 0, 1);
+        mainGrid.add(profileGrid, 0, 1);
 
         Scene imageScene = new Scene(mainGrid, 800, 800);
+        sceneArray[3] = imageScene;
         primaryStage.setScene(imageScene);
         primaryStage.show();
   }
@@ -477,7 +479,7 @@ public class Main extends Application {
 	    Scene generatedImageScene = new Scene(grid, 800, 800);
 	    Platform.runLater(() -> {
 	    	
-	    	CreateBackButton(grid,sceneArray[1]);//during loading
+	    	CreateBackButton(grid,sceneArray[1], 0, 0);
 	    	
 	        primaryStage.setScene(generatedImageScene);
 	        primaryStage.show();
@@ -587,20 +589,16 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
       }
   }
   
-  private void CreateBackButton(GridPane grid,Scene backScene){
-	  Button backButton = new Button("Back");
-	  	grid.add(backButton, 0,10);
-  		
-  		
-  		 backButton.setOnAction(new EventHandler<ActionEvent>() {
-             @Override
-             public void handle(ActionEvent event) {
-            	primaryStage.setScene(backScene);
-     	        primaryStage.show();
-             }
-         });
-  		
-  }
+//back button
+  private void CreateBackButton(GridPane grid, Scene backScene, int colIndex, int rowIndex) {
+	    Button backButton = new Button("Back");
+	    
+	    backButton.setOnAction(event -> primaryStage.setScene(backScene));
+	    
+	    grid.add(backButton, colIndex, rowIndex);
+	    GridPane.setHalignment(backButton, HPos.LEFT);
+	    GridPane.setValignment(backButton, VPos.TOP);
+	}
   
   //main method
   public static void main(String[] args) throws ClassNotFoundException, SQLException {
