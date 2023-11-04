@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 
 import java.sql.Connection;
@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
@@ -59,12 +60,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
@@ -97,7 +100,8 @@ public class Main extends Application {
             e.printStackTrace();
         }
     }
-
+    
+    //creates the welcome page
     public void createHomePage() 
     {
         GridPane gridPane = new GridPane();
@@ -135,7 +139,6 @@ public class Main extends Application {
         gridPane.add(signInBtn, 0, 1, 1, 1);
         gridPane.add(signUpBtn, 1, 1, 1, 1);
         sceneArray[0] = homeScene;
-        primaryStage.setTitle("ArtFace Application");
         primaryStage.setTitle("ArtFace");
         primaryStage.setScene(homeScene);
         primaryStage.show();
@@ -244,7 +247,7 @@ public class Main extends Application {
 	
     }
 
-//create sign in page for user to sign in
+    //create sign in page for user to sign in
     public void createSignInPage() {
     GridPane mainGrid = new GridPane();
     mainGrid.setAlignment(Pos.TOP_LEFT);
@@ -307,7 +310,7 @@ public class Main extends Application {
 }
 
     
-    //show an error if there is no username or the password is < 5 characters long
+    //show an error with given title and message
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
@@ -326,6 +329,11 @@ public class Main extends Application {
     	profileGrid.setVgap(10);
     	profileGrid.setPadding(new Insets(25, 25, 25, 25));
     	
+        FlowPane galleryFlowPane = new FlowPane();
+        galleryFlowPane.setPadding(new Insets(5, 5, 5, 5));
+        galleryFlowPane.setVgap(4);
+        galleryFlowPane.setHgap(4);
+    	
     	Image defaultPic = new Image("application/icon.jpeg");
     	if (defaultPic.isError()) {
     	    System.out.println("Error loading default profile picture.");
@@ -338,13 +346,15 @@ public class Main extends Application {
 
     	Label profileLabel = new Label("My Profile");
     	profileLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
-    	profileLabel.setAlignment(Pos.CENTER);
-    	profileGrid.add(profileLabel, 7, 0);
+    	profileLabel.setAlignment(Pos.CENTER_RIGHT);
+    	profileGrid.add(profileLabel, 1, 0);
     	
     	Button uploadProfileBtn = new Button("Upload Profile Photo");
     	profileGrid.add(uploadProfileBtn, 0,2);
     	
         Scene profileScene = new Scene(profileGrid, 800, 800);
+        
+        uploadProfileBtn.setAlignment(Pos.TOP_CENTER);
 
         uploadProfileBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -357,7 +367,7 @@ public class Main extends Application {
 	                
 	                if (uploadedImage != null) {
 	                    try {
-	                		defaultImView.setVisible(false);
+	                    	defaultImView.setVisible(false);
 	                        Image image = new Image(uploadedImage.toURI().toString());
 	                    	ImageView imageViewUpl = new ImageView(image);
 
@@ -373,6 +383,8 @@ public class Main extends Application {
            }
         });
         
+        ScrollPane gallery = createGallery();
+        profileGrid.add(gallery, 1, 3);
     	
         CreateBackButton(profileGrid, sceneArray[3], 0, 0);
         sceneArray[2] = profileScene;
@@ -380,6 +392,41 @@ public class Main extends Application {
         primaryStage.show();
 
     }
+    
+    //create the gallery
+    public ScrollPane createGallery() {
+        FlowPane galleryFlowPane = new FlowPane();
+        galleryFlowPane.setPadding(new Insets(5, 5, 5, 5));
+        galleryFlowPane.setVgap(4);
+        galleryFlowPane.setHgap(4);
+        galleryFlowPane.setStyle("-fx-background-color: cornflowerblue;");
+        
+        try (Stream<Path> paths = Files.walk(Paths.get("/Users/aprilmiller/CS370/src/application/gallery"))) {
+            paths.filter(Files::isRegularFile).forEach((Path path) -> {
+                File file = path.toFile();
+                if (file != null) {
+                    Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
+                    ImageView galleryImageView = new ImageView(galleryImage);
+                    galleryImageView.setFitWidth(150);
+                    galleryImageView.setPreserveRatio(true);
+
+                    galleryFlowPane.getChildren().add(galleryImageView);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //wrap the flowpane in a scrollpane
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(galleryFlowPane);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        
+        return scrollPane;
+    }
+
 
     //create the page to generate an image
     public void createImageGenerationPage(Scene scene) {
@@ -401,7 +448,6 @@ public class Main extends Application {
             }
         });
 
-        // Centered content grid
         GridPane centeredGrid = new GridPane();
         centeredGrid.setAlignment(Pos.CENTER);
         centeredGrid.setHgap(10);
@@ -470,7 +516,7 @@ public class Main extends Application {
             }
         });
         
-        CreateBackButton(mainGrid, sceneArray[2], 0, 0);
+        CreateBackButton(mainGrid, sceneArray[1], 0, 0);
         profileGrid.add(centeredGrid, 0, 1);
         mainGrid.add(profileGrid, 0, 1);
 
@@ -480,6 +526,7 @@ public class Main extends Application {
         primaryStage.show();
   }
 
+  //encode the image path to base 64
   public static String encodeToBase64(Path imagePath) throws Exception {
       //read image bytes
       byte[] imageBytes = Files.readAllBytes(imagePath);
@@ -490,6 +537,7 @@ public class Main extends Application {
       return encodedString;
   }
   
+  //generates hash by applying SHA-1 hashing algorithm
   public static String generateHash(String base64Image) throws Exception {
       MessageDigest digest = MessageDigest.getInstance("SHA-1");
       byte[] hashBytes = digest.digest(base64Image.getBytes("UTF-8"));
@@ -528,13 +576,7 @@ public class Main extends Application {
 	        progressIndicator.setVisible(false);
 	        String hash = imageGenerationTask.getValue();
 	        if(hash != null) {
-	            try {
-					getImage(hash);
-					stack.getChildren().add(imageView);
-					
-				} catch (InterruptedException ex) {
-					ex.printStackTrace();
-				}
+				stack.getChildren().add(imageView);
 	        }
 	    });
 
@@ -585,7 +627,7 @@ public class Main extends Application {
                     WritableImage writableImage = new WritableImage((int) image.getWidth(), (int) image.getHeight());
                     imageView2.snapshot(null, writableImage);
                     
-                    File outputFile = new File("/Users/aprilmiller/CS370/src/application/savedImage.png");
+                    File outputFile = new File("/Users/aprilmiller/CS370/src/application/gallery/" + image.hashCode() + ".png");
                     try {
                         ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", outputFile);
                         System.out.println("Image saved: " + outputFile.getAbsolutePath());
@@ -662,11 +704,12 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
 	        } catch (UnirestException e) {
 	            e.printStackTrace();
 	            return null;
-	        } catch (InterruptedException e) {
+	        }
+	        catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 	        return null;
-	    });
+	    });    
 	}
 
   //extracts the hash of the image
