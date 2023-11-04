@@ -81,16 +81,10 @@ public class Main extends Application {
      private static final String dbClassname = "com.mysql.cj.jdbc.Driver";
      private static final String CONNECTION = "jdbc:mysql://127.0.0.1/ArtFacedb";
      private Stage primaryStage = new Stage();
-
-     private final ReentrantLock lock = new ReentrantLock();
-     private static final int MAX_RETRIES = 3;  // Adjust as needed
-     private static final long RETRY_DELAY_MS = 1000;
      private Scene[] sceneArray = new Scene[4];
-  
-
-    private ImageView imageView = new ImageView();
-    static Webcam webcam;
-
+     private ImageView imageView = new ImageView();
+     static Webcam webcam;
+     
     @Override
     public void start(Stage primaryStage) {
         try {
@@ -106,7 +100,6 @@ public class Main extends Application {
     {
         GridPane gridPane = new GridPane();
         Scene homeScene = new Scene(gridPane, 800, 800);
-        homeScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
         Text sceneTitle = new Text("Hello, ArtFace!");
         sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
@@ -118,7 +111,7 @@ public class Main extends Application {
         gridPane.setVgap(10);
         gridPane.setPadding(new Insets(25, 25, 25, 25));
 
-        // Button
+        //when the sign up button is clicked, go to the sign up page
         Button signUpBtn = new Button("Sign Up");
         signUpBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -127,7 +120,7 @@ public class Main extends Application {
             }
         });
 
-        // Button
+        //when the sign in button is clicked, go to the sign in page
         Button signInBtn = new Button("Sign In");
         signInBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -148,57 +141,54 @@ public class Main extends Application {
     //TODO: save the username and password into the database for later retrieval
     public void createSignUpPage() 
     {
-    GridPane mainGrid = new GridPane();
-    mainGrid.setAlignment(Pos.TOP_LEFT);
-    mainGrid.setPadding(new Insets(25, 25, 25, 25));
-    mainGrid.setHgap(10);
-    mainGrid.setVgap(10);
-    mainGrid.setStyle("-fx-background-color: pink;");
+    	//main grid to hold the back button
+	    GridPane mainGrid = new GridPane();
+	    mainGrid.setAlignment(Pos.TOP_LEFT);
+	    mainGrid.setPadding(new Insets(25, 25, 25, 25));
+	    mainGrid.setHgap(10);
+	    mainGrid.setVgap(10);
+	    mainGrid.setStyle("-fx-background-color: pink;");
+	
+	    //sign in grid that will contain the form fields
+	    GridPane signUpGrid = new GridPane();
+	    signUpGrid.setAlignment(Pos.CENTER);
+	    signUpGrid.setHgap(10);
+	    signUpGrid.setVgap(10);
+		signUpGrid.setPadding(new Insets(25, 25, 25, 25));
+		
+	    Text signUpTitle = new Text("Sign Up");
+	    signUpTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
+	    signUpGrid.add(signUpTitle, 0, 1);
+	
+		Label userName = new Label("User Name:");
+		signUpGrid.add(userName, 0, 2);
+		
+		TextField userTextField = new TextField();
+		signUpGrid.add(userTextField, 1, 2);
+	
+		Label pw = new Label("Password:");
+		signUpGrid.add(pw, 0, 3);
+		
+		PasswordField pwBox = new PasswordField();
+		signUpGrid.add(pwBox, 1, 3);
+	
+		Label name = new Label("Name:");
+		signUpGrid.add(name, 0, 4);
+		
+		TextField nameField = new TextField();
+		signUpGrid.add(nameField, 1, 4);
+	
+		Label email = new Label("Email:");
+		signUpGrid.add(email, 0, 5);
+		
+		TextField emailField = new TextField();
+		signUpGrid.add(emailField, 1, 5);
+		
+		Button signUpButton = new Button("Sign up");
+		signUpGrid.add(signUpButton, 0, 6);
+	
+		Scene signUpScene = new Scene(mainGrid, 800, 800);
 
-    // Sign-In Grid that will contain the form fields
-    GridPane signUpGrid = new GridPane();
-    signUpGrid.setAlignment(Pos.CENTER);
-    signUpGrid.setHgap(10);
-    signUpGrid.setVgap(10);
-	
-	signUpGrid.setAlignment(Pos.CENTER);
-	signUpGrid.setHgap(10);
-	signUpGrid.setVgap(10);
-	signUpGrid.setPadding(new Insets(25, 25, 25, 25));
-	
-    Text signUpTitle = new Text("Sign Up");
-    signUpTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
-    signUpGrid.add(signUpTitle, 0, 1);
-
-	Label userName = new Label("User Name:");
-	signUpGrid.add(userName, 0, 2);
-	
-	TextField userTextField = new TextField();
-	signUpGrid.add(userTextField, 1, 2);
-
-	Label pw = new Label("Password:");
-	signUpGrid.add(pw, 0, 3);
-	
-	PasswordField pwBox = new PasswordField();
-	signUpGrid.add(pwBox, 1, 3);
-
-	Label name = new Label("Name:");
-	signUpGrid.add(name, 0, 4);
-	
-	TextField nameField = new TextField();
-	signUpGrid.add(nameField, 1, 4);
-
-	Label email = new Label("Email:");
-	signUpGrid.add(email, 0, 5);
-	
-	TextField emailField = new TextField();
-	signUpGrid.add(emailField, 1, 5);
-	
-	Button signUpButton = new Button("Sign up");
-	signUpGrid.add(signUpButton, 0, 6);
-
-	Scene signUpScene = new Scene(mainGrid, 800, 800);
-	
 	signUpButton.setOnAction(new EventHandler<ActionEvent>() {
 	@Override
 	public void handle(ActionEvent event) {
@@ -207,6 +197,7 @@ public class Main extends Application {
 		    String enteredEmail = emailField.getText();
 		    String enteredName = nameField.getText();
 		    
+		    //validate form fields
 			if (enteredUsername.trim().length() == 0)
 			{
 			  showAlert("Error", "Please enter a username.");
@@ -231,6 +222,7 @@ public class Main extends Application {
 			  return;
 			}
 		
+		  //if all form fields are valid, go to create image generation page
 		  createImageGenerationPage(signUpScene);		
 		}
 	
@@ -238,7 +230,7 @@ public class Main extends Application {
 	
 	mainGrid.add(signUpGrid, 20, 27);
 	
-	CreateBackButton(mainGrid,sceneArray[0], 0, 0);
+	CreateBackButton(mainGrid, sceneArray[0], 0, 0);
 	
 	sceneArray[1] = signUpScene;
 	primaryStage.setScene(signUpScene);
@@ -249,64 +241,67 @@ public class Main extends Application {
 
     //create sign in page for user to sign in
     public void createSignInPage() {
-    GridPane mainGrid = new GridPane();
-    mainGrid.setAlignment(Pos.TOP_LEFT);
-    mainGrid.setPadding(new Insets(25, 25, 25, 25));
-    mainGrid.setHgap(10);
-    mainGrid.setVgap(10);
-    mainGrid.setStyle("-fx-background-color: lightsalmon;");
-
-    GridPane signInGrid = new GridPane();
-    signInGrid.setAlignment(Pos.CENTER);
-    signInGrid.setHgap(10);
-    signInGrid.setVgap(10);
-    
-    Text signInTitle = new Text("Sign in");
-    signInTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
-    signInGrid.add(signInTitle, 0, 1);
-
-    Label userLabel = new Label("User Name:");
-    TextField userTextField = new TextField();
-    signInGrid.add(userLabel, 0, 2);
-    signInGrid.add(userTextField, 1, 2);
-
-    Label passLabel = new Label("Password:");
-    PasswordField passwordField = new PasswordField();
-    signInGrid.add(passLabel, 0, 3);
-    signInGrid.add(passwordField, 1, 3);
-
-    // Sign-in button
-    Button signInBtn2 = new Button("Sign in");
-    signInGrid.add(signInBtn2, 1, 4);
-    Scene signInScene = new Scene(mainGrid, 800, 800);
-	signInBtn2.setOnAction(new EventHandler<ActionEvent>() {
-	@Override
-	public void handle(ActionEvent event) {
-	    String enteredUsername = userTextField.getText();
-	    String enteredPassword = passwordField.getText();
-		if (enteredUsername.trim().length() == 0)
-		{
-		  showAlert("Error", "Please enter a username.");
-		  return;
-		}
-		
-		if (enteredPassword.trim().length() < 5)
-		{
-		  showAlert("Error", "Please enter a password longer than 5 characters.");
-		  return;
-		}
-		
-		  createImageGenerationPage(signInScene);		
-		}
+    	//main grid to hold back button
+	    GridPane mainGrid = new GridPane();
+	    mainGrid.setAlignment(Pos.TOP_LEFT);
+	    mainGrid.setPadding(new Insets(25, 25, 25, 25));
+	    mainGrid.setHgap(10);
+	    mainGrid.setVgap(10);
+	    mainGrid.setStyle("-fx-background-color: lightsalmon;");
 	
-	});
-
-    mainGrid.add(signInGrid, 20, 27);
-    
-    CreateBackButton(mainGrid, sceneArray[0], 0, 0);
-
-    primaryStage.setScene(signInScene);
-    primaryStage.show();
+	    //sign in grid to hold form fields
+	    GridPane signInGrid = new GridPane();
+	    signInGrid.setAlignment(Pos.CENTER);
+	    signInGrid.setHgap(10);
+	    signInGrid.setVgap(10);
+	    
+	    Text signInTitle = new Text("Sign in");
+	    signInTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
+	    signInGrid.add(signInTitle, 0, 1);
+	
+	    Label userLabel = new Label("User Name:");
+	    TextField userTextField = new TextField();
+	    signInGrid.add(userLabel, 0, 2);
+	    signInGrid.add(userTextField, 1, 2);
+	
+	    Label passLabel = new Label("Password:");
+	    PasswordField passwordField = new PasswordField();
+	    signInGrid.add(passLabel, 0, 3);
+	    signInGrid.add(passwordField, 1, 3);
+	
+	    // Sign-in button
+	    Button signInBtn2 = new Button("Sign in");
+	    signInGrid.add(signInBtn2, 1, 4);
+	    Scene signInScene = new Scene(mainGrid, 800, 800);
+		signInBtn2.setOnAction(new EventHandler<ActionEvent>() {
+		@Override
+		public void handle(ActionEvent event) {
+		    String enteredUsername = userTextField.getText();
+		    String enteredPassword = passwordField.getText();
+		    
+		    //validate credentials
+			if (enteredUsername.trim().length() == 0)
+			{
+			  showAlert("Error", "Please enter a username.");
+			  return;
+			}		
+			if (enteredPassword.trim().length() < 5)
+			{
+			  showAlert("Error", "Please enter a password longer than 5 characters.");
+			  return;
+			}
+			
+			  createImageGenerationPage(signInScene);		
+			}
+		
+		});
+	
+	    mainGrid.add(signInGrid, 20, 27);
+	    
+	    CreateBackButton(mainGrid, sceneArray[0], 0, 0);
+	
+	    primaryStage.setScene(signInScene);
+	    primaryStage.show();
 }
 
     
@@ -334,10 +329,8 @@ public class Main extends Application {
         galleryFlowPane.setVgap(4);
         galleryFlowPane.setHgap(4);
     	
+        //set default profile picture
     	Image defaultPic = new Image("application/icon.jpeg");
-    	if (defaultPic.isError()) {
-    	    System.out.println("Error loading default profile picture.");
-    	}
     	ImageView defaultImView = new ImageView(defaultPic);
     	profileGrid.add(defaultImView, 0, 1);
     	defaultImView.setFitWidth(200);
@@ -363,10 +356,12 @@ public class Main extends Application {
 	
 	                fileChooser.setTitle("Select a File to Upload");
 	                
+	                //prompt user to upload photo
 	                File uploadedImage = fileChooser.showOpenDialog(primaryStage);
 	                
 	                if (uploadedImage != null) {
 	                    try {
+	                    	//replace the default image with the new profile photo
 	                    	defaultImView.setVisible(false);
 	                        Image image = new Image(uploadedImage.toURI().toString());
 	                    	ImageView imageViewUpl = new ImageView(image);
@@ -374,15 +369,17 @@ public class Main extends Application {
 	                    	imageViewUpl.setFitWidth(200);
 	                    	imageViewUpl.setFitHeight(200);
 	                    	imageViewUpl.setPreserveRatio(true);
-	                    	profileGrid.add(imageViewUpl, 0, 1);
 	                    	
+	                    	profileGrid.add(imageViewUpl, 0, 1);
 	                    } catch (Exception e) {
 	                        e.printStackTrace();
+	                        System.err.println("Uploaded image is null.");
 	                    }
 	            }
            }
         });
         
+        //gallery to the grid containing profile contents
         ScrollPane gallery = createGallery();
         profileGrid.add(gallery, 1, 3);
     	
@@ -401,6 +398,7 @@ public class Main extends Application {
         galleryFlowPane.setHgap(4);
         galleryFlowPane.setStyle("-fx-background-color: cornflowerblue;");
         
+        //creates the gallery of image views from the gallery folder
         try (Stream<Path> paths = Files.walk(Paths.get("/Users/aprilmiller/CS370/src/application/gallery"))) {
             paths.filter(Files::isRegularFile).forEach((Path path) -> {
                 File file = path.toFile();
@@ -415,6 +413,7 @@ public class Main extends Application {
             });
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("Could not find directory.");
         }
 
         //wrap the flowpane in a scrollpane
@@ -430,10 +429,13 @@ public class Main extends Application {
 
     //create the page to generate an image
     public void createImageGenerationPage(Scene scene) {
+    	
+    	//main grid to hold back button
     	GridPane mainGrid = new GridPane();
         mainGrid.setStyle("-fx-background-color: plum;");
         mainGrid.setPadding(new Insets(15, 15, 15, 15));
         
+        //grid to add go to profile button
         GridPane profileGrid = new GridPane();
         profileGrid.setPadding(new Insets(15, 0, 25, 0));
         profileGrid.setAlignment(Pos.TOP_LEFT);
@@ -447,7 +449,8 @@ public class Main extends Application {
                 createProfilePage();
             }
         });
-
+        
+        //center the contents of the page
         GridPane centeredGrid = new GridPane();
         centeredGrid.setAlignment(Pos.CENTER);
         centeredGrid.setHgap(10);
@@ -598,7 +601,7 @@ public class Main extends Application {
 
 //gets image based on given hash
   public void getImage(String hash) throws InterruptedException {
-	    Thread.sleep(3000);
+	    Thread.sleep(2000);
 	    GridPane imageGrid = new GridPane();
 	    imageGrid.setStyle("-fx-background-color: lavenderblush;");
 	    imageGrid.setAlignment(Pos.CENTER);
@@ -673,6 +676,7 @@ public class Main extends Application {
         
 	}
 
+  //ADD INIT_IMAGE TO BASE IT OFF OF THE PHOTO, MAY NEED TO BE IN GET IMAGE
 //initiates image generation
 public CompletableFuture<String> initiateImageGeneration(String prompt, String style) {
 	    System.out.println("INITIATE IMAGE GENERATION");
