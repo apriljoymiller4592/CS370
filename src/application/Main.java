@@ -15,9 +15,12 @@ import java.security.MessageDigest;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-
+import java.sql.Statement;
 import java.util.Base64;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantLock;
@@ -79,10 +82,11 @@ import javafx.scene.text.Text;
 //TODO: Make code more modular, separate into classes?
 public class Main extends Application {
      private static final String dbClassname = "com.mysql.cj.jdbc.Driver";
-     private static final String CONNECTION = "jdbc:mysql://127.0.0.1/ArtFacedb";
+     private static final String CONNECTION = "jdbc:mysql://127.0.0.1/ArtFaceDB";
      private Stage primaryStage = new Stage();
      private Scene[] sceneArray = new Scene[4];
      private ImageView imageView = new ImageView();
+     private static Statement stmt;
      static Webcam webcam;
      
     @Override
@@ -221,7 +225,9 @@ public class Main extends Application {
 			  showAlert("Error", "Please enter your name");
 			  return;
 			}
-		
+			
+			String checkUserSql = "SELECT COUNT(*) FROM USERS WHERE username = ?";
+		    
 		  //if all form fields are valid, go to create image generation page
 		  createImageGenerationPage(signUpScene);		
 		}
@@ -290,12 +296,33 @@ public class Main extends Application {
 			  showAlert("Error", "Please enter a password longer than 5 characters.");
 			  return;
 			}
-			
-			  createImageGenerationPage(signInScene);		
+			String sqlInput2 = "SELECT * FROM USERS WHERE username = '"+ enteredUsername + "' AND password = '" + enteredPassword + "'";
+			ResultSet rs;
+			try {
+				rs = stmt.executeQuery(sqlInput2);
+				int counter = 0;
+				while (rs.next()) {//should only be one
+					counter++;
+				}
+				//successful login
+				if(counter >= 1)
+				{
+					System.out.println("Successfull login");
+					createImageGenerationPage(signInScene);	
+				}
+				else
+				{
+					System.out.println("User not found");
+					showAlert("Could not sign in", "User not found!");
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		
+		//-----------------------------------------------	
+		}
 		});
-	
+		
 	    mainGrid.add(signInGrid, 20, 27);
 	    
 	    CreateBackButton(mainGrid, sceneArray[0], 0, 0);
@@ -474,7 +501,7 @@ public class Main extends Application {
 
         Button generateImageButton = new Button("Generate Image");
         centeredGrid.add(generateImageButton, 25, 20);
-
+        
         generateImageButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -519,6 +546,7 @@ public class Main extends Application {
             }
         });
         
+        
         CreateBackButton(mainGrid, sceneArray[1], 0, 0);
         profileGrid.add(centeredGrid, 0, 1);
         mainGrid.add(profileGrid, 0, 1);
@@ -529,7 +557,23 @@ public class Main extends Application {
         primaryStage.show();
   }
 
-  //encode the image path to base 64
+  public void saveImage(Stage stage, Image image) throws IOException {
+	  
+      FileChooser fileChooser = new FileChooser();
+      FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
+      
+      fileChooser.getExtensionFilters().add(extFilter);
+      
+      File file = fileChooser.showSaveDialog(stage);
+
+      if (file != null) {
+          BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+          ImageIO.write(bImage, "png", file);
+      }
+		
+	}
+
+//encode the image path to base 64
   public static String encodeToBase64(Path imagePath) throws Exception {
       //read image bytes
       byte[] imageBytes = Files.readAllBytes(imagePath);
@@ -567,7 +611,7 @@ public class Main extends Application {
 	    ProgressIndicator progressIndicator = new ProgressIndicator();
 	    stack.getChildren().add(progressIndicator);
 	    progressIndicator.setVisible(true);
-
+	    
 	    Task<String> imageGenerationTask = new Task<String>() {
 	        @Override
 	        protected String call() throws Exception {
@@ -601,7 +645,7 @@ public class Main extends Application {
 
 //gets image based on given hash
   public void getImage(String hash) throws InterruptedException {
-	    Thread.sleep(2000);
+	    Thread.sleep(3000);
 	    GridPane imageGrid = new GridPane();
 	    imageGrid.setStyle("-fx-background-color: lavenderblush;");
 	    imageGrid.setAlignment(Pos.CENTER);
@@ -654,6 +698,20 @@ public class Main extends Application {
                         }
                     });
                     
+                    Button saveButton = new Button("Save Image");
+                    imageGrid.add(saveButton, 1, 2);
+                    saveButton.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            try {
+            					saveImage(primaryStage, imageView2.getImage());
+            				} catch (IOException e) {
+            					showAlert("Error!", "Photo could not be saved at this time.");
+            					System.err.println("Photo could not be saved.");
+            				}
+                        }
+                    });
+                    
                     Scene getImageScene = new Scene(imageGrid, 800, 800);
 
                     primaryStage.setScene(getImageScene);
@@ -680,6 +738,9 @@ public class Main extends Application {
 //initiates image generation
 public CompletableFuture<String> initiateImageGeneration(String prompt, String style) {
 	    System.out.println("INITIATE IMAGE GENERATION");
+	    GridPane grid = new GridPane();
+	    ImageView imgView = new ImageView();
+	    
 	    return CompletableFuture.supplyAsync(() -> {
 	        try {
 	            //POST request to generate the image
@@ -688,6 +749,7 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
 	                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
 	                    .field("prompt", prompt)
 	                    .field("style", style);
+	                   // .field("init_image", image);
 
 	            HttpResponse<String> response = request.asString();
 	            int status = response.getStatus();
@@ -699,6 +761,15 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
 	                } catch (InterruptedException e) {
 	                    Thread.currentThread().interrupt();
 	                }
+		           /* Platform.runLater(() -> {
+		                imgView.setImage(image);
+		                grid.add(imgView, 0, 0);
+		                
+		                Scene initImageScene = new Scene(grid, 800, 800);
+	
+	                    primaryStage.setScene(initImageScene);
+	                    primaryStage.show();
+	                });*/
 	                getImage(hash);
 	            } else {
 	                System.err.println("Unexpected response status: " + status);
@@ -708,11 +779,11 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
 	        } catch (UnirestException e) {
 	            e.printStackTrace();
 	            return null;
-	        }
-	        catch (InterruptedException e) {
+	        } catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	        return null;
+			return null;
 	    });    
 	}
 
@@ -745,8 +816,6 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
   //main method
   public static void main(String[] args) throws ClassNotFoundException, SQLException {
 
-	launch(args);
-/*
     //panacea123
     Scanner reader = new Scanner(System.in); //for user input
     System.out.println("Enter Sql Password: ");
@@ -759,8 +828,10 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
     p.put("password",password);
     reader.close();
     Connection c = DriverManager.getConnection(CONNECTION,p);
+    stmt = c.createStatement();
     System.out.println("It works");
-
-    c.close();*/
+	launch(args);
+	
+    c.close();
   }
 }
