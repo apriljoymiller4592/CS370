@@ -88,6 +88,9 @@ public class Main extends Application {
      private ImageView imageView = new ImageView();
      private static Statement stmt;
      static Webcam webcam;
+     static Connection c;
+     Database data = new Database();
+     public Boolean userCreated = false;
      
     @Override
     public void start(Stage primaryStage) {
@@ -208,30 +211,39 @@ public class Main extends Application {
 			  return;
 			}
 			
-			if (enteredPassword.trim().length() < 5)
+			else if (enteredPassword.trim().length() < 5)
 			{
 			  showAlert("Error", "Please enter a password longer than 5 characters.");
 			  return;
 			}
 			
-			if (!enteredEmail.contains("@"))
+			else if (!enteredEmail.contains("@"))
 			{
 			  showAlert("Error", "Please enter a valid email");
 			  return;
 			}
 			
-			if (enteredName.trim().length() == 0)
+			else if (enteredName.trim().length() == 0)
 			{
 			  showAlert("Error", "Please enter your name");
 			  return;
 			}
-			
-			String checkUserSql = "SELECT COUNT(*) FROM USERS WHERE username = ?";
-		    
+			try {
+				userCreated = data.newUser(c, enteredUsername, enteredPassword);
+			} catch (ClassNotFoundException | SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("userCreated" + userCreated);
 		  //if all form fields are valid, go to create image generation page
-		  createImageGenerationPage(signUpScene);		
-		}
-	
+		  if(userCreated)
+			  createImageGenerationPage(signUpScene);	
+		  else
+		  {
+			  userTextField.clear();
+			  showAlert("Error", "Username taken, please enter new username");
+		  }
+	}
 	});
 	
 	mainGrid.add(signUpGrid, 20, 27);
@@ -827,11 +839,11 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
     p.put("user", "root");
     p.put("password",password);
     reader.close();
-    Connection c = DriverManager.getConnection(CONNECTION,p);
-    stmt = c.createStatement();
+    c = DriverManager.getConnection(CONNECTION,p);
+    //stmt = c.createStatement();
     System.out.println("It works");
 	launch(args);
 	
-    c.close();
+    //c.close();
   }
 }

@@ -11,37 +11,28 @@ import java.util.Scanner;
 
 import java.io.File;//new
 public class Database {
-	private static final String dbClassname = "com.mysql.cj.jdbc.Driver";
-	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/ArtFacedb";
-	public static void main(String[] args) throws ClassNotFoundException, SQLException{
-		Scanner reader = new Scanner(System.in);//for user input
-		System.out.println("Enter Sql Pasword: ");
-		String password = reader.nextLine();//grabs input
-				
-			//connection
-		System.out.println(dbClassname);
-		Properties p = new Properties();
-		p.put("user", "root");
-		p.put("password",password);
-		//reader.close();
-		Connection c = DriverManager.getConnection(CONNECTION,p);
+	public Boolean newUser(Connection c, String newUserName, String newPassword) throws ClassNotFoundException, SQLException
+	{	
+		System.out.println(newUserName + newPassword);
 		Statement stmt = c.createStatement();
-		System.out.println("Your in ");
-		
-		//-----Creating new  username and password------
-		//vurnerable to sql injection
-		System.out.println("Enter New UserName ");
-		String newUserName = reader.nextLine();
-		
-		System.out.println("Enter New Password ");
-		String newPassword = reader.nextLine();
 		String sqlInput = "INSERT INTO USER VALUES('"+newUserName+"','"+newPassword+"')";
 		int x = stmt.executeUpdate(sqlInput);
 		if(x>0)//if x = 1 then it went through
+		{
 			System.out.println("Successfull input");
+			return true;
+		}
 		else
+		{
 			System.out.println("Error username already exist or Error");
-		//------------------------------------------------------------
+			return false;
+		}
+		
+	}
+	public static void main(String[] args) throws ClassNotFoundException, SQLException{
+
+	}
+/*
 		
 		//--------------Login check------------------------------
 		//vurnerable to sql injection
@@ -81,8 +72,8 @@ public class Database {
 		//-------------------------------------------------------------------------------
 		reader.close();
 		c.close();
+		*/
 	}
 	
-}
 
 
