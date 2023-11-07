@@ -841,7 +841,6 @@ public CompletableFuture<String> initiateImageGeneration(String prompt, String s
     reader.close();
     c = DriverManager.getConnection(CONNECTION,p);
     //stmt = c.createStatement();
-    System.out.println("It works");
 	launch(args);
 	
     //c.close();

@@ -13,12 +13,20 @@ import java.io.File;//new
 public class Database {
 	public Boolean newUser(Connection c, String newUserName, String newPassword) throws ClassNotFoundException, SQLException
 	{	
+		int searchCount = 0;
 		System.out.println(newUserName + newPassword);
 		Statement stmt = c.createStatement();
-		String sqlInput = "INSERT INTO USER VALUES('"+newUserName+"','"+newPassword+"')";
-		int x = stmt.executeUpdate(sqlInput);
-		if(x>0)//if x = 1 then it went through
+		String sqlSearch = "SELECT * FROM user WHERE userName = '"+ newUserName+"'";
+		ResultSet x = stmt.executeQuery(sqlSearch);
+		while(x.next())
 		{
+			searchCount++;
+		}
+			
+		if(searchCount == 0)//if x = 1 then it went through
+		{
+			String sqlInput = "INSERT INTO USER VALUES('"+newUserName+"','"+newPassword+"')";
+			stmt.executeUpdate(sqlInput);
 			System.out.println("Successfull input");
 			return true;
 		}
