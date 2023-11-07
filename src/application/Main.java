@@ -438,7 +438,7 @@ public class Main extends Application {
         galleryFlowPane.setStyle("-fx-background-color: cornflowerblue;");
         
         //creates the gallery of image views from the gallery folder
-        try (Stream<Path> paths = Files.walk(Paths.get("/Users/aprilmiller/CS370/src/application/gallery"))) {
+        try (Stream<Path> paths = Files.walk(Paths.get("/CS370/src/application/gallery"))) {
             paths.filter(Files::isRegularFile).forEach((Path path) -> {
                 File file = path.toFile();
                 if (file != null) {
@@ -686,7 +686,7 @@ public class Main extends Application {
                     WritableImage writableImage = new WritableImage((int) image.getWidth(), (int) image.getHeight());
                     imageView2.snapshot(null, writableImage);
                     
-                    File outputFile = new File("/Users/aprilmiller/CS370/src/application/gallery/" + image.hashCode() + ".png");
+                    File outputFile = new File("/CS370/src/application/gallery/" + image.hashCode() + ".png");
                     try {
                         ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", outputFile);
                         System.out.println("Image saved: " + outputFile.getAbsolutePath());
