@@ -229,7 +229,7 @@ public class Main extends Application {
 			  return;
 			}
 			try {
-				userCreated = data.newUser(c, enteredUsername, enteredPassword);
+				userCreated = data.newUser(c, enteredUsername, enteredPassword,enteredEmail);
 			} catch (ClassNotFoundException | SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
