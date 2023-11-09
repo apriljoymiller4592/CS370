@@ -9,12 +9,12 @@ import javax.mail.Authenticator;
 //https://www.tutorialspoint.com/java/java_sending_email.htm
 public class JavaMail{
 
-	public static void PasswordResetRequest(String userName, String email) {
+	public static void PasswordResetRequest(String userName, String email, String appPassword) {
 		 // Recipient's email ID needs to be mentioned.
 	      String to = "artface.art.icle@gmail.com";
 
 	      // Sender's email ID needs to be mentioned
-	      String from = "kennethha47@gmail.com";
+	      String from = "artface.art.icle@gmail.com";
 
 	      // Assuming you are sending email from localhost
 	      String host = "smtp.gmail.com";
@@ -33,7 +33,7 @@ public class JavaMail{
 	      Session session = Session.getInstance(properties, new Authenticator() {
 	      @Override
 	      protected PasswordAuthentication getPasswordAuthentication() {
-	          return new PasswordAuthentication("kennethha47@gmail.com", "ukrw mgax zcsl diky");
+	          return new PasswordAuthentication("kennethha47@gmail.com", appPassword);
 	      }
 	   		});
 	   		
