@@ -1,15 +1,12 @@
 package application;
 	
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import javafx.embed.swing.SwingFXUtils;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,10 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
@@ -38,18 +32,14 @@ import javax.imageio.ImageIO;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONArray;
 
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamEvent;
 import com.github.sarxos.webcam.WebcamListener;
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.HttpRequest;
 import com.mashape.unirest.request.body.MultipartBody;
-import com.mashape.unirest.request.body.RequestBodyEntity;
 
 import application.WebcamCapture.VideoFeedTaker;
 import javafx.event.ActionEvent;
@@ -57,8 +47,6 @@ import javafx.event.EventHandler;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.HPos;
@@ -72,7 +60,6 @@ import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
@@ -96,21 +83,15 @@ import javafx.scene.text.Text;
 public class Main extends Application {
      private static final String dbClassname = "com.mysql.cj.jdbc.Driver";
      private static final String CONNECTION = "jdbc:mysql://127.0.0.1/ArtFaceDB";
-     private static Stage primaryStage = new Stage();
-     private static Scene[] sceneArray = new Scene[4];
-     private FlowPane galleryFlowPane;
+     private Stage primaryStage = new Stage();
+     private Scene[] sceneArray = new Scene[4];
      private ImageView imageView = new ImageView();
      private static Statement stmt;
-     private Image image;
      static Webcam webcam;
-<<<<<<< Updated upstream
      static Connection c;
      Database data = new Database();
      public Boolean userCreated = false;
      
-=======
-
->>>>>>> Stashed changes
     @Override
     public void start(Stage primaryStage) {
         try {
@@ -438,8 +419,8 @@ public class Main extends Application {
         });
         
         //gallery to the grid containing profile contents
-       // ScrollPane gallery = createGallery();
-        //profileGrid.add(gallery, 1, 3);
+        ScrollPane gallery = createGallery();
+        profileGrid.add(gallery, 1, 3);
     	
         CreateBackButton(profileGrid, sceneArray[3], 0, 0);
         sceneArray[2] = profileScene;
@@ -450,13 +431,13 @@ public class Main extends Application {
     
     //create the gallery
     public ScrollPane createGallery() {
+        FlowPane galleryFlowPane = new FlowPane();
         galleryFlowPane.setPadding(new Insets(5, 5, 5, 5));
         galleryFlowPane.setVgap(4);
         galleryFlowPane.setHgap(4);
         galleryFlowPane.setStyle("-fx-background-color: cornflowerblue;");
         
         //creates the gallery of image views from the gallery folder
-<<<<<<< Updated upstream
         try (Stream<Path> paths = Files.walk(Paths.get("/CS370/src/application/gallery"))) {
             paths.filter(Files::isRegularFile).forEach((Path path) -> {
                 File file = path.toFile();
@@ -474,10 +455,6 @@ public class Main extends Application {
             System.err.println("Could not find directory.");
         }
 
-=======
-        loadImagesIntoGallery();
-        
->>>>>>> Stashed changes
         //wrap the flowpane in a scrollpane
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(galleryFlowPane);
@@ -487,15 +464,7 @@ public class Main extends Application {
         
         return scrollPane;
     }
-    
-    private void loadImagesIntoGallery() {
-        try (Stream<Path> paths = Files.walk(Paths.get("/Users/aprilmiller/CS370/src/application/gallery"))) {
-            paths.filter(Files::isRegularFile).forEach(this::addImageToGallery);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Could not find directory.");
-        }
-    }
+
 
     //create the page to generate an image
     public void createImageGenerationPage(Scene scene) {
@@ -504,16 +473,6 @@ public class Main extends Application {
     	GridPane mainGrid = new GridPane();
         mainGrid.setStyle("-fx-background-color: plum;");
         mainGrid.setPadding(new Insets(15, 15, 15, 15));
-        ComboBox<String> comboBox = new ComboBox<>();
-
-        ObservableList<String> items = FXCollections.observableArrayList(
-            "Anime",
-            "Realistic Beauty",
-            "Surreal",
-            "Animated"
-        );
-
-        comboBox.setItems(items);
         
         //grid to add go to profile button
         GridPane profileGrid = new GridPane();
@@ -551,34 +510,21 @@ public class Main extends Application {
         TextField promptTextField = new TextField();
         centeredGrid.add(promptLabel, 25, 18);
         centeredGrid.add(promptTextField, 25, 19);
-        
-        Label styleLabel = new Label("Enter a Style:");
-        centeredGrid.add(styleLabel, 25, 20);
-        centeredGrid.add(comboBox, 25, 21);
 
         Button generateImageButton = new Button("Generate Image");
-        centeredGrid.add(generateImageButton, 25, 22);
+        centeredGrid.add(generateImageButton, 25, 20);
         
         generateImageButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 String prompt = promptTextField.getText();
-                                
-                String style = getPrompt(comboBox.getValue());
-                
                 if (prompt.length() < 1)
                 {
                 	showAlert("Error", "Please enter a prompt");
                 	return;
                 }
                 else {
-                	      	
-	                try {
-						onGenerateImageButtonClicked(prompt, style);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+                onGenerateImageButtonClicked(prompt);
                 }
             }
         });
@@ -590,18 +536,14 @@ public class Main extends Application {
 	
 	                fileChooser.setTitle("Select a File to Upload");
 	                
-	                String prompt = promptTextField.getText();
-	                
 	                File uploadedImage = fileChooser.showOpenDialog(primaryStage);
+	                
 	                if (uploadedImage != null) {
 	                    try {
-	                    	String selectedItem = comboBox.getValue();
-	                    	JSONObject payload = createUploadedPayload(encodeToBase64(uploadedImage.toPath()), selectedItem, prompt);
-	                    	
-	                    	String taskId = initiateUploadedImageGeneration(payload);
-	                        if (taskId != null) {
-	                            getUploadImage(taskId);
-	                        }
+	                    	String base64Image = encodeToBase64(uploadedImage.toPath());
+	                    	String hash = generateHash(base64Image);
+	                        System.out.println("Base64 String:\n" + hash);
+	                        onGenerateImageButtonClicked(hash);
 	                    } catch (Exception e) {
 	                        e.printStackTrace();
 	                    }
@@ -627,88 +569,6 @@ public class Main extends Application {
         primaryStage.show();
   }
 
- public JSONObject createUploadedPayload(String base64EncodedImage, String style, String prompt) {
-        JSONObject payload = new JSONObject();
-        
-        String modelName = getModelName(style);
-        String enteredPrompt = getPrompt(style);
-
-    	payload.put("negative_prompt", "(worst quality, low quality:2), zombie,overexposure, watermark,text, nsfw, sexy, short dresses, sexualized, bad anatomy,bad hand,extra hands,extra fingers,too many fingers,fused fingers,bad arm,distorted arm,extra arms,fused arms,extra legs,missing leg,disembodied leg,extra nipples, detached arm, liquid hand,inverted hand,disembodied limb, loli, oversized head,extra body, nude, extra navel,easynegative,(hair between eyes),sketch, duplicate, ugly, huge eyes, text, logo, worst face, (bad and mutated hands:1.3),  (blurry:2.0), horror, geometry, bad_prompt, (bad hands), (missing fingers), multiple limbs, bad anatomy, (interlocked fingers:1.2), Ugly Fingers, (extra digit and hands and fingers and legs and arms:1.4), ((2girl)), (deformed fingers:1.2), (long fingers:1.2),(bad-artist-anime), bad-artist, bad hand, extra legs ,(ng_deepnegative_v1_75t)");
-    	payload.put("sampler_name", "DPM++ 2M Karras");
-    	payload.put("batch_size", 1);
-        payload.put("n_iter", 1);
-        payload.put("steps", 30);
-        payload.put("cfg_scale", 20);
-        payload.put("seed", 9999);
-        payload.put("height", 1024);
-        payload.put("width", 768);
-        payload.put("model_name", modelName);
-        payload.put("denoising_strength", 0.9);
-        payload.put("restore_faces", false);
-        
-        if (base64EncodedImage.length() > 0)
-        {
-        	payload.put("prompt", enteredPrompt);
-	        JSONArray initImages = new JSONArray();
-	        initImages.put(base64EncodedImage);
-	        payload.put("init_images", initImages);
-        }
-        else
-        	payload.put("prompt", prompt);
-
-        return payload;
-    }
- 
- public String getModelName(String style)
- {
-	 String modelName = "";
-	 if (style == "Anime")
-	 {
-		 modelName = "darkSushiMixMix_colorful.safetensors";
-	 }
-	 if (style == "Realistic Beauty")
-	 {
-		 modelName = "beautifulRealistic_brav3_31664.safetensors";
-	 }
-	 if (style == "Surreal")
-	 {
-		 modelName = "revAnimated_v122.safetensors";
-	 }
-	 if (style == "Animated")
-	 {
-		 modelName = "dreamshaper_62BakedVae_66596.safetensors";
-	 }
-	 
-	 return modelName;
- }
- 
- public String getPrompt(String style)
- {
-	 String enteredPrompt = "";
-	 if (style == "Anime")
-	 {
-		 enteredPrompt = "masterpiece, best quality,\n"
-		 		+ "(colorful),(finely detailed beautiful eyes and detailed face),cinematic lighting,, extremely detailed CG unity 8k wallpaper,white hair,solo,smile,intricate skirt,((flying petal)),(Flowery meadow)\n"
-		 		+ "sky, cloudy_sky, building, moonlight, moon, night, (dark theme:1.3), light, fantasy";
-	 }
-	 if (style == "Realistic Beauty")
-	 {
-		 enteredPrompt = " ";
-	 }
-	 if (style == "Surreal")
-	 {
-		 enteredPrompt = "((best quality)), ((masterpiece)), (detailed), ethereal beauty, perched on a cloud, (fantasy illustration:1.3), enchanting gaze, captivating pose, delicate wings, otherworldly charm, mystical sky, (Luis Royo:1.2), (Yoshitaka Amano:1.1), moonlit night, soft colors, (detailed cloudscape:1.3), (high-resolution:1.2)";
-	 }
-	 if (style == "Animated")
-	 {
-		 enteredPrompt = "animated, 8k portrait of beautiful cyborg with brown hair, intricate, elegant, highly detailed, majestic, digital photography, art by artgerm and ruan jia and greg rutkowski surreal painting gold butterfly filigree, broken glass, (masterpiece, sidelighting, finely detailed beautiful eyes: 1.2), hdr, <lora:more_details:0.3>";
-	 }
-	 
-	 return enteredPrompt;
- }
-
-
-  //save an image
   public void saveImage(Stage stage, Image image) throws IOException {
 	  
       FileChooser fileChooser = new FileChooser();
@@ -721,20 +581,9 @@ public class Main extends Application {
       if (file != null) {
           BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
           ImageIO.write(bImage, "png", file);
-          
-          Platform.runLater(() -> addImageToGallery(file.toPath()));
       }
 		
 	}
-
-  public void addImageToGallery(Path path) {
-	    File file = path.toFile();
-	    Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
-	    ImageView galleryImageView = new ImageView(galleryImage);
-	    galleryImageView.setFitWidth(150);
-	    galleryImageView.setPreserveRatio(true);
-	    galleryFlowPane.getChildren().add(galleryImageView);
-}
 
 //encode the image path to base 64
   public static String encodeToBase64(Path imagePath) throws Exception {
@@ -761,7 +610,7 @@ public class Main extends Application {
   }
 
   //when the generate image button is clicked, a new scene will pop up with the generated image
-  public void onGenerateImageButtonClicked(String prompt, String style) {
+  public void onGenerateImageButtonClicked(String prompt) {
 	    GridPane grid = new GridPane();
 	    grid.setAlignment(Pos.CENTER);
 	    grid.setHgap(10);
@@ -771,46 +620,62 @@ public class Main extends Application {
 	    StackPane stack = new StackPane();
 	    grid.add(stack, 0, 1, 2, 1); 
 
-	    Scene generatedImageScene = new Scene(grid, 800, 800);
-
-	    Task<Image> imageGenerationTask = new Task<>() {
+	    ProgressIndicator progressIndicator = new ProgressIndicator();
+	    stack.getChildren().add(progressIndicator);
+	    progressIndicator.setVisible(true);
+	    
+	    Task<String> imageGenerationTask = new Task<String>() {
 	        @Override
-	        protected Image call() throws Exception {
-	            return generateImageFromText(prompt, style);
-	        }
-
-	        @Override
-	        protected void succeeded() {
-	            super.succeeded();
-	            Image imageResponse = getValue();
-	            ImageView genImageView = new ImageView(imageResponse);
-	            stack.getChildren().add(genImageView);
-	        }
-
-	        @Override
-	        protected void failed() {
-	            super.failed();
-	            // Handle failure (e.g., show an error message)
+	        protected String call() throws Exception {
+	            return initiateImageGeneration(prompt, "face").get(); 
 	        }
 	    };
 
-	    Thread thread = new Thread(imageGenerationTask);
-	    thread.setDaemon(true);
-	    thread.start();
+	    imageGenerationTask.setOnSucceeded(e -> {
+	        progressIndicator.setVisible(false);
+	        String hash = imageGenerationTask.getValue();
+	        if(hash != null) {
+				stack.getChildren().add(imageView);
+	        }
+	    });
 
+	    imageGenerationTask.setOnFailed(e -> {
+	        progressIndicator.setVisible(false);
+	        Throwable exception = imageGenerationTask.getException();
+	        exception.printStackTrace();
+	    });
+
+	   
+	    new Thread(imageGenerationTask).start();
+
+	    Scene generatedImageScene = new Scene(grid, 800, 800);
 	    Platform.runLater(() -> {
 	        primaryStage.setScene(generatedImageScene);
 	        primaryStage.show();
 	    });
 	}
 
+//gets image based on given hash
+  public void getImage(String hash) throws InterruptedException {
+	    Thread.sleep(3000);
+	    GridPane imageGrid = new GridPane();
+	    imageGrid.setStyle("-fx-background-color: lavenderblush;");
+	    imageGrid.setAlignment(Pos.CENTER);
+	    imageGrid.setHgap(10);
+	    imageGrid.setVgap(10);
+	    imageGrid.setPadding(new Insets(25, 25, 25, 25));
+	    
+        ImageView imageView2 = new ImageView();
+	    
+        try {
+            HttpResponse<InputStream> response = Unirest.get("https://arimagesynthesizer.p.rapidapi.com/get")
+                    .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
+                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
+                    .queryString("hash", hash)
+                    .asBinary();
 
-  //generates image based off of entered image
-  public String initiateUploadedImageGeneration(JSONObject payload) throws Exception {
-		 
-	  String apiKey = "b59de626-ecce-4598-a190-e0944bf78658";
+            int status = response.getStatus();
 
-<<<<<<< Updated upstream
             if (status == 200) {
 	    	    System.out.println("IN GET IMAGE");
                 Image image = new Image(response.getBody());
@@ -871,170 +736,67 @@ public class Main extends Application {
                 System.err.println("Failed to get the image with status: " + status + " - " + response.getStatusText());
             }
             response.getBody().close();
-=======
-	    try {
-	        HttpResponse<JsonNode> response = Unirest.post("https://api.novita.ai/v2/img2img")
-	                .header("Authorization", "Bearer " + apiKey)
-	                .header("Content-Type", "application/json")
-	                .body(payload)
-	                .asJson();
-	        
-	        if (response.getStatus() == 200) {
-	        	
-	            JSONObject responseBody = response.getBody().getObject();
-	            System.out.println(responseBody.toString());
->>>>>>> Stashed changes
             
-	            if (responseBody.has("data") && responseBody.getJSONObject("data").has("task_id")) {
-	                String taskId = responseBody.getJSONObject("data").getString("task_id");
-	                return taskId;
-	            } else {
-	                System.err.println("Error: 'task_id' not found in response.");
-	            }
-	        } else {
-	            System.err.println("Error in response: " + response.getStatus());
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return null;
-	    }
-		return null;
-  }
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+	}
 
-
-  private void getUploadImage(String taskId) throws InterruptedException, UnirestException {
-	  String apiKey = "b59de626-ecce-4598-a190-e0944bf78658"; 
-      boolean completed = false;
-	  GridPane initGrid = new GridPane();
-	  
-	  initGrid.setStyle("-fx-background-color: lavenderblush;");
-	  initGrid.setAlignment(Pos.CENTER);
-	  initGrid.setHgap(10);
-	  initGrid.setVgap(10);
-	  initGrid.setPadding(new Insets(25, 25, 25, 25));
+  //ADD INIT_IMAGE TO BASE IT OFF OF THE PHOTO, MAY NEED TO BE IN GET IMAGE
+//initiates image generation
+public CompletableFuture<String> initiateImageGeneration(String prompt, String style) {
+	    System.out.println("INITIATE IMAGE GENERATION");
+	    GridPane grid = new GridPane();
+	    ImageView imgView = new ImageView();
 	    
-      while (!completed) {
-          Thread.sleep(5000); // Polling interval: 5 seconds
+	    return CompletableFuture.supplyAsync(() -> {
+	        try {
+	            //POST request to generate the image
+	            MultipartBody request = Unirest.post("https://arimagesynthesizer.p.rapidapi.com/generate")
+	                    .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
+	                    .header("X-RapidAPI-Host", "arimagesynthesizer.p.rapidapi.com")
+	                    .field("prompt", prompt)
+	                    .field("style", style);
+	                   // .field("init_image", image);
 
-          HttpResponse<JsonNode> progressResponse = Unirest.get("https://api.novita.ai/v2/progress")
-                  .queryString("task_id", taskId)
-                  .header("Authorization", "Bearer " + apiKey)
-                  .asJson();
-          
-          System.out.println(progressResponse.getStatus());
-          System.out.println(progressResponse.getBody());
-          JSONObject responseBody = progressResponse.getBody().getObject();
-          if (responseBody.has("data")) {
-        	    Object dataObject = responseBody.get("data");
+	            HttpResponse<String> response = request.asString();
+	            int status = response.getStatus();
+	            String hash = extractHash(response.getBody());
 
-        	    if (dataObject instanceof JSONObject) {
-        	        JSONObject dataJsonObject = (JSONObject) dataObject;
-
-        	        if (dataJsonObject.has("current_images")) {
-        	            JSONArray currentImages = dataJsonObject.getJSONArray("current_images");
-        	            
-        	            //Image image = new Image(currentImages.toString());
-        	            //imageView3.setImage(image);
-        	            
-        	            if (currentImages.length() > 0) {
-        	                String base64Image = currentImages.getString(0);
-
-        	                byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-
-        	                javafx.scene.image.Image fxImage = new javafx.scene.image.Image(new ByteArrayInputStream(imageBytes));
-
-        	                ImageView imageView3 = new ImageView(fxImage);
-        	                
-                            imageView3.setFitHeight(500);
-                            imageView3.setFitWidth(500);
-                            
-                        	
-                            WritableImage writableImage = new WritableImage((int) fxImage.getWidth(), (int) fxImage.getHeight());
-                            imageView3.snapshot(null, writableImage);
-                            
-                            File outputFile = new File("/Users/aprilmiller/CS370/src/application/gallery/" + fxImage.hashCode() + ".png");
-                            try {
-                                ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", outputFile);
-                                System.out.println("Image saved: " + outputFile.getAbsolutePath());
-                            } catch (IOException ex) {
-                                ex.printStackTrace();
-                            }           
-                            
-                            //CreateBackButton(imageGrid, sceneArray[3], 0, 0);
-                            Button newImgBtn = new Button("Generate new Image");
-                            initGrid.add(newImgBtn, 1, 0);
-                            newImgBtn.setOnAction(new EventHandler<ActionEvent>() {
-                                @Override
-                                public void handle(ActionEvent event) {
-                                	primaryStage.setScene(sceneArray[3]);
-                                	primaryStage.show();
-                                }
-                            });
-                            
-                            Button saveButton = new Button("Save Image");
-                            initGrid.add(saveButton, 1, 2);
-                            saveButton.setOnAction(new EventHandler<ActionEvent>() {
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    try {
-                    					saveImage(primaryStage, imageView3.getImage());
-                    				} catch (IOException e) {
-                    					showAlert("Error!", "Photo could not be saved at this time.");
-                    					System.err.println("Photo could not be saved.");
-                    				}
-                                }
-                            });
-                            
-                   
-                            
-        	                initGrid.add(imageView3, 0, 0);
-                            Scene getUploadImageScene = new Scene(initGrid, 800, 800);
-
-                            primaryStage.setScene(getUploadImageScene);
-                            primaryStage.show();
-                            
-            	            completed = true;
-        	            } else {
-        	                System.err.println("No images found in the 'current_images' array.");
-        	            }
-
-        	        } else {
-        	            System.err.println("'current_images' not found in 'data' object.");
-        	        }
-        	    } else {
-        	        System.err.println("'data' is not a JSONObject.");
-        	    }
-        	} else {
-        	    System.err.println("'data' field not found in the response.");
-        	}
-
-
-      }
-  }
-  
-  public static Image generateImageFromText(String text, String style) throws UnirestException {
-	    JSONObject body = new JSONObject();
-	    body.put("text", text + style);
-
-	    HttpResponse<InputStream> response = Unirest.post("https://open-ai21.p.rapidapi.com/texttoimage2")
-	            .header("content-type", "application/json")
-	            .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26") // Replace with your API key
-	            .header("X-RapidAPI-Host", "open-ai21.p.rapidapi.com")
-	            .body(body.toString())
-	            .asBinary();
-
-	    if (response.getStatus() == 200) {
-	        try (InputStream inputStream = response.getBody()) {
-	        	System.out.print("Respohnse body is input steam");
-	            return new Image(inputStream); // Return the image
-	        } catch (IOException e) {
+	            if(hash != null) {
+	                try {
+	                    Thread.sleep(5000);
+	                } catch (InterruptedException e) {
+	                    Thread.currentThread().interrupt();
+	                }
+		           /* Platform.runLater(() -> {
+		                imgView.setImage(image);
+		                grid.add(imgView, 0, 0);
+		                
+		                Scene initImageScene = new Scene(grid, 800, 800);
+	
+	                    primaryStage.setScene(initImageScene);
+	                    primaryStage.show();
+	                });*/
+	                getImage(hash);
+	            } else {
+	                System.err.println("Unexpected response status: " + status);
+	                System.err.println("Response body: " + response.getBody());
+	            }
+	            return hash;
+	        } catch (UnirestException e) {
 	            e.printStackTrace();
 	            return null;
-	        }
-	    } else {
-	        System.err.println("Failed to generate image: " + response.getStatusText());
-	        return null;
-	    }
+	        } catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+	    });    
 	}
 
   //extracts the hash of the image
@@ -1052,7 +814,7 @@ public class Main extends Application {
       }
   }
   
-  //back button
+//back button
   private void CreateBackButton(GridPane grid, Scene backScene, int colIndex, int rowIndex) {
 	    Button backButton = new Button("Back");
 	    

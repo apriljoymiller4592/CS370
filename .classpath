@@ -17,7 +17,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-<<<<<<< Updated upstream
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX">
 		<attributes>
 			<attribute name="module" value="true"/>
@@ -27,11 +26,5 @@
 	<classpathentry kind="lib" path="C:/Users/lmart/Downloads/webcam-capture-0.3.12-dist/webcam-capture-0.3.12-dist/libs/slf4j-api-1.7.2.jar"/>
 	<classpathentry kind="lib" path="C:/Users/lmart/Downloads/webcam-capture-0.3.12-dist/webcam-capture-0.3.12-dist/libs/bridj-0.7.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/lmart/Downloads/webcam-capture-0.3.12-dist/webcam-capture-0.3.12-dist/webcam-capture-0.3.12.jar"/>
-=======
-	<classpathentry kind="lib" path="/Users/aprilmiller/Downloads/mysql-connector-j-8.1.0/mysql-connector-j-8.1.0.jar"/>
-	<classpathentry kind="lib" path="/Users/aprilmiller/Downloads/webcam-capture-0.3.12-dist/webcam-capture-0.3.12.jar"/>
-	<classpathentry kind="lib" path="/Users/aprilmiller/Downloads/webcam-capture-0.3.12-dist/libs/bridj-0.7.0.jar"/>
-	<classpathentry kind="lib" path="/Users/aprilmiller/Downloads/webcam-capture-0.3.12-dist/libs/slf4j-api-1.7.2.jar"/>
->>>>>>> Stashed changes
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
