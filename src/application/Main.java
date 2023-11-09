@@ -91,7 +91,6 @@ public class Main extends Application {
      static Connection c;
      Database data = new Database();
      public Boolean userCreated = false;
-     
     @Override
     public void start(Stage primaryStage) {
         try {
@@ -455,6 +454,7 @@ public class Main extends Application {
             System.err.println("Could not find directory.");
         }
 
+
         //wrap the flowpane in a scrollpane
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(galleryFlowPane);
@@ -676,6 +676,11 @@ public class Main extends Application {
 
             int status = response.getStatus();
 
+
+  //generates image based off of entered image
+  public String initiateUploadedImageGeneration(JSONObject payload) throws Exception {
+		 
+	  String apiKey = "b59de626-ecce-4598-a190-e0944bf78658";
             if (status == 200) {
 	    	    System.out.println("IN GET IMAGE");
                 Image image = new Image(response.getBody());
@@ -736,7 +741,19 @@ public class Main extends Application {
                 System.err.println("Failed to get the image with status: " + status + " - " + response.getStatusText());
             }
             response.getBody().close();
-            
+
+	    try {
+	        HttpResponse<JsonNode> response = Unirest.post("https://api.novita.ai/v2/img2img")
+	                .header("Authorization", "Bearer " + apiKey)
+	                .header("Content-Type", "application/json")
+	                .body(payload)
+	                .asJson();
+	        
+	        if (response.getStatus() == 200) {
+	        	
+	            JSONObject responseBody = response.getBody().getObject();
+	            System.out.println(responseBody.toString());
+       
         } catch (UnirestException e) {
             e.printStackTrace();
             
