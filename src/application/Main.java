@@ -170,63 +170,6 @@ public class Main extends Application {
       mainGrid.setVgap(10);
       mainGrid.setStyle("-fx-background-color: pink;");
 
-	signUpButton.setOnAction(new EventHandler<ActionEvent>() {
-	@Override
-	public void handle(ActionEvent event) {
-		    String enteredUsername = userTextField.getText();
-		    String enteredPassword = pwBox.getText();
-		    String enteredEmail = emailField.getText();
-		    String enteredName = nameField.getText();
-		    
-		    //validate form fields
-			if (enteredUsername.trim().length() == 0)
-			{
-			  showAlert("Error", "Please enter a username.");
-			  return;
-			}
-			
-			else if (enteredPassword.trim().length() < 5)
-			{
-			  showAlert("Error", "Please enter a password longer than 5 characters.");
-			  return;
-			}
-			
-			else if (!enteredEmail.contains("@"))
-			{
-			  showAlert("Error", "Please enter a valid email");
-			  return;
-			}
-			
-			else if (enteredName.trim().length() == 0)
-			{
-			  showAlert("Error", "Please enter your name");
-			  return;
-			}
-			try {
-				userCreated = data.newUser(c, enteredUsername, enteredPassword,enteredEmail);
-			} catch (ClassNotFoundException | SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println("userCreated" + userCreated);
-		  //if all form fields are valid, go to create image generation page
-		  if(userCreated)
-			  createImageGenerationPage(signUpScene);	
-		  else
-		  {
-			  userTextField.clear();
-			  showAlert("Error", "Username taken, please enter new username");
-		  }
-	}
-	});
-	
-	mainGrid.add(signUpGrid, 20, 27);
-	
-	CreateBackButton(mainGrid, sceneArray[0], 0, 0);
-	
-	sceneArray[1] = signUpScene;
-	primaryStage.setScene(signUpScene);
-	primaryStage.show();
       //sign in grid that will contain the form fields
       GridPane signUpGrid = new GridPane();
       signUpGrid.setAlignment(Pos.CENTER);
@@ -299,12 +242,12 @@ public class Main extends Application {
         showAlert("Error", "Please enter your name");
         return;
       }
-      try {
+    /*  try {
         userCreated = data.newUser(c, enteredUsername, enteredPassword);
       } catch (ClassNotFoundException | SQLException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
-      }
+      }*/
       System.out.println("userCreated" + userCreated);
       //if all form fields are valid, go to create image generation page
       if(userCreated)
