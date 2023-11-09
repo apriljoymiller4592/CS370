@@ -1,4 +1,4 @@
-package application;
+/*package application;
 
 //import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.*;
@@ -106,5 +106,5 @@ public class WebcamCapture {
 }
 
 
-
+*/
 
