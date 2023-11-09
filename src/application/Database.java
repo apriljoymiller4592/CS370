@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 import java.io.File;//new
 public class Database {
-	public Boolean newUser(Connection c, String newUserName, String newPassword) throws ClassNotFoundException, SQLException
+	public Boolean newUser(Connection c, String newUserName, String newPassword, String NewEmail) throws ClassNotFoundException, SQLException
 	{	
 		int searchCount = 0;
 		System.out.println(newUserName + newPassword);
@@ -25,7 +25,7 @@ public class Database {
 			
 		if(searchCount == 0)//if x = 1 then it went through
 		{
-			String sqlInput = "INSERT INTO USER VALUES('"+newUserName+"','"+newPassword+"')";
+			String sqlInput = "INSERT INTO USER VALUES('"+newUserName+"','"+newPassword+"','"+NewEmail+"')";
 			stmt.executeUpdate(sqlInput);
 			System.out.println("Successfull input");
 			return true;
