@@ -103,10 +103,14 @@ public class Main extends Application {
      private static Statement stmt;
      private Image image;
      static Webcam webcam;
+<<<<<<< Updated upstream
      static Connection c;
      Database data = new Database();
      public Boolean userCreated = false;
+     
+=======
 
+>>>>>>> Stashed changes
     @Override
     public void start(Stage primaryStage) {
         try {
@@ -452,6 +456,7 @@ public class Main extends Application {
         galleryFlowPane.setStyle("-fx-background-color: cornflowerblue;");
         
         //creates the gallery of image views from the gallery folder
+<<<<<<< Updated upstream
         try (Stream<Path> paths = Files.walk(Paths.get("/CS370/src/application/gallery"))) {
             paths.filter(Files::isRegularFile).forEach((Path path) -> {
                 File file = path.toFile();
@@ -469,8 +474,10 @@ public class Main extends Application {
             System.err.println("Could not find directory.");
         }
 
+=======
         loadImagesIntoGallery();
         
+>>>>>>> Stashed changes
         //wrap the flowpane in a scrollpane
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(galleryFlowPane);
@@ -802,6 +809,8 @@ public class Main extends Application {
   public String initiateUploadedImageGeneration(JSONObject payload) throws Exception {
 		 
 	  String apiKey = "b59de626-ecce-4598-a190-e0944bf78658";
+
+<<<<<<< Updated upstream
             if (status == 200) {
 	    	    System.out.println("IN GET IMAGE");
                 Image image = new Image(response.getBody());
@@ -862,7 +871,7 @@ public class Main extends Application {
                 System.err.println("Failed to get the image with status: " + status + " - " + response.getStatusText());
             }
             response.getBody().close();
-
+=======
 	    try {
 	        HttpResponse<JsonNode> response = Unirest.post("https://api.novita.ai/v2/img2img")
 	                .header("Authorization", "Bearer " + apiKey)
@@ -874,6 +883,7 @@ public class Main extends Application {
 	        	
 	            JSONObject responseBody = response.getBody().getObject();
 	            System.out.println(responseBody.toString());
+>>>>>>> Stashed changes
             
 	            if (responseBody.has("data") && responseBody.getJSONObject("data").has("task_id")) {
 	                String taskId = responseBody.getJSONObject("data").getString("task_id");
