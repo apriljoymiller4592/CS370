@@ -49,9 +49,8 @@ public class WebcamCapture {
 			while(true) {
 				try {
 					Image image = webcam.getImage();
+					Thread.sleep(5000);
 					//imageHolder.setIcon(new ImageIcon(image));
-					
-					Thread.sleep(60);
 				}catch(InterruptedException ex) {
 					Logger.getLogger(WebcamCapture.class.getName()).log(Level.SEVERE,null,ex);
 				}	
@@ -59,7 +58,7 @@ public class WebcamCapture {
 		}
 	}//end of class
 	public static void main(String[] args) throws IOException{
-		 WebcamCapture webcamCapture = new WebcamCapture(); // Create an instance
+	/*	 WebcamCapture webcamCapture = new WebcamCapture(); // Create an instance
 	    webcamCapture.webcam = Webcam.getDefault(); 
 		
 	    webcamCapture.webcam.addWebcamListener(new WebcamListener(){//the event listener
@@ -100,11 +99,10 @@ public class WebcamCapture {
 		
 		//takes a picture
 		ImageIO.write(webcamCapture.webcam.getImage(),"JPG",new File("firstCapture.jpg"));
-		webcamCapture.webcam.close();
+		webcamCapture.webcam.close();*/
 	}
 	
 }
-
 
 
 
