@@ -17,46 +17,18 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/mitchellcurtis/Downloads/javafx-sdk-21/lib/javafx.base.jar">
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/mitchellcurtis/Downloads/javafx-sdk-21/lib/javafx.controls.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/mitchellcurtis/Downloads/javafx-sdk-21/lib/javafx.web.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/mitchellcurtis/Downloads/javafx-sdk-21/lib/javafx.swing.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/mitchellcurtis/Downloads/javafx-sdk-21/lib/javafx.graphics.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/mitchellcurtis/Downloads/javafx-sdk-21/lib/javafx.media.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/mitchellcurtis/Downloads/javafx-sdk-21/lib/javafx-swt.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/mitchellcurtis/Downloads/javafx-sdk-21/lib/javafx.fxml.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/mitchellcurtis/Downloads/mysql-connector-j-8.1.0/mysql-connector-j-8.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lmart/Downloads/mysql-connector-j-8.1.0/mysql-connector-j-8.1.0/mysql-connector-j-8.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lmart/Downloads/webcam-capture-0.3.12-dist/webcam-capture-0.3.12-dist/libs/slf4j-api-1.7.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lmart/Downloads/webcam-capture-0.3.12-dist/webcam-capture-0.3.12-dist/libs/bridj-0.7.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lmart/Downloads/webcam-capture-0.3.12-dist/webcam-capture-0.3.12-dist/webcam-capture-0.3.12.jar"/>
+	<classpathentry kind="lib" path="/Users/aprilmiller/Downloads/mysql-connector-j-8.1.0/mysql-connector-j-8.1.0.jar"/>
+	<classpathentry kind="lib" path="/Users/aprilmiller/Downloads/webcam-capture-0.3.12-dist/webcam-capture-0.3.12.jar"/>
+	<classpathentry kind="lib" path="/Users/aprilmiller/Downloads/webcam-capture-0.3.12-dist/libs/slf4j-api-1.7.2.jar"/>
+
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
