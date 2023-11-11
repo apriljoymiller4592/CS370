@@ -88,6 +88,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -97,7 +98,7 @@ public class Main extends Application {
      private static final String dbClassname = "com.mysql.cj.jdbc.Driver";
      private static final String CONNECTION = "jdbc:mysql://127.0.0.1/ArtFaceDB";
      private static Stage primaryStage = new Stage();
-     private static Scene[] sceneArray = new Scene[4];
+     private static Scene[] sceneArray = new Scene[5];
      private FlowPane galleryFlowPane = new FlowPane();
      private ImageView imageView = new ImageView();
      private static Statement stmt;
@@ -378,11 +379,11 @@ public class Main extends Application {
 
         //set default profile picture
       Image defaultPic = new Image("application/icon.jpeg");
-      ImageView defaultImView = new ImageView(defaultPic);
-      profileGrid.add(defaultImView, 0, 1);
-      defaultImView.setFitWidth(200);
-      defaultImView.setFitHeight(200);
-      defaultImView.setPreserveRatio(true);
+      ImageView defaultImageView = new ImageView(defaultPic);
+      profileGrid.add(defaultImageView, 0, 1);
+      defaultImageView.setFitWidth(200);
+      defaultImageView.setFitHeight(200);
+      defaultImageView.setPreserveRatio(true);
 
       Label profileLabel = new Label("My Profile");
       profileLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
@@ -395,35 +396,14 @@ public class Main extends Application {
       Scene profileScene = new Scene(profileGrid, 800, 800);
 
       uploadProfileBtn.setAlignment(Pos.TOP_CENTER);
+      
+      ImageView profileImageView = new ImageView();
 
       uploadProfileBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                  FileChooser fileChooser = new FileChooser();
-
-                  fileChooser.setTitle("Select a File to Upload");
-
-                  //prompt user to upload photo
-                  File uploadedImage = fileChooser.showOpenDialog(primaryStage);
-
-                  if (uploadedImage != null) {
-                      try {
-                        //replace the default image with the new profile photo
-                        defaultImView.setVisible(false);
-                          Image image = new Image(uploadedImage.toURI().toString());
-                        ImageView imageViewUpl = new ImageView(image);
-
-                        imageViewUpl.setFitWidth(200);
-                        imageViewUpl.setFitHeight(200);
-                        imageViewUpl.setPreserveRatio(true);
-
-                        profileGrid.add(imageViewUpl, 0, 1);
-                      } catch (Exception e) {
-                          e.printStackTrace();
-                          System.err.println("Uploaded image is null.");
-                      }
-              }
-           }
+            	uploadProfilePhoto(profileImageView, defaultImageView, profileGrid, 1, 0);
+            }
         });
 
         //gallery to the grid containing profile contents
@@ -437,37 +417,62 @@ public class Main extends Application {
 
     }
 
+    private void uploadProfilePhoto(ImageView profileImageView, ImageView defaultImageView, GridPane profileGrid, int row, int column) {
+        FileChooser fileChooser = new FileChooser();
+
+        fileChooser.setTitle("Select a File to Upload");
+
+        //prompt user to upload photo
+        File uploadedImage = fileChooser.showOpenDialog(primaryStage);
+
+        if (uploadedImage != null) {
+            try {
+              //replace the default image with the new profile photo
+              defaultImageView.setVisible(false);
+              Image image = new Image(uploadedImage.toURI().toString());
+              ImageView imageViewUpl = new ImageView(image);
+
+              imageViewUpl.setFitWidth(200);
+              imageViewUpl.setFitHeight(200);
+              imageViewUpl.setPreserveRatio(true);
+
+              profileGrid.add(imageViewUpl, column, row);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("Uploaded image is null.");
+            }
+        }
+    }
+    
     //create the gallery
     public ScrollPane createGallery() {
-        galleryFlowPane.setPadding(new Insets(5, 5, 5, 5));
-        galleryFlowPane.setVgap(4);
-        galleryFlowPane.setHgap(4);
-        galleryFlowPane.setStyle("-fx-background-color: cornflowerblue;");
+        TilePane galleryTilePane = new TilePane();
+        galleryTilePane.setPadding(new Insets(5, 5, 5, 5));
+        galleryTilePane.setVgap(4);
+        galleryTilePane.setHgap(4);
+        galleryTilePane.setStyle("-fx-background-color: cornflowerblue;");
+        galleryTilePane.setPrefColumns(4); 
+        galleryTilePane.setAlignment(Pos.CENTER);
 
-        //creates the gallery of image views from the gallery folder
-
-        try (Stream<Path> paths = Files.walk(Paths.get("/CS370/src/application/gallery"))) {
-            paths.filter(Files::isRegularFile).forEach((Path path) -> {
+        try (Stream<Path> paths = Files.walk(Paths.get("/Users/aprilmiller/CS370/src/application/gallery"))) {
+            paths.filter(Files::isRegularFile).forEach(path -> {
                 File file = path.toFile();
-                if (file != null) {
-                    Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
-                    ImageView galleryImageView = new ImageView(galleryImage);
-                    galleryImageView.setFitWidth(150);
-                    galleryImageView.setPreserveRatio(true);
+                Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
+                ImageView galleryImageView = new ImageView(galleryImage);
+                galleryImageView.setFitWidth(150);
+                galleryImageView.setFitHeight(150);
+                galleryImageView.setPreserveRatio(true);
 
-                    galleryFlowPane.getChildren().add(galleryImageView);
-                }
+                galleryTilePane.getChildren().add(galleryImageView);
             });
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Could not find directory.");
         }
 
-        loadImagesIntoGallery();
-
-        //wrap the flowpane in a scrollpane
+        // Wrap the TilePane in a ScrollPane
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(galleryFlowPane);
+        scrollPane.setContent(galleryTilePane);
         scrollPane.setFitToWidth(true);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -495,16 +500,22 @@ public class Main extends Application {
         ComboBox<String> genComboBox = new ComboBox<>();
 
         ObservableList<String> items = FXCollections.observableArrayList(
-            "Anime",
-            "Realistic Beauty",
-            "Surreal",
-            "Animated"
+        		"Animated",
+        		"Abstract",
+	            "Anime",
+	            "Cartoon",
+	            "Futuristic",
+	            "Outer space",
+	            "Painting",
+	            "Psychedelic",
+	            "Surreal",
+	            "Underwater"      
         );
         
         ObservableList<String> genItems = FXCollections.observableArrayList(
-                "Anime",
                 "Abstract",
                 "Animated",
+                "Anime",
                 "Black and white",
                 "Caricature",
                 "Fantasy",
@@ -594,7 +605,7 @@ public class Main extends Application {
             public void handle(ActionEvent event) {
                 String prompt = promptTextField.getText();
 
-                String style = getTextPrompt(comboBox.getValue());
+                String style = getUploadedPrompt(comboBox.getValue());
                 
             	onUploadButtonClicked(prompt, style);
            }
@@ -618,7 +629,8 @@ public class Main extends Application {
         primaryStage.show();
   }
     
- public void onUploadButtonClicked(String prompt, String style)
+
+public void onUploadButtonClicked(String prompt, String style)
  {
 	 GridPane grid = new GridPane();
      grid.setStyle("-fx-background-color: lavenderblush;");
@@ -662,10 +674,33 @@ public class Main extends Application {
     		        ImageView uploadImageView = new ImageView(uploadImage);
     		        uploadImageView.setFitHeight(500);
     		        uploadImageView.setFitWidth(500);
-    		        grid.add(uploadImageView, 1, 1);
+    		        grid.add(uploadImageView, 0, 1);
 
-    		        CreateBackButton(grid, sceneArray[3], 0, 0);
+    	            Button newImgBtn = new Button("Generate new Image");
+    	            grid.add(newImgBtn, 0, 2);
+    	            newImgBtn.setOnAction(new EventHandler<ActionEvent>() {
+    	                  @Override
+    	                  public void handle(ActionEvent event) {
+    	                    primaryStage.setScene(sceneArray[3]);
+    	                    primaryStage.show();
+    	                  }
+    	            });
+
+    	            Button saveButton = new Button("Save Image");
+    	            grid.add(saveButton, 0, 3);
+    	            saveButton.setOnAction(new EventHandler<ActionEvent>() {
+    	                  @Override
+    	                  public void handle(ActionEvent event) {
+    	                      try {
+    	                saveImage(primaryStage, uploadImageView.getImage());
+    	              } catch (IOException e) {
+    	                showAlert("Error!", "Photo could not be saved at this time.");
+    	                System.err.println("Photo could not be saved.");
+    	              }
+    	                  }
+    	            });
     		    }
+    		    Platform.runLater(() -> addImageToGallery(uploadedImage.toPath()));
     		});
 
     		loadImageTask.setOnFailed(event -> {
@@ -677,7 +712,7 @@ public class Main extends Application {
      }
      
      Platform.runLater(() -> {
-    	 sceneArray[3] = loadImageScene;
+    	 sceneArray[4] = loadImageScene;
          primaryStage.setScene(loadImageScene);
          primaryStage.show();
      });
@@ -727,7 +762,48 @@ public class Main extends Application {
 	 return enteredPrompt;
 
  }
-
+ 
+ public String getUploadedPrompt(String style) {
+	 String enteredPrompt = "";
+	 
+	 switch (style) {
+     case "Anime":
+         enteredPrompt = "anime, japanese cartoon, cute, big eyes";
+         break;
+     case "Abstract":
+         enteredPrompt = "abstract, geometric";
+         break;
+     case "Animated":
+         enteredPrompt = "animated, animation";
+         break;
+     case "Cartoon":
+         enteredPrompt = "cartoon, comic";
+         break;
+     case "Caricature":
+         enteredPrompt = "caricature, exaggerated features";
+         break;
+     case "Fantasy":
+         enteredPrompt = "fantasy, mystical";
+         break;
+     case "Picasso":
+         enteredPrompt = "picasso, art";
+         break;
+     case "Pointilism":
+         enteredPrompt = "pointilism, art";
+         break;
+     case "Psychedelic":
+         enteredPrompt = "psychedelic, trippy";
+         break;
+     case "Surreal":
+         enteredPrompt = "surreal, realistic";
+         break;
+     default:
+         enteredPrompt = " "; 
+         break;
+ }
+	 
+	 return enteredPrompt;
+	}
 
 
   //save an image
@@ -754,6 +830,7 @@ public class Main extends Application {
       Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
       ImageView galleryImageView = new ImageView(galleryImage);
       galleryImageView.setFitWidth(150);
+      galleryImageView.setFitHeight(150);
       galleryImageView.setPreserveRatio(true);
       galleryFlowPane.getChildren().add(galleryImageView);
 }
@@ -901,6 +978,8 @@ public class Main extends Application {
 		              .field("init_image", imageData, "image.png")
 		              .field("text_prompts[0][text]", prompt + " " + style)
 		              .field("text_prompts[0][weight]", 1)
+		              .field("text_prompts[1][text]", "bad quality, distorted features, cross eyes, six fingers, four fingers, abnormalities, creepy, nsfw")
+		              .field("text_prompts[1][weight]", -1)
 		              .field("cfg_scale", 7)
 		              .field("clip_guidance_preset", "FAST_BLUE")
 		              .field("sampler", "K_DPM_2_ANCESTRAL")
@@ -925,26 +1004,7 @@ public class Main extends Application {
 	        e.printStackTrace();
 	    }
 	    return null;
-	}
-
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+	} 
 
   //back button
   private void CreateBackButton(GridPane grid, Scene backScene, int colIndex, int rowIndex) {
