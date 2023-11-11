@@ -1,4 +1,4 @@
-public class databaseHandler {
+/*public class databaseHandler {
     private static final String dbClassname = "com.mysql.cj.jdbc.Driver";    //assume JDBC driver is installed
     public boolean databaseInitialConnection(String CONNECTION, Properties properties)
     {
@@ -116,4 +116,4 @@ public class databaseHandler {
 
   //PART OF START
   if (promptSQLConnection())
-  createHomePage();
+  createHomePage();*/

@@ -492,6 +492,7 @@ public class Main extends Application {
         mainGrid.setStyle("-fx-background-color: plum;");
         mainGrid.setPadding(new Insets(15, 15, 15, 15));
         ComboBox<String> comboBox = new ComboBox<>();
+        ComboBox<String> genComboBox = new ComboBox<>();
 
         ObservableList<String> items = FXCollections.observableArrayList(
             "Anime",
@@ -499,8 +500,22 @@ public class Main extends Application {
             "Surreal",
             "Animated"
         );
+        
+        ObservableList<String> genItems = FXCollections.observableArrayList(
+                "Anime",
+                "Abstract",
+                "Animated",
+                "Black and white",
+                "Caricature",
+                "Fantasy",
+                "Picasso",
+                "Pointilism",
+                "Psychedelic",
+                "Surreal"         
+            );
 
         comboBox.setItems(items);
+        genComboBox.setItems(genItems);
 
         //grid to add go to profile button
         GridPane profileGrid = new GridPane();
@@ -525,37 +540,37 @@ public class Main extends Application {
 
         Text uploadText = new Text("Create an AI version of you");
         uploadText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        centeredGrid.add(uploadText, 25, 15);
+        centeredGrid.add(uploadText, 25, 14);
 
-        Button uploadButton = new Button("Upload Image");
-        centeredGrid.add(uploadButton, 25, 16);
+        Label styleLabel1 = new Label("Enter a Style:");
+        centeredGrid.add(styleLabel1, 25, 15);
+        centeredGrid.add(comboBox, 25, 17);
         
-        Label styleLabel = new Label("Enter a Style:");
-        centeredGrid.add(styleLabel, 25, 17);
-        centeredGrid.add(comboBox, 25, 18);
+        Button uploadButton = new Button("Upload Image");
+        centeredGrid.add(uploadButton, 25, 18);
 
         Text promptText = new Text("...Or create someone new!");
         promptText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
         centeredGrid.add(promptText, 25, 19);
+        
+        Label styleLabel2 = new Label("Enter a Style:");
+        centeredGrid.add(styleLabel2, 25, 20);
+        centeredGrid.add(genComboBox, 25, 21);
 
         Label promptLabel = new Label("Enter a Prompt:");
         TextField promptTextField = new TextField();
-        centeredGrid.add(promptLabel, 25, 20);
-        centeredGrid.add(promptTextField, 25, 21);
+        centeredGrid.add(promptLabel, 25, 22);
+        centeredGrid.add(promptTextField, 25, 23);
 
         Button generateImageButton = new Button("Generate Image");
-        centeredGrid.add(generateImageButton, 25, 22);
+        centeredGrid.add(generateImageButton, 25, 24);
         
-        String prompt = promptTextField.getText();
-
-        String style = getPrompt(comboBox.getValue());
-
         generateImageButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 String prompt = promptTextField.getText();
 
-                String style = getPrompt(comboBox.getValue());
+                String style = getTextPrompt(genComboBox.getValue());
 
                 if (prompt.length() < 1)
                 {
@@ -579,7 +594,7 @@ public class Main extends Application {
             public void handle(ActionEvent event) {
                 String prompt = promptTextField.getText();
 
-                String style = getPrompt(comboBox.getValue());
+                String style = getTextPrompt(comboBox.getValue());
                 
             	onUploadButtonClicked(prompt, style);
            }
@@ -605,110 +620,114 @@ public class Main extends Application {
     
  public void onUploadButtonClicked(String prompt, String style)
  {
+	 GridPane grid = new GridPane();
+     grid.setStyle("-fx-background-color: lavenderblush;");
+     grid.setPadding(new Insets(15, 15, 15, 15));
+     grid.setAlignment(Pos.CENTER);
+     
      FileChooser fileChooser = new FileChooser();
 
      fileChooser.setTitle("Select a File to Upload");
 
      File uploadedImage = fileChooser.showOpenDialog(primaryStage);
+     
+     Scene loadImageScene = new Scene(grid, 800, 800);
+     
+     ProgressIndicator progressIndicator = new ProgressIndicator();
+     progressIndicator.setVisible(false);
+     grid.add(progressIndicator, 0, 2);
+
      if (uploadedImage != null) {
-         try {
-           String selectedItem = style;
-           JSONObject payload = createUploadedPayload(encodeToBase64(uploadedImage.toPath()), selectedItem, prompt);
-
-           if (selectedItem == null)
-           {
-           	showAlert("Error", "Please enter a style");
-           }
-           
-           String taskId = initiateImageGeneration(payload);
-             if (taskId != null) {
-                 getUploadImage(taskId);
-             }
-         } catch (Exception e) {
-             e.printStackTrace();
-         }
- }	 
- }
-
- public JSONObject createUploadedPayload(String base64EncodedImage, String style, String prompt) {
-        JSONObject payload = new JSONObject();
-
-        String modelName = getModelName(style);
-        String enteredPrompt = getPrompt(style);
-
-        payload.put("negative_prompt", "(worst quality, low quality:2), revealing clothing, short shorts, zombie,overexposure, watermark,text, nsfw, sexy, short dresses, sexualized, bad anatomy,bad hand,extra hands,extra fingers,too many fingers,fused fingers,bad arm,distorted arm,extra arms,fused arms,extra legs,missing leg,disembodied leg,extra nipples, detached arm, liquid hand,inverted hand,disembodied limb, loli, oversized head,extra body, nude, extra navel,easynegative,(hair between eyes),sketch, duplicate, ugly, huge eyes, text, logo, worst face, (bad and mutated hands:1.3),  (blurry:2.0), horror, geometry, bad_prompt, (bad hands), (missing fingers), multiple limbs, bad anatomy, (interlocked fingers:1.2), Ugly Fingers, (extra digit and hands and fingers and legs and arms:1.4), ((2girl)), (deformed fingers:1.2), (long fingers:1.2),(bad-artist-anime), bad-artist, bad hand, extra legs ,(ng_deepnegative_v1_75t)");
-      	payload.put("sampler_name", "DPM++ 2M Karras");
-      	payload.put("batch_size", 1);
-        payload.put("n_iter", 1);
-        payload.put("steps", 30);
-        payload.put("cfg_scale", 20);
-        payload.put("seed", 9999);
-        payload.put("height", 1024);
-        payload.put("width", 768);
-        payload.put("model_name", modelName);
-        payload.put("denoising_strength", 0.9);
-        payload.put("restore_faces", false);
-
-        if (base64EncodedImage.length() > 0)
-        {
-          payload.put("prompt", enteredPrompt);
-          JSONArray initImages = new JSONArray();
-          initImages.put(base64EncodedImage);
-          payload.put("init_images", initImages);
-        }
-        else
-          payload.put("prompt", prompt);
-
-        return payload;
-    }
-
- public String getModelName(String style)
- {
-	   String modelName = "";
-	   if (style == "Anime")
-	   {
-	     modelName = "darkSushiMixMix_colorful.safetensors";
-	   }
-	   if (style == "Realistic Beauty")
-	   {
-	     modelName = "beautifulRealistic_brav3_31664.safetensors";
-	   }
-	   if (style == "Surreal")
-	   {
-	     modelName = "revAnimated_v122.safetensors";
-	   }
-	   if (style == "Animated")
-	   {
-	     modelName = "dreamshaper_62BakedVae_66596.safetensors";
-	   }
+    	 Task<Image> loadImageTask = new Task<>() {
+    		    @Override
+    		    protected Image call() throws Exception {
+    		       progressIndicator.setVisible(true);
+    		       updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
+    		       
+		           String encodedImage = encodeToBase64(uploadedImage.toPath());
 	
-	   return modelName;
+		           byte[] imageData = generateImageFromImage(encodedImage, prompt, style);
+		           if (imageData != null) {
+		               return new Image(new ByteArrayInputStream(imageData));
+		           }
+		           
+		           return null;
+	    		   }
+    	 };
+    	 
+    	 loadImageTask.setOnSucceeded(event -> {
+    		 	progressIndicator.setVisible(false);
+    		    Image uploadImage = loadImageTask.getValue();
+    		    if (uploadImage != null) {
+    		        ImageView uploadImageView = new ImageView(uploadImage);
+    		        uploadImageView.setFitHeight(500);
+    		        uploadImageView.setFitWidth(500);
+    		        grid.add(uploadImageView, 1, 1);
+
+    		        CreateBackButton(grid, sceneArray[3], 0, 0);
+    		    }
+    		});
+
+    		loadImageTask.setOnFailed(event -> {
+                progressIndicator.setVisible(false);
+    		    System.err.println("Image could not be loaded");
+    		});
+    		
+    		new Thread(loadImageTask).start();
+     }
+     
+     Platform.runLater(() -> {
+    	 sceneArray[3] = loadImageScene;
+         primaryStage.setScene(loadImageScene);
+         primaryStage.show();
+     });
  }
 
- public String getPrompt(String style)
+ 
+ public String getTextPrompt(String style)
  {
-	   String enteredPrompt = "";
-	   if (style == "Anime")
-	   {
-	     enteredPrompt = "masterpiece, best quality,\n"
-	        + "(colorful),(finely detailed beautiful eyes and detailed face),cinematic lighting,, extremely detailed CG unity 8k wallpaper,white hair,solo,smile,intricate skirt,((flying petal)),(Flowery meadow)\n"
-	        + "sky, cloudy_sky, building, moonlight, moon, night, (dark theme:1.3), light, fantasy";
-	   }
-	   if (style == "Realistic Beauty")
-	   {
-	     enteredPrompt = " ";
-	   }
-	   if (style == "Surreal")
-	   {
-	     enteredPrompt = "((best quality)), ((masterpiece)), (detailed), ethereal beauty, perched on a cloud, (fantasy illustration:1.3), enchanting gaze, captivating pose, delicate wings, otherworldly charm, mystical sky, (Luis Royo:1.2), (Yoshitaka Amano:1.1), moonlit night, soft colors, (detailed cloudscape:1.3), (high-resolution:1.2)";
-	   }
-	   if (style == "Animated")
-	   {
-	     enteredPrompt = "animated, 8k portrait of beautiful cyborg with brown hair, intricate, elegant, highly detailed, majestic, digital photography, art by artgerm and ruan jia and greg rutkowski surreal painting gold butterfly filigree, broken glass, (masterpiece, sidelighting, finely detailed beautiful eyes: 1.2), hdr, <lora:more_details:0.3>";
-	   }
-	
-	   return enteredPrompt;
+	 String enteredPrompt = "";
+
+	 switch (style) {
+	     case "Anime":
+	         enteredPrompt = "anime, japanese cartoon, cute, big eyes";
+	         break;
+	     case "Abstract":
+	         enteredPrompt = "abstract, geometric";
+	         break;
+	     case "Animated":
+	         enteredPrompt = "animated, animation";
+	         break;
+	     case "Black and white":
+	         enteredPrompt = "black and white, b&w";
+	         break;
+	     case "Caricature":
+	         enteredPrompt = "caricature, exaggerated features";
+	         break;
+	     case "Fantasy":
+	         enteredPrompt = "fantasy, mystical";
+	         break;
+	     case "Picasso":
+	         enteredPrompt = "picasso, art";
+	         break;
+	     case "Pointilism":
+	         enteredPrompt = "pointilism, art";
+	         break;
+	     case "Psychedelic":
+	         enteredPrompt = "psychedelic, trippy";
+	         break;
+	     case "Surreal":
+	         enteredPrompt = "surreal, realistic";
+	         break;
+	     default:
+	         enteredPrompt = " "; 
+	         break;
+	 }
+
+	 return enteredPrompt;
+
  }
+
 
 
   //save an image
@@ -770,6 +789,7 @@ public class Main extends Application {
       grid.setHgap(10);
       grid.setVgap(10);
       grid.setPadding(new Insets(25, 25, 25, 25));
+      grid.setStyle("-fx-background-color: lavenderblush;");
 
       StackPane stack = new StackPane();
       grid.add(stack, 0, 1, 2, 1); 
@@ -786,7 +806,7 @@ public class Main extends Application {
         	  updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
               return generateImageFromText(prompt, style);
           }
-
+          
           @Override
           protected void succeeded() {
               super.succeeded();
@@ -794,6 +814,30 @@ public class Main extends Application {
               ImageView genImageView = new ImageView(imageResponse);
               stack.getChildren().add(genImageView);
               progressIndicator.setVisible(false);
+              
+              Button newImgBtn = new Button("Generate new Image");
+              grid.add(newImgBtn, 0, 2);
+              newImgBtn.setOnAction(new EventHandler<ActionEvent>() {
+                  @Override
+                  public void handle(ActionEvent event) {
+                    primaryStage.setScene(sceneArray[3]);
+                    primaryStage.show();
+                  }
+              });
+
+              Button saveButton = new Button("Save Image");
+              grid.add(saveButton, 0, 3);
+              saveButton.setOnAction(new EventHandler<ActionEvent>() {
+                  @Override
+                  public void handle(ActionEvent event) {
+                      try {
+                saveImage(primaryStage, genImageView.getImage());
+              } catch (IOException e) {
+                showAlert("Error!", "Photo could not be saved at this time.");
+                System.err.println("Photo could not be saved.");
+              }
+                  }
+              });
           }
 
           @Override
@@ -814,138 +858,7 @@ public class Main extends Application {
           primaryStage.show();
       });
   }
-  
-  private static String initiateImageGeneration(JSONObject payload) throws Exception {
-	  String apiKey = "b59de626-ecce-4598-a190-e0944bf78658";
-
-	  HttpResponse<JsonNode> response = Unirest.post("https://api.novita.ai/v2/img2img")
-	                .header("Authorization", "Bearer " + apiKey)
-	                .header("Content-Type", "application/json")
-	                .body(payload)
-	                .asJson();
-	  
-      if (response.getStatus() == 200) {
-          JSONObject responseBody = response.getBody().getObject();
-          if (responseBody.has("data") && responseBody.getJSONObject("data").has("task_id")) {
-              return responseBody.getJSONObject("data").getString("task_id");
-          } else {
-              System.err.println("Error: 'task_id' not found in response.");
-              return null;
-          }
-      } else {
-          System.err.println("Error in response: " + response.getStatus());
-          return null;
-      }
-  }
-
-
-  private void getUploadImage(String taskId) throws InterruptedException, UnirestException {
-    String apiKey = "b59de626-ecce-4598-a190-e0944bf78658"; 
-    boolean completed = false;
-    GridPane initGrid = new GridPane();
-
-    initGrid.setStyle("-fx-background-color: lavenderblush;");
-    initGrid.setAlignment(Pos.CENTER);
-    initGrid.setHgap(10);
-    initGrid.setVgap(10);
-    initGrid.setPadding(new Insets(25, 25, 25, 25));
-
-      while (!completed) {
-          Thread.sleep(5000);
-
-          HttpResponse<JsonNode> progressResponse = Unirest.get("https://api.novita.ai/v2/progress")
-                  .queryString("task_id", taskId)
-                  .header("Authorization", "Bearer " + apiKey)
-                  .asJson();
-
-          System.out.println(progressResponse.getStatus());
-          System.out.println(progressResponse.getBody());
-          JSONObject responseBody = progressResponse.getBody().getObject();
-          if (responseBody.has("data")) {
-              Object dataObject = responseBody.get("data");
-
-              if (dataObject instanceof JSONObject) {
-                  JSONObject dataJsonObject = (JSONObject) dataObject;
-
-                  if (dataJsonObject.has("current_images")) {
-                      JSONArray currentImages = dataJsonObject.getJSONArray("current_images");
-
-                      //Image image = new Image(currentImages.toString());
-                      //imageView3.setImage(image);
-
-                      if (currentImages.length() > 0) {
-                          String base64Image = currentImages.getString(0);
-
-                          byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-
-                          javafx.scene.image.Image fxImage = new javafx.scene.image.Image(new ByteArrayInputStream(imageBytes));
-
-                          ImageView imageView3 = new ImageView(fxImage);
-
-                            imageView3.setFitHeight(500);
-                            imageView3.setFitWidth(500);
-
-
-                            WritableImage writableImage = new WritableImage((int) fxImage.getWidth(), (int) fxImage.getHeight());
-                            imageView3.snapshot(null, writableImage);
-
-                            File outputFile = new File("/Users/aprilmiller/CS370/src/application/gallery/" + fxImage.hashCode() + ".png");
-                            try {
-                                ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", outputFile);
-                                System.out.println("Image saved: " + outputFile.getAbsolutePath());
-                            } catch (IOException ex) {
-                                ex.printStackTrace();
-                            }           
-
-                            Button newImgBtn = new Button("Generate new Image");
-                            initGrid.add(newImgBtn, 0, 1);
-                            newImgBtn.setOnAction(new EventHandler<ActionEvent>() {
-                                @Override
-                                public void handle(ActionEvent event) {
-                                  primaryStage.setScene(sceneArray[3]);
-                                  primaryStage.show();
-                                }
-                            });
-
-                            Button saveButton = new Button("Save Image");
-                            initGrid.add(saveButton, 0, 2);
-                            saveButton.setOnAction(new EventHandler<ActionEvent>() {
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    try {
-                              saveImage(primaryStage, imageView3.getImage());
-                            } catch (IOException e) {
-                              showAlert("Error!", "Photo could not be saved at this time.");
-                              System.err.println("Photo could not be saved.");
-                            }
-                                }
-                            });
-
-                            initGrid.add(imageView3, 0, 0);
-                            Scene getUploadImageScene = new Scene(initGrid, 800, 800);
-
-                            primaryStage.setScene(getUploadImageScene);
-                            primaryStage.show();
-
-                          completed = true;
-                      } else {
-                          System.err.println("No images found in the 'current_images' array.");
-                      }
-
-                  } else {
-                      System.err.println("'current_images' not found in 'data' object.");
-                  }
-              } else {
-                  System.err.println("'data' is not a JSONObject.");
-              }
-          } else {
-              System.err.println("'data' field not found in the response.");
-          }
-
-
-      }
-  }
-
+ 
   public static Image generateImageFromText(String text, String style) throws UnirestException {
       JSONObject body = new JSONObject();
       body.put("text", text + style);
@@ -970,6 +883,68 @@ public class Main extends Application {
           return null;
       }
   }
+  
+  
+  
+  public byte[] generateImageFromImage(String base64Image, String prompt, String style) {
+	    try {
+	    	
+	        byte[] imageData = Base64.getDecoder().decode(base64Image);
+
+	        //String engine_id = "stable-diffusion-xl-1024-v1-0";
+	        String engine_id = "stable-diffusion-512-v2-1";
+
+	        HttpResponse<JsonNode> response = Unirest.post("https://api.stability.ai/v1/generation/" + engine_id + "/image-to-image")
+		              .header("Authorization", "Bearer sk-no6ZZBdGyv8LIVOZi0WGPTlgcQWk8rBzCv8VQKErIIMFGHwY")
+		              .field("image_strength", 0.35)
+		              .field("init_image_mode", "IMAGE_STRENGTH")
+		              .field("init_image", imageData, "image.png")
+		              .field("text_prompts[0][text]", prompt + " " + style)
+		              .field("text_prompts[0][weight]", 1)
+		              .field("cfg_scale", 7)
+		              .field("clip_guidance_preset", "FAST_BLUE")
+		              .field("sampler", "K_DPM_2_ANCESTRAL")
+		              .field("samples", 3)
+		              .field("steps", 30)
+		              .asJson();
+
+	        System.out.println(response.getBody());
+	        if (response.getStatus() == 200) {
+	        	JSONObject obj = new JSONObject(response.getBody().toString());
+	        	JSONArray artifactsArray = obj.getJSONArray("artifacts");
+
+	            if (artifactsArray.length() > 0) {
+	                JSONObject firstArtifact = artifactsArray.getJSONObject(0);
+	                String responseBase64Image = firstArtifact.getString("base64");
+	            return Base64.getDecoder().decode(responseBase64Image);
+	            }
+	        } else {
+	            System.err.println("API request failed: " + response.getStatus() + " : " + response.getStatusText());
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return null;
+	}
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   //back button
   private void CreateBackButton(GridPane grid, Scene backScene, int colIndex, int rowIndex) {
