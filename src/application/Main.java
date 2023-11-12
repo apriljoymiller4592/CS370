@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
@@ -107,6 +108,8 @@ public class Main extends Application {
      static Connection c;
      Database data = new Database();
      public Boolean userCreated = false;
+     public Boolean isUploaded = false;
+     private File uploadedImageFile;
 
     public void start(Stage primaryStage) {
         try {
@@ -121,11 +124,11 @@ public class Main extends Application {
     public void createHomePage() 
     {
         GridPane gridPane = new GridPane();
-        Scene homeScene = new Scene(gridPane, 800, 800);
+        Scene homeScene = new Scene(gridPane, 850, 850);
 
         Text sceneTitle = new Text("Hello, ArtFace!");
         sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        gridPane.add(sceneTitle, 0, 0, 2, 1);
+        gridPane.add(sceneTitle, 2, 1);
         gridPane.setStyle("-fx-background-color: teal;");
 
         gridPane.setAlignment(Pos.CENTER);
@@ -150,9 +153,15 @@ public class Main extends Application {
                 createSignInPage();
             }
         });
-
-        gridPane.add(signInBtn, 0, 1, 1, 1);
-        gridPane.add(signUpBtn, 1, 1, 1, 1);
+        
+        Image homeImage = new Image("application/Drawing.jpeg");
+        ImageView homeImageView = new ImageView(homeImage);
+        homeImageView.setFitHeight(200);
+        homeImageView.setFitWidth(300);
+        
+        gridPane.add(homeImageView, 2, 0);
+        gridPane.add(signInBtn, 1, 2);
+        gridPane.add(signUpBtn, 3, 2);
         sceneArray[0] = homeScene;
         primaryStage.setTitle("ArtFace");
         primaryStage.setScene(homeScene);
@@ -176,98 +185,98 @@ public class Main extends Application {
       signUpGrid.setAlignment(Pos.CENTER);
       signUpGrid.setHgap(10);
       signUpGrid.setVgap(10);
-    signUpGrid.setPadding(new Insets(25, 25, 25, 25));
+      signUpGrid.setPadding(new Insets(25, 25, 25, 25));
 
       Text signUpTitle = new Text("Sign Up");
       signUpTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
       signUpGrid.add(signUpTitle, 0, 1);
 
-    Label userName = new Label("User Name:");
-    signUpGrid.add(userName, 0, 2);
-
-    TextField userTextField = new TextField();
-    signUpGrid.add(userTextField, 1, 2);
-
-    Label pw = new Label("Password:");
-    signUpGrid.add(pw, 0, 3);
-
-    PasswordField pwBox = new PasswordField();
-    signUpGrid.add(pwBox, 1, 3);
-
-    Label name = new Label("Name:");
-    signUpGrid.add(name, 0, 4);
-
-    TextField nameField = new TextField();
-    signUpGrid.add(nameField, 1, 4);
-
-    Label email = new Label("Email:");
-    signUpGrid.add(email, 0, 5);
-
-    TextField emailField = new TextField();
-    signUpGrid.add(emailField, 1, 5);
-
-    Button signUpButton = new Button("Sign up");
-    signUpGrid.add(signUpButton, 0, 6);
-
-    Scene signUpScene = new Scene(mainGrid, 800, 800);
-
-  signUpButton.setOnAction(new EventHandler<ActionEvent>() {
-  @Override
-  public void handle(ActionEvent event) {
-        String enteredUsername = userTextField.getText();
-        String enteredPassword = pwBox.getText();
-        String enteredEmail = emailField.getText();
-        String enteredName = nameField.getText();
-
-        //validate form fields
-      if (enteredUsername.trim().length() == 0)
-      {
-        showAlert("Error", "Please enter a username.");
-        return;
-      }
-
-      else if (enteredPassword.trim().length() < 5)
-      {
-        showAlert("Error", "Please enter a password longer than 5 characters.");
-        return;
-      }
-
-      else if (!enteredEmail.contains("@"))
-      {
-        showAlert("Error", "Please enter a valid email");
-        return;
-      }
-
-      else if (enteredName.trim().length() == 0)
-      {
-        showAlert("Error", "Please enter your name");
-        return;
-      }
-    /*  try {
-        userCreated = data.newUser(c, enteredUsername, enteredPassword);
-      } catch (ClassNotFoundException | SQLException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }*/
-      System.out.println("userCreated" + userCreated);
-      //if all form fields are valid, go to create image generation page
-      if(userCreated)
-        createImageGenerationPage(signUpScene);	
-      else
-      {
-        userTextField.clear();
-        showAlert("Error", "Username taken, please enter new username");
-      }
-  }
-  });
-
-	  mainGrid.add(signUpGrid, 20, 27);
+      Label userName = new Label("User Name:");
+	  signUpGrid.add(userName, 0, 2);
 	
-	  CreateBackButton(mainGrid, sceneArray[0], 0, 0);
+	    TextField userTextField = new TextField();
+	    signUpGrid.add(userTextField, 1, 2);
 	
-	  sceneArray[1] = signUpScene;
-	  primaryStage.setScene(signUpScene);
-	  primaryStage.show();
+	    Label pw = new Label("Password:");
+	    signUpGrid.add(pw, 0, 3);
+	
+	    PasswordField pwBox = new PasswordField();
+	    signUpGrid.add(pwBox, 1, 3);
+	
+	    Label name = new Label("Name:");
+	    signUpGrid.add(name, 0, 4);
+	
+	    TextField nameField = new TextField();
+	    signUpGrid.add(nameField, 1, 4);
+	
+	    Label email = new Label("Email:");
+	    signUpGrid.add(email, 0, 5);
+	
+	    TextField emailField = new TextField();
+	    signUpGrid.add(emailField, 1, 5);
+	
+	    Button signUpButton = new Button("Sign up");
+	    signUpGrid.add(signUpButton, 0, 6);
+	
+	    Scene signUpScene = new Scene(mainGrid, 850, 850);
+	
+	  signUpButton.setOnAction(new EventHandler<ActionEvent>() {
+	  @Override
+	  public void handle(ActionEvent event) {
+	        String enteredUsername = userTextField.getText();
+	        String enteredPassword = pwBox.getText();
+	        String enteredEmail = emailField.getText();
+	        String enteredName = nameField.getText();
+	
+	        //validate form fields
+	      if (enteredUsername.trim().length() == 0)
+	      {
+	        showAlert("Error", "Please enter a username.");
+	        return;
+	      }
+	
+	      else if (enteredPassword.trim().length() < 5)
+	      {
+	        showAlert("Error", "Please enter a password longer than 5 characters.");
+	        return;
+	      }
+	
+	      else if (!enteredEmail.contains("@"))
+	      {
+	        showAlert("Error", "Please enter a valid email");
+	        return;
+	      }
+	
+	      else if (enteredName.trim().length() == 0)
+	      {
+	        showAlert("Error", "Please enter your name");
+	        return;
+	      }
+	    /*  try {
+	        userCreated = data.newUser(c, enteredUsername, enteredPassword);
+	      } catch (ClassNotFoundException | SQLException e) {
+	        // TODO Auto-generated catch block
+	        e.printStackTrace();
+	      }*/
+	      System.out.println("userCreated" + userCreated);
+	      //if all form fields are valid, go to create image generation page
+	      if(userCreated)
+	        createImageGenerationPage(signUpScene);	
+	      else
+	      {
+	        userTextField.clear();
+	        showAlert("Error", "Username taken, please enter new username");
+	      }
+	  }
+	  });
+	
+		  mainGrid.add(signUpGrid, 20, 27);
+		
+		  CreateBackButton(mainGrid, sceneArray[0], 0, 0);
+		
+		  sceneArray[1] = signUpScene;
+		  primaryStage.setScene(signUpScene);
+		  primaryStage.show();
 
 
     }
@@ -287,25 +296,32 @@ public class Main extends Application {
       signInGrid.setAlignment(Pos.CENTER);
       signInGrid.setHgap(10);
       signInGrid.setVgap(10);
+      
+      Image signInImage = new Image("application/sweet.png");
+      ImageView signInImageView = new ImageView(signInImage);
+      signInGrid.add(signInImageView, 0, 0);
+      signInImageView.setFitHeight(170);
+      signInImageView.setFitWidth(170);
+      signInImageView.setPreserveRatio(true);
 
       Text signInTitle = new Text("Sign in");
       signInTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
       signInGrid.add(signInTitle, 0, 1);
 
-      Label userLabel = new Label("User Name:");
+      Text userText = new Text("User Name:");
       TextField userTextField = new TextField();
-      signInGrid.add(userLabel, 0, 2);
+      signInGrid.add(userText, 0, 2);
       signInGrid.add(userTextField, 1, 2);
 
-      Label passLabel = new Label("Password:");
+      Text passText = new Text("Password:");
       PasswordField passwordField = new PasswordField();
-      signInGrid.add(passLabel, 0, 3);
+      signInGrid.add(passText, 0, 3);
       signInGrid.add(passwordField, 1, 3);
 
       // Sign-in button
       Button signInBtn2 = new Button("Sign in");
       signInGrid.add(signInBtn2, 1, 4);
-      Scene signInScene = new Scene(mainGrid, 800, 800);
+      Scene signInScene = new Scene(mainGrid, 850, 850);
     signInBtn2.setOnAction(new EventHandler<ActionEvent>() {
     @Override
     public void handle(ActionEvent event) {
@@ -372,10 +388,10 @@ public class Main extends Application {
       profileGrid.setVgap(10);
       profileGrid.setPadding(new Insets(25, 25, 25, 25));
 
-        FlowPane galleryFlowPane = new FlowPane();
-        galleryFlowPane.setPadding(new Insets(5, 5, 5, 5));
-        galleryFlowPane.setVgap(4);
-        galleryFlowPane.setHgap(4);
+      FlowPane galleryFlowPane = new FlowPane();
+      galleryFlowPane.setPadding(new Insets(5, 5, 5, 5));
+      galleryFlowPane.setVgap(4);
+      galleryFlowPane.setHgap(4);
 
         //set default profile picture
       Image defaultPic = new Image("application/icon.jpeg");
@@ -393,7 +409,7 @@ public class Main extends Application {
       Button uploadProfileBtn = new Button("Upload Profile Photo");
       profileGrid.add(uploadProfileBtn, 0,2);
 
-      Scene profileScene = new Scene(profileGrid, 800, 800);
+      Scene profileScene = new Scene(profileGrid, 850, 850);
 
       uploadProfileBtn.setAlignment(Pos.TOP_CENTER);
       
@@ -404,19 +420,20 @@ public class Main extends Application {
             public void handle(ActionEvent event) {
             	uploadProfilePhoto(profileImageView, defaultImageView, profileGrid, 1, 0);
             }
-        });
+      });
 
         //gallery to the grid containing profile contents
-        ScrollPane gallery = createGallery();
-        profileGrid.add(gallery, 1, 3);
+      ScrollPane gallery = createGallery();
+      profileGrid.add(gallery, 1, 3);
 
-        CreateBackButton(profileGrid, sceneArray[3], 0, 0);
-        sceneArray[2] = profileScene;
-        primaryStage.setScene(profileScene);
-        primaryStage.show();
+      CreateBackButton(profileGrid, sceneArray[3], 0, 0);
+      sceneArray[2] = profileScene;
+      primaryStage.setScene(profileScene);
+      primaryStage.show();
 
     }
 
+    //prompts user to upload profile picture
     private void uploadProfilePhoto(ImageView profileImageView, ImageView defaultImageView, GridPane profileGrid, int row, int column) {
         FileChooser fileChooser = new FileChooser();
 
@@ -492,41 +509,29 @@ public class Main extends Application {
     //create the page to generate an image
     public void createImageGenerationPage(Scene scene) {
 
-      //main grid to hold back button
-      GridPane mainGrid = new GridPane();
+    	//main grid to hold back button
+    	GridPane mainGrid = new GridPane();
         mainGrid.setStyle("-fx-background-color: plum;");
         mainGrid.setPadding(new Insets(15, 15, 15, 15));
         ComboBox<String> comboBox = new ComboBox<>();
-        ComboBox<String> genComboBox = new ComboBox<>();
 
         ObservableList<String> items = FXCollections.observableArrayList(
         		"Animated",
         		"Abstract",
 	            "Anime",
+	            "Caricature",
 	            "Cartoon",
+	            "Fantasy",
 	            "Futuristic",
 	            "Outer space",
 	            "Painting",
 	            "Psychedelic",
+	            "Scary",
 	            "Surreal",
 	            "Underwater"      
         );
         
-        ObservableList<String> genItems = FXCollections.observableArrayList(
-                "Abstract",
-                "Animated",
-                "Anime",
-                "Black and white",
-                "Caricature",
-                "Fantasy",
-                "Picasso",
-                "Pointilism",
-                "Psychedelic",
-                "Surreal"         
-            );
-
         comboBox.setItems(items);
-        genComboBox.setItems(genItems);
 
         //grid to add go to profile button
         GridPane profileGrid = new GridPane();
@@ -535,6 +540,7 @@ public class Main extends Application {
 
         Button profileButton = new Button("Go to Profile");
         profileGrid.add(profileButton, 0, 0);
+        
         profileButton.setAlignment(Pos.TOP_LEFT);
         profileButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -548,68 +554,88 @@ public class Main extends Application {
         centeredGrid.setAlignment(Pos.CENTER);
         centeredGrid.setHgap(10);
         centeredGrid.setVgap(10);
+        
+        Image mainImage = new Image("application/ai.jpeg");
+        ImageView mainImageView = new ImageView(mainImage);
+        mainImageView.setFitWidth(200);
+        mainImageView.setFitHeight(200);
+        
+        centeredGrid.add(mainImageView, 25, 7);
 
         Text uploadText = new Text("Create an AI version of you");
         uploadText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        centeredGrid.add(uploadText, 25, 14);
+        centeredGrid.add(uploadText, 25, 10);
 
-        Label styleLabel1 = new Label("Enter a Style:");
-        centeredGrid.add(styleLabel1, 25, 15);
-        centeredGrid.add(comboBox, 25, 17);
+        Text createText = new Text("...Or create someone new!");
+        createText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        centeredGrid.add(createText, 25, 11);
+        
+        Text styleText = new Text("First, enter a style:");
+        styleText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
+        centeredGrid.add(styleText, 25, 12);
+        centeredGrid.add(comboBox, 25, 13);
+        
+        Text thenText = new Text("Then...");
+        thenText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 18));
+        centeredGrid.add(thenText, 25, 14);
+        
+        Text uploadImageText = new Text("Upload an Image of Your Smile:");
+        uploadImageText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
+        centeredGrid.add(uploadImageText, 25, 15);
         
         Button uploadButton = new Button("Upload Image");
-        centeredGrid.add(uploadButton, 25, 18);
+        centeredGrid.add(uploadButton, 25, 16);
 
-        Text promptText = new Text("...Or create someone new!");
-        promptText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        centeredGrid.add(promptText, 25, 19);
+        Text orText = new Text("Or you can...");
+        orText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 18));
+        centeredGrid.add(orText, 25, 17);
         
-        Label styleLabel2 = new Label("Enter a Style:");
-        centeredGrid.add(styleLabel2, 25, 20);
-        centeredGrid.add(genComboBox, 25, 21);
-
-        Label promptLabel = new Label("Enter a Prompt:");
+        Text promptText = new Text("Enter a Prompt:");
         TextField promptTextField = new TextField();
-        centeredGrid.add(promptLabel, 25, 22);
-        centeredGrid.add(promptTextField, 25, 23);
+        promptText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
+        centeredGrid.add(promptText, 25, 18);
+        centeredGrid.add(promptTextField, 25, 19);
 
         Button generateImageButton = new Button("Generate Image");
-        centeredGrid.add(generateImageButton, 25, 24);
+        centeredGrid.add(generateImageButton, 25, 20);
         
+        
+        uploadButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+            	isUploaded = true;
+                String style = getPrompt(comboBox.getValue());
+                if (style == null || style.isEmpty()) {
+                    showAlert("Error", "Please enter a style");
+                    return;
+                }
+                try {
+					chooseFile();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
+        });
+
         generateImageButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 String prompt = promptTextField.getText();
-
-                String style = getTextPrompt(genComboBox.getValue());
-
-                if (prompt.length() < 1)
-                {
-                  showAlert("Error", "Please enter a prompt");
-                  return;
+                String style = getPrompt(comboBox.getValue());
+                if (style == null || style.isEmpty()) {
+                    showAlert("Error", "Please enter a style");
+                    return;
                 }
-                else {
-
-                  try {
-		            onGenerateImageButtonClicked(prompt, style);
-		          } catch (Exception e) {       
-		        	  System.err.println("Image could not be generated.");
-		            e.printStackTrace();
-		          }
+                try {
+                	onGenerateImageButtonClicked(prompt, style);
+                } catch (Exception e) {       
+                    System.err.println("Image could not be generated.");
+                    e.printStackTrace();
                 }
             }
         });
 
-        uploadButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                String prompt = promptTextField.getText();
-
-                String style = getUploadedPrompt(comboBox.getValue());
-                
-            	onUploadButtonClicked(prompt, style);
-           }
-        });
 
         profileButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -618,7 +644,7 @@ public class Main extends Application {
             }
         });
         
-        Scene imageScene = new Scene(mainGrid, 800, 800);
+        Scene imageScene = new Scene(mainGrid, 850, 850);
 
         CreateBackButton(mainGrid, sceneArray[1], 0, 0);
         profileGrid.add(centeredGrid, 0, 1);
@@ -630,140 +656,125 @@ public class Main extends Application {
   }
     
 
-public void onUploadButtonClicked(String prompt, String style)
+private File chooseFile() throws Exception
  {
-	 GridPane grid = new GridPane();
-     grid.setStyle("-fx-background-color: lavenderblush;");
-     grid.setPadding(new Insets(15, 15, 15, 15));
-     grid.setAlignment(Pos.CENTER);
-     
-     FileChooser fileChooser = new FileChooser();
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle("Select an Image");
+    fileChooser.getExtensionFilters().addAll(
+        new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+    );
 
-     fileChooser.setTitle("Select a File to Upload");
+    File chosenFile = fileChooser.showOpenDialog(primaryStage);
+    if (chosenFile != null) {
+    	showAlert("Upload Success", "Click Generate Button to Continue");
+        uploadedImageFile = chosenFile;
+        return chosenFile;
+    }
+	return null;
+ }
 
-     File uploadedImage = fileChooser.showOpenDialog(primaryStage);
-     
-     Scene loadImageScene = new Scene(grid, 800, 800);
-     
-     ProgressIndicator progressIndicator = new ProgressIndicator();
-     progressIndicator.setVisible(false);
-     grid.add(progressIndicator, 0, 2);
 
-     if (uploadedImage != null) {
-    	 Task<Image> loadImageTask = new Task<>() {
-    		    @Override
-    		    protected Image call() throws Exception {
-    		       progressIndicator.setVisible(true);
-    		       updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
-    		       
-		           String encodedImage = encodeToBase64(uploadedImage.toPath());
+//when the generate image button is clicked, a new scene will pop up with the generated image
+public void onGenerateImageButtonClicked(String prompt, String style) {
+    GridPane grid = new GridPane();
+    grid.setAlignment(Pos.CENTER);
+    grid.setHgap(10);
+    grid.setVgap(10);
+    grid.setPadding(new Insets(25, 25, 25, 25));
+    grid.setStyle("-fx-background-color: lavenderblush;");
+
+    StackPane stack = new StackPane();
+    grid.add(stack, 0, 1, 2, 1); 
+
+    Scene generatedImageScene = new Scene(grid, 850, 850);
+    
+    ProgressIndicator progressIndicator = new ProgressIndicator();
+    progressIndicator.setVisible(false);
+    grid.add(progressIndicator, 0, 2);
+
+    Task<Image> imageGenerationTask = new Task<>() {
+        @Override
+        protected Image call() throws Exception {
+      	  updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
+      	  if (isUploaded == false)
+      	  {
+            return generateImageFromText(prompt, style);
+      	  }
+      	  else {
+      	    if (uploadedImageFile == null) {
+      	        showAlert("Error", "No image selected.");
+      	        return null;
+      	    }  
+
+      	    String encodedImage = encodeToBase64(uploadedImageFile.toPath());
+	        byte[] imageData = generateImageFromImage(encodedImage, prompt, style);
+	        if (imageData != null) {
+	              return new Image(new ByteArrayInputStream(imageData));
+	         }
+      	  }
+		return null;
+    }
+        
+        @Override
+        protected void succeeded() {
+            Platform.runLater(() -> {
+                super.succeeded();
+	            Image imageResponse = getValue();
+	            ImageView genImageView = new ImageView(imageResponse);
+	            genImageView.setFitHeight(500);
+	            genImageView.setFitWidth(500);
+	            genImageView.setPreserveRatio(true);
+	            stack.getChildren().add(genImageView);
+	            progressIndicator.setVisible(false);
+	            
+	            Button newImgBtn = new Button("Generate new Image");
+	            grid.add(newImgBtn, 0, 2);
+	            newImgBtn.setOnAction(new EventHandler<ActionEvent>() {
+	                @Override
+	                public void handle(ActionEvent event) {
+	                  primaryStage.setScene(sceneArray[3]);
+	                  primaryStage.show();
+	                }
+	            });
 	
-		           byte[] imageData = generateImageFromImage(encodedImage, prompt, style);
-		           if (imageData != null) {
-		               return new Image(new ByteArrayInputStream(imageData));
-		           }
-		           
-		           return null;
-	    		   }
-    	 };
-    	 
-    	 loadImageTask.setOnSucceeded(event -> {
-    		 	progressIndicator.setVisible(false);
-    		    Image uploadImage = loadImageTask.getValue();
-    		    if (uploadImage != null) {
-    		        ImageView uploadImageView = new ImageView(uploadImage);
-    		        uploadImageView.setFitHeight(500);
-    		        uploadImageView.setFitWidth(500);
-    		        grid.add(uploadImageView, 0, 1);
+	            Button saveButton = new Button("Save Image");
+	            grid.add(saveButton, 0, 3);
+	            saveButton.setOnAction(new EventHandler<ActionEvent>() {
+	                @Override
+	                public void handle(ActionEvent event) {
+	                    try {
+	              saveImage(primaryStage, genImageView.getImage());
+	            } catch (IOException e) {
+	              showAlert("Error!", "Photo could not be saved at this time.");
+	              System.err.println("Photo could not be saved.");
+	            }
+	                }
+	            });
+            });
+        }
 
-    	            Button newImgBtn = new Button("Generate new Image");
-    	            grid.add(newImgBtn, 0, 2);
-    	            newImgBtn.setOnAction(new EventHandler<ActionEvent>() {
-    	                  @Override
-    	                  public void handle(ActionEvent event) {
-    	                    primaryStage.setScene(sceneArray[3]);
-    	                    primaryStage.show();
-    	                  }
-    	            });
+        @Override
+        protected void failed() {
+            super.failed();
+            System.err.println("Error generating image.");
+            progressIndicator.setVisible(false);
+        }
+    };
 
-    	            Button saveButton = new Button("Save Image");
-    	            grid.add(saveButton, 0, 3);
-    	            saveButton.setOnAction(new EventHandler<ActionEvent>() {
-    	                  @Override
-    	                  public void handle(ActionEvent event) {
-    	                      try {
-    	                saveImage(primaryStage, uploadImageView.getImage());
-    	              } catch (IOException e) {
-    	                showAlert("Error!", "Photo could not be saved at this time.");
-    	                System.err.println("Photo could not be saved.");
-    	              }
-    	                  }
-    	            });
-    		    }
-    		    Platform.runLater(() -> addImageToGallery(uploadedImage.toPath()));
-    		});
+    progressIndicator.setVisible(true);
+    Thread thread = new Thread(imageGenerationTask);
+    thread.setDaemon(true);
+    thread.start();
 
-    		loadImageTask.setOnFailed(event -> {
-                progressIndicator.setVisible(false);
-    		    System.err.println("Image could not be loaded");
-    		});
-    		
-    		new Thread(loadImageTask).start();
-     }
-     
-     Platform.runLater(() -> {
-    	 sceneArray[4] = loadImageScene;
-         primaryStage.setScene(loadImageScene);
-         primaryStage.show();
-     });
- }
+    Platform.runLater(() -> {
+        primaryStage.setScene(generatedImageScene);
+        primaryStage.show();
+    });
+}
 
  
- public String getTextPrompt(String style)
- {
-	 String enteredPrompt = "";
-
-	 switch (style) {
-	     case "Anime":
-	         enteredPrompt = "anime, japanese cartoon, cute, big eyes";
-	         break;
-	     case "Abstract":
-	         enteredPrompt = "abstract, geometric";
-	         break;
-	     case "Animated":
-	         enteredPrompt = "animated, animation";
-	         break;
-	     case "Black and white":
-	         enteredPrompt = "black and white, b&w";
-	         break;
-	     case "Caricature":
-	         enteredPrompt = "caricature, exaggerated features";
-	         break;
-	     case "Fantasy":
-	         enteredPrompt = "fantasy, mystical";
-	         break;
-	     case "Picasso":
-	         enteredPrompt = "picasso, art";
-	         break;
-	     case "Pointilism":
-	         enteredPrompt = "pointilism, art";
-	         break;
-	     case "Psychedelic":
-	         enteredPrompt = "psychedelic, trippy";
-	         break;
-	     case "Surreal":
-	         enteredPrompt = "surreal, realistic";
-	         break;
-	     default:
-	         enteredPrompt = " "; 
-	         break;
-	 }
-
-	 return enteredPrompt;
-
- }
- 
- public String getUploadedPrompt(String style) {
+  //set the image to image generation prompt based on user's input style
+  public String getPrompt(String style) {
 	 String enteredPrompt = "";
 	 
 	 switch (style) {
@@ -771,7 +782,7 @@ public void onUploadButtonClicked(String prompt, String style)
          enteredPrompt = "anime, japanese cartoon, cute, big eyes";
          break;
      case "Abstract":
-         enteredPrompt = "abstract, geometric";
+         enteredPrompt = "abstract, geometric, julie mehretu";
          break;
      case "Animated":
          enteredPrompt = "animated, animation";
@@ -783,10 +794,22 @@ public void onUploadButtonClicked(String prompt, String style)
          enteredPrompt = "caricature, exaggerated features";
          break;
      case "Fantasy":
-         enteredPrompt = "fantasy, mystical";
+         enteredPrompt = "fantasy, mystical, medieval";
          break;
+     case "Futuristic":
+    	 enteredPrompt = "futuristic, future, realistic";
+    	 break;
+     case "Medieval":
+    	 enteredPrompt = "medieval times, castles";
+    	 break;
+     case "Outer space":
+    	 enteredPrompt = "outer space, galaxy, stars, moon, planets";
+    	 break;
      case "Picasso":
-         enteredPrompt = "picasso, art";
+         enteredPrompt = "in the style of picasso, art";
+         break;
+     case "Painting":
+         enteredPrompt = "painting, art, claude monet";
          break;
      case "Pointilism":
          enteredPrompt = "pointilism, art";
@@ -794,16 +817,22 @@ public void onUploadButtonClicked(String prompt, String style)
      case "Psychedelic":
          enteredPrompt = "psychedelic, trippy";
          break;
+     case "Scary":
+    	 enteredPrompt = "scary, creepy, unsettling, frightening";
+    	 break;
      case "Surreal":
-         enteredPrompt = "surreal, realistic";
+         enteredPrompt = "surreal, realistic, salvador dali";
          break;
+     case "Underwater":
+    	 enteredPrompt = "underwater, ocean, sea";
+    	 break;
      default:
          enteredPrompt = " "; 
          break;
- }
+	 }
 	 
 	 return enteredPrompt;
-	}
+  }
 
 
   //save an image
@@ -825,6 +854,8 @@ public void onUploadButtonClicked(String prompt, String style)
 
   }
 
+  
+  //adds an image to the gallery flow pane
   public void addImageToGallery(Path path) {
       File file = path.toFile();
       Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
@@ -835,122 +866,22 @@ public void onUploadButtonClicked(String prompt, String style)
       galleryFlowPane.getChildren().add(galleryImageView);
 }
 
-  //encode the image path to base 64
-  public static String encodeToBase64(Path imagePath) throws Exception {
-      //read image bytes
-      byte[] imageBytes = Files.readAllBytes(imagePath);
 
-      //encode bytes to Base64
-      String encodedString = Base64.getEncoder().encodeToString(imageBytes);
-
-      return encodedString;
-  }
-
-  //generates hash by applying SHA-1 hashing algorithm
-  public static String generateHash(String base64Image) throws Exception {
-      MessageDigest digest = MessageDigest.getInstance("SHA-1");
-      byte[] hashBytes = digest.digest(base64Image.getBytes("UTF-8"));
-
-      StringBuilder sb = new StringBuilder();
-      for (byte b : hashBytes) {
-          sb.append(String.format("%02x", b));
-      }
-
-      return sb.toString();
-  }
-
-  //when the generate image button is clicked, a new scene will pop up with the generated image
-  public void onGenerateImageButtonClicked(String prompt, String style) {
-      GridPane grid = new GridPane();
-      grid.setAlignment(Pos.CENTER);
-      grid.setHgap(10);
-      grid.setVgap(10);
-      grid.setPadding(new Insets(25, 25, 25, 25));
-      grid.setStyle("-fx-background-color: lavenderblush;");
-
-      StackPane stack = new StackPane();
-      grid.add(stack, 0, 1, 2, 1); 
-
-      Scene generatedImageScene = new Scene(grid, 800, 800);
-      
-      ProgressIndicator progressIndicator = new ProgressIndicator();
-      progressIndicator.setVisible(false);
-      grid.add(progressIndicator, 0, 2);
-
-      Task<Image> imageGenerationTask = new Task<>() {
-          @Override
-          protected Image call() throws Exception {
-        	  updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
-              return generateImageFromText(prompt, style);
-          }
-          
-          @Override
-          protected void succeeded() {
-              super.succeeded();
-              Image imageResponse = getValue();
-              ImageView genImageView = new ImageView(imageResponse);
-              stack.getChildren().add(genImageView);
-              progressIndicator.setVisible(false);
-              
-              Button newImgBtn = new Button("Generate new Image");
-              grid.add(newImgBtn, 0, 2);
-              newImgBtn.setOnAction(new EventHandler<ActionEvent>() {
-                  @Override
-                  public void handle(ActionEvent event) {
-                    primaryStage.setScene(sceneArray[3]);
-                    primaryStage.show();
-                  }
-              });
-
-              Button saveButton = new Button("Save Image");
-              grid.add(saveButton, 0, 3);
-              saveButton.setOnAction(new EventHandler<ActionEvent>() {
-                  @Override
-                  public void handle(ActionEvent event) {
-                      try {
-                saveImage(primaryStage, genImageView.getImage());
-              } catch (IOException e) {
-                showAlert("Error!", "Photo could not be saved at this time.");
-                System.err.println("Photo could not be saved.");
-              }
-                  }
-              });
-          }
-
-          @Override
-          protected void failed() {
-              super.failed();
-              System.err.println("Error generating image.");
-              progressIndicator.setVisible(false);
-          }
-      };
-
-      progressIndicator.setVisible(true);
-      Thread thread = new Thread(imageGenerationTask);
-      thread.setDaemon(true);
-      thread.start();
-
-      Platform.runLater(() -> {
-          primaryStage.setScene(generatedImageScene);
-          primaryStage.show();
-      });
-  }
- 
+  //generates the image from text input
   public static Image generateImageFromText(String text, String style) throws UnirestException {
       JSONObject body = new JSONObject();
       body.put("text", text + style);
 
       HttpResponse<InputStream> response = Unirest.post("https://open-ai21.p.rapidapi.com/texttoimage2")
               .header("content-type", "application/json")
-              .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26") // Replace with your API key
+              .header("X-RapidAPI-Key", "8b2bd64aa5msh34f679538ef2433p1e4a2djsn927a54490a26")
               .header("X-RapidAPI-Host", "open-ai21.p.rapidapi.com")
               .body(body.toString())
               .asBinary();
 
       if (response.getStatus() == 200) {
           try (InputStream inputStream = response.getBody()) {
-            System.out.print("Respohnse body is input steam");
-              return new Image(inputStream); // Return the image
+              return new Image(inputStream);
           } catch (IOException e) {
               e.printStackTrace();
               return null;
@@ -961,12 +892,11 @@ public void onUploadButtonClicked(String prompt, String style)
       }
   }
   
-  
-  
   public byte[] generateImageFromImage(String base64Image, String prompt, String style) {
 	    try {
 	    	
 	        byte[] imageData = Base64.getDecoder().decode(base64Image);
+	        String negativePrompt = "bad quality, distorted features, cross eyes, six fingers, four fingers, facial abnormalities, nsfw, no pupils";
 
 	        //String engine_id = "stable-diffusion-xl-1024-v1-0";
 	        String engine_id = "stable-diffusion-512-v2-1";
@@ -978,7 +908,7 @@ public void onUploadButtonClicked(String prompt, String style)
 		              .field("init_image", imageData, "image.png")
 		              .field("text_prompts[0][text]", prompt + " " + style)
 		              .field("text_prompts[0][weight]", 1)
-		              .field("text_prompts[1][text]", "bad quality, distorted features, cross eyes, six fingers, four fingers, abnormalities, creepy, nsfw")
+		              .field("text_prompts[1][text]", negativePrompt)
 		              .field("text_prompts[1][weight]", -1)
 		              .field("cfg_scale", 7)
 		              .field("clip_guidance_preset", "FAST_BLUE")
@@ -1005,6 +935,30 @@ public void onUploadButtonClicked(String prompt, String style)
 	    }
 	    return null;
 	} 
+  
+  //encode the image path to base 64
+  public static String encodeToBase64(Path imagePath) throws Exception {
+      //read image bytes
+      byte[] imageBytes = Files.readAllBytes(imagePath);
+
+      //encode bytes to Base64
+      String encodedString = Base64.getEncoder().encodeToString(imageBytes);
+
+      return encodedString;
+  }
+
+  //generates hash by applying SHA-1 hashing algorithm
+  public static String generateHash(String base64Image) throws Exception {
+      MessageDigest digest = MessageDigest.getInstance("SHA-1");
+      byte[] hashBytes = digest.digest(base64Image.getBytes("UTF-8"));
+
+      StringBuilder sb = new StringBuilder();
+      for (byte b : hashBytes) {
+          sb.append(String.format("%02x", b));
+      }
+
+      return sb.toString();
+  }
 
   //back button
   private void CreateBackButton(GridPane grid, Scene backScene, int colIndex, int rowIndex) {
@@ -1033,7 +987,7 @@ public void onUploadButtonClicked(String prompt, String style)
     reader.close();
     c = DriverManager.getConnection(CONNECTION,p);
     //stmt = c.createStatement();
-  launch(args);
+    launch(args);
 
     //c.close();
   }
