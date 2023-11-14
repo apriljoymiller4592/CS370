@@ -1,15 +1,22 @@
 package application;
 
 import java.io.InputStream;
+
+import net.coobird.thumbnailator.Thumbnails;
+
 import java.io.InputStreamReader;
+
 
 import javafx.embed.swing.SwingFXUtils;
 
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -341,24 +348,10 @@ public class Main extends Application {
         showAlert("Error", "Please enter a password longer than 5 characters.");
         return;
       }
-      String sqlInput2 = "SELECT * FROM USERS WHERE username = '"+ enteredUsername + "' AND password = '" + enteredPassword + "'";
-      ResultSet rs;
-      // rs = stmt.executeQuery(sqlInput2);
-        int counter = 0;
-       // while (rs.next()) {//should only be one
-          counter++;
-        //}
         //successful login
-        if(counter >= 1)
-        {
-          System.out.println("Successfull login");
-          createImageGenerationPage(signInScene);	
-        }
-        else
-        {
-          System.out.println("User not found");
-          showAlert("Could not sign in", "User not found!");
-        }
+       System.out.println("Successfull login");
+       createImageGenerationPage(signInScene);	
+        
     }
     });
 
@@ -500,7 +493,7 @@ public class Main extends Application {
     }
 
     private void loadImagesIntoGallery() {
-        try (Stream<Path> paths = Files.walk(Paths.get("/Users/aprilmiller/CS370/src/application/gallery"))) {
+        try (Stream<Path> paths = Files.walk(Paths.get("application/gallery"))) {
             paths.filter(Files::isRegularFile).forEach(this::addImageToGallery);
         } catch (Exception e) {
             e.printStackTrace();
@@ -706,20 +699,31 @@ public void onGenerateImageButtonClicked(String prompt, String style) {
         @Override
         protected Image call() throws Exception {
       	  updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
-
+	  		if (style == null)
+	  		{
+	  			showAlert("Error", "You must enter a style!");
+	  		}
+	  		if (uploadedImageFile != null && !prompt.isEmpty())
+	  		{
+	  			showAlert("Error", "Please clear prompt before uploading an image.");
+	  		}
       	  	if (isUploaded == false) {
 	            return generateImageFromText(prompt, style);
       	  	} else {
-	      	    if (uploadedImageFile == null) {
-	      	        showAlert("Error", "No image selected.");
-	      	        return null;
-	      	    }  
-	      	    
-	      	    String encodedImage = encodeToBase64(uploadedImageFile.toPath());
-		        byte[] imageData = generateImageFromImage(encodedImage, prompt, style);
-		        if (imageData != null) {
-		              return new Image(new ByteArrayInputStream(imageData));
-		         }
+      	        ByteArrayOutputStream baosResized = new ByteArrayOutputStream();
+	      	    Thumbnails.of(uploadedImageFile)
+	      	              .forceSize(1024, 1024)
+	      	              .toOutputStream(baosResized);
+	
+	      	    // Encode the resized image to Base64
+	      	    byte[] resizedBytes = baosResized.toByteArray();
+	      	    String encodedImage = Base64.getEncoder().encodeToString(resizedBytes);
+	
+	      	    // Send to API
+	      	    byte[] imageData = generateImageFromImage(encodedImage, prompt, style);
+	      	    if (imageData != null) {
+	      	        return new Image(new ByteArrayInputStream(imageData));
+	      	    }
       	  	}
 		return null;
     }
@@ -780,7 +784,6 @@ public void onGenerateImageButtonClicked(String prompt, String style) {
         primaryStage.show();
     });
 }
-
  
   //set the image to image generation prompt based on user's input style
   public String getPrompt(String style) {
