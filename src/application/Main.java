@@ -58,6 +58,8 @@ import javafx.event.EventHandler;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -127,7 +129,7 @@ public class Main extends Application {
         Scene homeScene = new Scene(gridPane, 850, 850);
 
         Text sceneTitle = new Text("Hello, ArtFace!");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
         gridPane.add(sceneTitle, 2, 1);
         gridPane.setStyle("-fx-background-color: teal;");
 
@@ -194,31 +196,31 @@ public class Main extends Application {
       Label userName = new Label("User Name:");
 	  signUpGrid.add(userName, 0, 2);
 	
-	    TextField userTextField = new TextField();
-	    signUpGrid.add(userTextField, 1, 2);
+	  TextField userTextField = new TextField();
+	  signUpGrid.add(userTextField, 1, 2);
+	    
+	  Label pw = new Label("Password:");
+	  signUpGrid.add(pw, 0, 3);
 	
-	    Label pw = new Label("Password:");
-	    signUpGrid.add(pw, 0, 3);
+	  PasswordField pwBox = new PasswordField();
+	  signUpGrid.add(pwBox, 1, 3);
 	
-	    PasswordField pwBox = new PasswordField();
-	    signUpGrid.add(pwBox, 1, 3);
+	  Label name = new Label("Name:");
+	  signUpGrid.add(name, 0, 4);
 	
-	    Label name = new Label("Name:");
-	    signUpGrid.add(name, 0, 4);
+	  TextField nameField = new TextField();
+	  signUpGrid.add(nameField, 1, 4);
 	
-	    TextField nameField = new TextField();
-	    signUpGrid.add(nameField, 1, 4);
+	  Label email = new Label("Email:");
+	  signUpGrid.add(email, 0, 5);
 	
-	    Label email = new Label("Email:");
-	    signUpGrid.add(email, 0, 5);
+	  TextField emailField = new TextField();
+	  signUpGrid.add(emailField, 1, 5);
 	
-	    TextField emailField = new TextField();
-	    signUpGrid.add(emailField, 1, 5);
+	  Button signUpButton = new Button("Sign up");
+	  signUpGrid.add(signUpButton, 0, 6);
 	
-	    Button signUpButton = new Button("Sign up");
-	    signUpGrid.add(signUpButton, 0, 6);
-	
-	    Scene signUpScene = new Scene(mainGrid, 850, 850);
+	  Scene signUpScene = new Scene(mainGrid, 850, 850);
 	
 	  signUpButton.setOnAction(new EventHandler<ActionEvent>() {
 	  @Override
@@ -555,7 +557,7 @@ public class Main extends Application {
         centeredGrid.setHgap(10);
         centeredGrid.setVgap(10);
         
-        Image mainImage = new Image("application/ai.jpeg");
+        Image mainImage = new Image("application/sage.png");
         ImageView mainImageView = new ImageView(mainImage);
         mainImageView.setFitWidth(200);
         mainImageView.setFitHeight(200);
@@ -592,6 +594,14 @@ public class Main extends Application {
         
         Text promptText = new Text("Enter a Prompt:");
         TextField promptTextField = new TextField();
+        promptTextField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                isUploaded = false;
+                uploadedImageFile = null;
+            }
+        });
+        
         promptText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
         centeredGrid.add(promptText, 25, 18);
         centeredGrid.add(promptTextField, 25, 19);
@@ -603,7 +613,6 @@ public class Main extends Application {
         uploadButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-            	isUploaded = true;
                 String style = getPrompt(comboBox.getValue());
                 if (style == null || style.isEmpty()) {
                     showAlert("Error", "Please enter a style");
@@ -611,8 +620,9 @@ public class Main extends Application {
                 }
                 try {
 					chooseFile();
+	            	isUploaded = true;
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
+					showAlert("Error", "Image could not be uploaded");
 					e.printStackTrace();
 				}
             }
@@ -696,22 +706,21 @@ public void onGenerateImageButtonClicked(String prompt, String style) {
         @Override
         protected Image call() throws Exception {
       	  updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
-      	  if (isUploaded == false)
-      	  {
-            return generateImageFromText(prompt, style);
-      	  }
-      	  else {
-      	    if (uploadedImageFile == null) {
-      	        showAlert("Error", "No image selected.");
-      	        return null;
-      	    }  
 
-      	    String encodedImage = encodeToBase64(uploadedImageFile.toPath());
-	        byte[] imageData = generateImageFromImage(encodedImage, prompt, style);
-	        if (imageData != null) {
-	              return new Image(new ByteArrayInputStream(imageData));
-	         }
-      	  }
+      	  	if (isUploaded == false) {
+	            return generateImageFromText(prompt, style);
+      	  	} else {
+	      	    if (uploadedImageFile == null) {
+	      	        showAlert("Error", "No image selected.");
+	      	        return null;
+	      	    }  
+	      	    
+	      	    String encodedImage = encodeToBase64(uploadedImageFile.toPath());
+		        byte[] imageData = generateImageFromImage(encodedImage, prompt, style);
+		        if (imageData != null) {
+		              return new Image(new ByteArrayInputStream(imageData));
+		         }
+      	  	}
 		return null;
     }
         
