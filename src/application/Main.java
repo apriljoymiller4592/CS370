@@ -261,21 +261,22 @@ public class Main extends Application {
 	        showAlert("Error", "Please enter your name");
 	        return;
 	      }
+	      createImageGenerationPage(signUpScene);
 	    /*  try {
 	        userCreated = data.newUser(c, enteredUsername, enteredPassword);
 	      } catch (ClassNotFoundException | SQLException e) {
 	        // TODO Auto-generated catch block
 	        e.printStackTrace();
 	      }*/
-	      System.out.println("userCreated" + userCreated);
+	     /* System.out.println("userCreated" + userCreated);
 	      //if all form fields are valid, go to create image generation page
 	      if(userCreated)
-	        createImageGenerationPage(signUpScene);	
+	        	
 	      else
 	      {
 	        userTextField.clear();
 	        showAlert("Error", "Username taken, please enter new username");
-	      }
+	      }*/
 	  }
 	  });
 	
@@ -363,17 +364,6 @@ public class Main extends Application {
       primaryStage.show();
 }
 
-
-    //show an error with given title and message
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.show();
-    }
-
-
     //create the profile page
     public void createProfilePage()
     {
@@ -428,79 +418,6 @@ public class Main extends Application {
 
     }
 
-    //prompts user to upload profile picture
-    private void uploadProfilePhoto(ImageView profileImageView, ImageView defaultImageView, GridPane profileGrid, int row, int column) {
-        FileChooser fileChooser = new FileChooser();
-
-        fileChooser.setTitle("Select a File to Upload");
-
-        //prompt user to upload photo
-        File uploadedImage = fileChooser.showOpenDialog(primaryStage);
-
-        if (uploadedImage != null) {
-            try {
-              //replace the default image with the new profile photo
-              defaultImageView.setVisible(false);
-              Image image = new Image(uploadedImage.toURI().toString());
-              ImageView imageViewUpl = new ImageView(image);
-
-              imageViewUpl.setFitWidth(200);
-              imageViewUpl.setFitHeight(200);
-              imageViewUpl.setPreserveRatio(true);
-
-              profileGrid.add(imageViewUpl, column, row);
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.err.println("Uploaded image is null.");
-            }
-        }
-    }
-    
-    //create the gallery
-    public ScrollPane createGallery() {
-        TilePane galleryTilePane = new TilePane();
-        galleryTilePane.setPadding(new Insets(5, 5, 5, 5));
-        galleryTilePane.setVgap(4);
-        galleryTilePane.setHgap(4);
-        galleryTilePane.setStyle("-fx-background-color: cornflowerblue;");
-        galleryTilePane.setPrefColumns(4); 
-        galleryTilePane.setAlignment(Pos.CENTER);
-
-        try (Stream<Path> paths = Files.walk(Paths.get("/Users/aprilmiller/CS370/src/application/gallery"))) {
-            paths.filter(Files::isRegularFile).forEach(path -> {
-                File file = path.toFile();
-                Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
-                ImageView galleryImageView = new ImageView(galleryImage);
-                galleryImageView.setFitWidth(150);
-                galleryImageView.setFitHeight(150);
-                galleryImageView.setPreserveRatio(true);
-
-                galleryTilePane.getChildren().add(galleryImageView);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Could not find directory.");
-        }
-
-        // Wrap the TilePane in a ScrollPane
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(galleryTilePane);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-
-        return scrollPane;
-    }
-
-    private void loadImagesIntoGallery() {
-        try (Stream<Path> paths = Files.walk(Paths.get("application/gallery"))) {
-            paths.filter(Files::isRegularFile).forEach(this::addImageToGallery);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Could not find directory.");
-        }
-    }
-
     //create the page to generate an image
     public void createImageGenerationPage(Scene scene) {
 
@@ -516,12 +433,18 @@ public class Main extends Application {
 	            "Anime",
 	            "Caricature",
 	            "Cartoon",
+	            "Cheery",
 	            "Fantasy",
 	            "Futuristic",
+	            "Medieval",
+	            "Nature",
 	            "Outer space",
 	            "Painting",
+	            "Pointilism",
 	            "Psychedelic",
+	            "Prehistoric",
 	            "Scary",
+	            "Surprise",
 	            "Surreal",
 	            "Underwater"      
         );
@@ -608,14 +531,14 @@ public class Main extends Application {
             public void handle(ActionEvent event) {
                 String style = getPrompt(comboBox.getValue());
                 if (style == null || style.isEmpty()) {
-                    showAlert("Error", "Please enter a style");
+                    showAlert("Error", "Please enter a style!");
                     return;
                 }
                 try {
 					chooseFile();
 	            	isUploaded = true;
 				} catch (Exception e) {
-					showAlert("Error", "Image could not be uploaded");
+					showAlert("Error", "Image could not be uploaded.");
 					e.printStackTrace();
 				}
             }
@@ -633,12 +556,11 @@ public class Main extends Application {
                 try {
                 	onGenerateImageButtonClicked(prompt, style);
                 } catch (Exception e) {       
-                    System.err.println("Image could not be generated.");
+                    showAlert("Error", "Image could not be generated.");
                     e.printStackTrace();
                 }
             }
         });
-
 
         profileButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -658,194 +580,269 @@ public class Main extends Application {
         primaryStage.show();
   }
     
-
-private File chooseFile() throws Exception
- {
-    FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("Select an Image");
-    fileChooser.getExtensionFilters().addAll(
-        new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
-    );
-
-    File chosenFile = fileChooser.showOpenDialog(primaryStage);
-    if (chosenFile != null) {
-    	showAlert("Upload Success", "Click Generate Button to Continue");
-        uploadedImageFile = chosenFile;
-        return chosenFile;
-    }
-	return null;
- }
-
-
-//when the generate image button is clicked, a new scene will pop up with the generated image
-public void onGenerateImageButtonClicked(String prompt, String style) {
-    GridPane grid = new GridPane();
-    grid.setAlignment(Pos.CENTER);
-    grid.setHgap(10);
-    grid.setVgap(10);
-    grid.setPadding(new Insets(25, 25, 25, 25));
-    grid.setStyle("-fx-background-color: lavenderblush;");
-
-    StackPane stack = new StackPane();
-    grid.add(stack, 0, 1, 2, 1); 
-
-    Scene generatedImageScene = new Scene(grid, 850, 850);
-    
-    ProgressIndicator progressIndicator = new ProgressIndicator();
-    progressIndicator.setVisible(false);
-    grid.add(progressIndicator, 0, 2);
-
-    Task<Image> imageGenerationTask = new Task<>() {
-        @Override
-        protected Image call() throws Exception {
-      	  updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
-	  		if (style == null)
-	  		{
-	  			showAlert("Error", "You must enter a style!");
-	  		}
-	  		if (uploadedImageFile != null && !prompt.isEmpty())
-	  		{
-	  			showAlert("Error", "Please clear prompt before uploading an image.");
-	  		}
-      	  	if (isUploaded == false) {
-	            return generateImageFromText(prompt, style);
-      	  	} else {
-      	        ByteArrayOutputStream baosResized = new ByteArrayOutputStream();
-	      	    Thumbnails.of(uploadedImageFile)
-	      	              .forceSize(1024, 1024)
-	      	              .toOutputStream(baosResized);
+    //prompts user to upload profile picture
+	private void uploadProfilePhoto(ImageView profileImageView, ImageView defaultImageView, GridPane profileGrid, int row, int column) {
+	    FileChooser fileChooser = new FileChooser();
 	
-	      	    // Encode the resized image to Base64
-	      	    byte[] resizedBytes = baosResized.toByteArray();
-	      	    String encodedImage = Base64.getEncoder().encodeToString(resizedBytes);
+	    fileChooser.setTitle("Select a File to Upload");
 	
-	      	    // Send to API
-	      	    byte[] imageData = generateImageFromImage(encodedImage, prompt, style);
-	      	    if (imageData != null) {
-	      	        return new Image(new ByteArrayInputStream(imageData));
-	      	    }
-      	  	}
-		return null;
-    }
-        
-        @Override
-        protected void succeeded() {
-            Platform.runLater(() -> {
-                super.succeeded();
-	            Image imageResponse = getValue();
-	            ImageView genImageView = new ImageView(imageResponse);
-	            genImageView.setFitHeight(500);
-	            genImageView.setFitWidth(500);
-	            genImageView.setPreserveRatio(true);
-	            stack.getChildren().add(genImageView);
+	    //prompt user to upload photo
+	    File uploadedImage = fileChooser.showOpenDialog(primaryStage);
+	
+	    if (uploadedImage != null) {
+	        try {
+	          //replace the default image with the new profile photo
+	          defaultImageView.setVisible(false);
+	          Image image = new Image(uploadedImage.toURI().toString());
+	          ImageView imageViewUpl = new ImageView(image);
+	
+	          imageViewUpl.setFitWidth(200);
+	          imageViewUpl.setFitHeight(200);
+	          imageViewUpl.setPreserveRatio(true);
+	
+	          profileGrid.add(imageViewUpl, column, row);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            System.err.println("Uploaded image is null.");
+	        }
+	    }
+	}
+
+	//set the image to image generation prompt based on user's input style
+	public String getPrompt(String style) {
+		 String enteredPrompt = "";
+		 
+		 switch (style) {
+	   case "Anime":
+	       enteredPrompt = "anime, japanese cartoon, cute, big eyes";
+	       break;
+	   case "Abstract":
+	       enteredPrompt = "abstract, geometric, julie mehretu";
+	       break;
+	   case "Animated":
+	       enteredPrompt = "animated, animation";
+	       break;
+	   case "Cartoon":
+	       enteredPrompt = "cartoon, 2d animation";
+	       break;
+	   case "Caricature":
+	       enteredPrompt = "caricature, exaggerated features";
+	       break;
+	   case "Cheery":
+	       enteredPrompt = "rainbows, butterflies, unicorn in background, pink fluffy clouds, pink sky, dreamy";
+	       break;
+	   case "Fantasy":
+	       enteredPrompt = "fantasy, mystical, medieval";
+	       break;
+	   case "Futuristic":
+	  	 enteredPrompt = "futuristic, future, realistic, chrome, technology";
+	  	 break;
+	   case "Medieval":
+	  	 enteredPrompt = "medieval times, castles";
+	  	 break;
+	   case "Nature":
+	  	 enteredPrompt = "nature, butterflies, landscape, dreamy";
+	  	 break;
+	   case "Outer space":
+	  	 enteredPrompt = "outer space, galaxy, stars, moon, planets";
+	  	 break;
+	   case "Picasso":
+	       enteredPrompt = "in the style of picasso, art";
+	       break;
+	   case "Painting":
+	       enteredPrompt = "painting, art, claude monet";
+	       break;
+	   case "Pointilism":
+	       enteredPrompt = "pointilism, art";
+	       break;
+	   case "Prehistoric":
+	  	 enteredPrompt = "prehistoric, dinosaurs in background, jurassic, t rex, triceratops, brontosaurus";
+	  	 break;
+	   case "Psychedelic":
+	       enteredPrompt = "psychedelic, trippy, colorful";
+	       break;
+	   case "Scary":
+	  	 enteredPrompt = "scary, creepy, unsettling, frightening";
+	  	 break;
+	   case "Surprise":
+	  	 enteredPrompt = "random, weird, funny, 3d geometric objects";
+	  	 break;
+	   case "Surreal":
+	       enteredPrompt = "surreal, realistic, salvador dali, vladimir kush";
+	       break;
+	   case "Underwater":
+	  	 enteredPrompt = "underwater, ocean, sea";
+	  	 break;
+	   default:
+	       enteredPrompt = " "; 
+	       break;
+		 }
+		 
+		 return enteredPrompt;
+	}
+	
+	
+	//when the generate image button is clicked, a new scene will pop up with the generated image
+	public void onGenerateImageButtonClicked(String prompt, String style) {
+	    GridPane grid = new GridPane();
+	    grid.setAlignment(Pos.CENTER);
+	    grid.setHgap(10);
+	    grid.setVgap(10);
+	    grid.setPadding(new Insets(25, 25, 25, 25));
+	    grid.setStyle("-fx-background-color: lavenderblush;");
+	
+	    StackPane stack = new StackPane();
+	    grid.add(stack, 0, 1, 2, 1); 
+	
+	    Scene generatedImageScene = new Scene(grid, 850, 850);
+	    
+	    ProgressIndicator progressIndicator = new ProgressIndicator();
+	    progressIndicator.setVisible(false);
+	    grid.add(progressIndicator, 0, 2);
+	
+	    Task<Image> imageGenerationTask = new Task<>() {
+	        @Override
+	        protected Image call() throws Exception {
+	      	  updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
+		  		if (style == null)
+		  		{
+		  			showAlert("Error", "You must enter a style!");
+		  		}
+		  		if (uploadedImageFile != null && !prompt.isEmpty())
+		  		{
+		  			showAlert("Error", "Please clear prompt before uploading an image.");
+		  		}
+	      	  	if (isUploaded == false) {
+		            return generateImageFromText(prompt, style);
+	      	  	} else {
+	      	        ByteArrayOutputStream baosResized = new ByteArrayOutputStream();
+		      	    Thumbnails.of(uploadedImageFile)
+		      	              .forceSize(1024, 1024)
+		      	              .toOutputStream(baosResized);
+	
+		      	    byte[] resizedBytes = baosResized.toByteArray();
+		      	    String encodedImage = Base64.getEncoder().encodeToString(resizedBytes);
+		      	    
+		      	    byte[] imageData = generateImageFromImage(encodedImage, prompt, style);
+		      	    if (imageData != null) {
+		      	        return new Image(new ByteArrayInputStream(imageData));
+		      	    }
+	      	  	}
+			return null;
+	    }
+	        
+	        @Override
+	        protected void succeeded() {
+	            Platform.runLater(() -> {
+	                super.succeeded();
+		            Image imageResponse = getValue();
+		            ImageView genImageView = new ImageView(imageResponse);
+		            genImageView.setFitHeight(500);
+		            genImageView.setFitWidth(500);
+		            genImageView.setPreserveRatio(true);
+		            stack.getChildren().add(genImageView);
+		            progressIndicator.setVisible(false);
+		            
+		            Button newImgBtn = new Button("Generate new Image");
+		            grid.add(newImgBtn, 0, 2);
+		            newImgBtn.setOnAction(new EventHandler<ActionEvent>() {
+		                @Override
+		                public void handle(ActionEvent event) {
+		                  primaryStage.setScene(sceneArray[3]);
+		                  primaryStage.show();
+		                }
+		            });
+		
+		            Button saveButton = new Button("Save Image");
+		            grid.add(saveButton, 0, 3);
+		            saveButton.setOnAction(new EventHandler<ActionEvent>() {
+		                @Override
+		                public void handle(ActionEvent event) {
+		                    try {
+		                    	saveImage(primaryStage, genImageView.getImage());
+		                    } catch (IOException e) {
+		                    	showAlert("Error!", "Photo could not be saved at this time.");
+		                    	System.err.println("Photo could not be saved.");
+		                    }
+		                }
+		            });
+	            });
+	        }
+	
+	        @Override
+	        protected void failed() {
+	            super.failed();
+	            System.err.println("Error generating image.");
 	            progressIndicator.setVisible(false);
-	            
-	            Button newImgBtn = new Button("Generate new Image");
-	            grid.add(newImgBtn, 0, 2);
-	            newImgBtn.setOnAction(new EventHandler<ActionEvent>() {
-	                @Override
-	                public void handle(ActionEvent event) {
-	                  primaryStage.setScene(sceneArray[3]);
-	                  primaryStage.show();
-	                }
-	            });
+	        }
+	    };
 	
-	            Button saveButton = new Button("Save Image");
-	            grid.add(saveButton, 0, 3);
-	            saveButton.setOnAction(new EventHandler<ActionEvent>() {
-	                @Override
-	                public void handle(ActionEvent event) {
-	                    try {
-	              saveImage(primaryStage, genImageView.getImage());
-	            } catch (IOException e) {
-	              showAlert("Error!", "Photo could not be saved at this time.");
-	              System.err.println("Photo could not be saved.");
-	            }
-	                }
-	            });
-            });
-        }
-
-        @Override
-        protected void failed() {
-            super.failed();
-            System.err.println("Error generating image.");
-            progressIndicator.setVisible(false);
-        }
-    };
-
-    progressIndicator.setVisible(true);
-    Thread thread = new Thread(imageGenerationTask);
-    thread.setDaemon(true);
-    thread.start();
-
-    Platform.runLater(() -> {
-        primaryStage.setScene(generatedImageScene);
-        primaryStage.show();
-    });
-}
- 
-  //set the image to image generation prompt based on user's input style
-  public String getPrompt(String style) {
-	 String enteredPrompt = "";
-	 
-	 switch (style) {
-     case "Anime":
-         enteredPrompt = "anime, japanese cartoon, cute, big eyes";
-         break;
-     case "Abstract":
-         enteredPrompt = "abstract, geometric, julie mehretu";
-         break;
-     case "Animated":
-         enteredPrompt = "animated, animation";
-         break;
-     case "Cartoon":
-         enteredPrompt = "cartoon, comic";
-         break;
-     case "Caricature":
-         enteredPrompt = "caricature, exaggerated features";
-         break;
-     case "Fantasy":
-         enteredPrompt = "fantasy, mystical, medieval";
-         break;
-     case "Futuristic":
-    	 enteredPrompt = "futuristic, future, realistic";
-    	 break;
-     case "Medieval":
-    	 enteredPrompt = "medieval times, castles";
-    	 break;
-     case "Outer space":
-    	 enteredPrompt = "outer space, galaxy, stars, moon, planets";
-    	 break;
-     case "Picasso":
-         enteredPrompt = "in the style of picasso, art";
-         break;
-     case "Painting":
-         enteredPrompt = "painting, art, claude monet";
-         break;
-     case "Pointilism":
-         enteredPrompt = "pointilism, art";
-         break;
-     case "Psychedelic":
-         enteredPrompt = "psychedelic, trippy";
-         break;
-     case "Scary":
-    	 enteredPrompt = "scary, creepy, unsettling, frightening";
-    	 break;
-     case "Surreal":
-         enteredPrompt = "surreal, realistic, salvador dali";
-         break;
-     case "Underwater":
-    	 enteredPrompt = "underwater, ocean, sea";
-    	 break;
-     default:
-         enteredPrompt = " "; 
-         break;
+	    progressIndicator.setVisible(true);
+	    Thread thread = new Thread(imageGenerationTask);
+	    thread.setDaemon(true);
+	    thread.start();
+	
+	    Platform.runLater(() -> {
+	        primaryStage.setScene(generatedImageScene);
+	        primaryStage.show();
+	    });
+	}
+	
+    
+    //choose the image to upload
+	private File chooseFile() throws Exception
+	 {
+	    FileChooser fileChooser = new FileChooser();
+	    fileChooser.setTitle("Select an Image");
+	    fileChooser.getExtensionFilters().addAll(
+	        new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+	    );
+	
+	    File chosenFile = fileChooser.showOpenDialog(primaryStage);
+	    if (chosenFile != null) {
+	    	showAlert("Upload Success", "Click Generate Button to Continue");
+	        uploadedImageFile = chosenFile;
+	        return chosenFile;
+	    }
+		return null;
 	 }
-	 
-	 return enteredPrompt;
-  }
 
+	//create the gallery
+    public ScrollPane createGallery() {
+        TilePane galleryTilePane = new TilePane();
+        galleryTilePane.setPadding(new Insets(5, 5, 5, 5));
+        galleryTilePane.setVgap(4);
+        galleryTilePane.setHgap(4);
+        galleryTilePane.setStyle("-fx-background-color: cornflowerblue;");
+        galleryTilePane.setPrefColumns(4); 
+        galleryTilePane.setAlignment(Pos.CENTER);
+
+        //get the files from the gallery folder and display them
+        try (Stream<Path> paths = Files.walk(Paths.get("src/application/gallery"))) {
+            paths.filter(Files::isRegularFile).forEach(path -> {
+                File file = path.toFile();
+                Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
+                ImageView galleryImageView = new ImageView(galleryImage);
+                galleryImageView.setFitWidth(150);
+                galleryImageView.setFitHeight(150);
+                galleryImageView.setPreserveRatio(true);
+
+                galleryTilePane.getChildren().add(galleryImageView);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Could not find directory.");
+        }
+
+        //wrap tilepane in scrollpane
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(galleryTilePane);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        return scrollPane;
+    }
 
   //save an image
   public void saveImage(Stage stage, Image image) throws IOException {
@@ -865,12 +862,11 @@ public void onGenerateImageButtonClicked(String prompt, String style) {
       }
 
   }
-
   
   //adds an image to the gallery flow pane
   public void addImageToGallery(Path path) {
       File file = path.toFile();
-      Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
+      Image galleryImage = new Image(file.toURI().toString());
       ImageView galleryImageView = new ImageView(galleryImage);
       galleryImageView.setFitWidth(150);
       galleryImageView.setFitHeight(150);
@@ -908,10 +904,11 @@ public void onGenerateImageButtonClicked(String prompt, String style) {
 	    try {
 	    	
 	        byte[] imageData = Base64.getDecoder().decode(base64Image);
-	        String negativePrompt = "bad quality, distorted features, cross eyes, six fingers, four fingers, facial abnormalities, nsfw, no pupils";
+	        String negativePrompt = "bad quality, distorted features, cross eyes, six fingers, four fingers, abnormalities, nsfw, no pupils, multiple heads, detached head, inaccurate, multiple faces, face on neck, unnecessary faces, lazy eye, face on chest, bodily abnormalities, faces without heads";
 
-	        //String engine_id = "stable-diffusion-xl-1024-v1-0";
-	        String engine_id = "stable-diffusion-512-v2-1";
+	        String engine_id = "stable-diffusion-xl-1024-v1-0";
+	        //String engine_id = "stable-diffusion-512-v2-1";
+	        //String engine_id = "stable-diffusion-v1-5";
 
 	        HttpResponse<JsonNode> response = Unirest.post("https://api.stability.ai/v1/generation/" + engine_id + "/image-to-image")
 		              .header("Authorization", "Bearer sk-no6ZZBdGyv8LIVOZi0WGPTlgcQWk8rBzCv8VQKErIIMFGHwY")
@@ -981,6 +978,16 @@ public void onGenerateImageButtonClicked(String prompt, String style) {
       grid.add(backButton, colIndex, rowIndex);
       GridPane.setHalignment(backButton, HPos.LEFT);
       GridPane.setValignment(backButton, VPos.TOP);
+  }
+  
+
+  //show an error with given title and message
+  private void showAlert(String title, String message) {
+      Alert alert = new Alert(Alert.AlertType.WARNING);
+      alert.setTitle(title);
+      alert.setHeaderText(null);
+      alert.setContentText(message);
+      alert.show();
   }
 
   //main method

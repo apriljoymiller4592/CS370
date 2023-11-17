@@ -1,11 +1,11 @@
-/*package application;
+package application;
 
-import java.net.PasswordAuthentication;
+import javax.mail.PasswordAuthentication;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-
-import com.mysql.cj.Session;
+import javax.activation.*;
+import javax.mail.Session;
 
 import javax.activation.*;
 import javax.mail.Authenticator;
@@ -65,7 +65,7 @@ public class JavaMail{
 	      }
 	}
    public static void main(String [] args) {    
-	   PasswordResetRequest("UserName","testmail@gmail.com");
+	   PasswordResetRequest("april","ewix lkoq rkkp ehbs", "artface.art.icle@gmail.com");
    }
-}*/
+}
 
