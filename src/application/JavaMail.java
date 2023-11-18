@@ -7,7 +7,7 @@ import javax.mail.internet.*;
 import javax.activation.*;
 import javax.mail.Session;
 
-import javax.activation.*;
+//import javax.activation.*;
 import javax.mail.Authenticator;
 
 //https://www.tutorialspoint.com/java/java_sending_email.htm
@@ -18,7 +18,7 @@ public class JavaMail{
 	      String to = "artface.art.icle@gmail.com";
 
 	      // Sender's email ID needs to be mentioned
-	      String from = "artface.art.icle@gmail.com";
+	      //String from = "artface.art.icle@gmail.com";
 
 	      // Assuming you are sending email from localhost
 	      String host = "smtp.gmail.com";
@@ -37,7 +37,7 @@ public class JavaMail{
 	      Session session = Session.getInstance(properties, new Authenticator() {
 	      @Override
 	      protected PasswordAuthentication getPasswordAuthentication() {
-	          return new PasswordAuthentication("kennethha47@gmail.com", appPassword);
+	          return new PasswordAuthentication("artface.art.icle@gmail.com", appPassword);
 	      }
 	   		});
 	   		
@@ -46,7 +46,7 @@ public class JavaMail{
 	         MimeMessage message = new MimeMessage(session);
 
 	         // Set From: header field of the header.
-	         message.setFrom(new InternetAddress(from));
+	         message.setFrom(new InternetAddress(email));
 
 	         // Set To: header field of the header.
 	         message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
@@ -65,7 +65,7 @@ public class JavaMail{
 	      }
 	}
    public static void main(String [] args) {    
-	   PasswordResetRequest("april","ewix lkoq rkkp ehbs", "artface.art.icle@gmail.com");
+	   PasswordResetRequest("april","artface.art.icle@gmail.com","ewix lkoq rkkp ehbs");
    }
 }
 
