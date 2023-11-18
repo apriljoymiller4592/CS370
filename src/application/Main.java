@@ -632,7 +632,7 @@ public class Main extends Application {
 	       enteredPrompt = "rainbows, butterflies, unicorn in background, pink fluffy clouds, pink sky, dreamy";
 	       break;
 	   case "Fantasy":
-	       enteredPrompt = "fantasy, mystical, medieval";
+	       enteredPrompt = "fantasy, mystical, dreamy, colorful, wonderland";
 	       break;
 	   case "Futuristic":
 	  	 enteredPrompt = "futuristic, future, realistic, chrome, technology";
@@ -800,13 +800,24 @@ public class Main extends Application {
 	
 	    File chosenFile = fileChooser.showOpenDialog(primaryStage);
 	    if (chosenFile != null) {
-	    	showAlert("Upload Success", "Click Generate Button to Continue");
+	    	showSuccessAlert("Upload Success", "Click Generate Button to Continue");
 	        uploadedImageFile = chosenFile;
 	        return chosenFile;
+	    }
+	    else {
+	    	showAlert("Error", "There was a problem uploading your photo. Please try again.");
 	    }
 		return null;
 	 }
 
+	public void showSuccessAlert(String title, String message)
+	{
+	      Alert alert = new Alert(Alert.AlertType.INFORMATION);
+	      alert.setTitle(title);
+	      alert.setHeaderText(null);
+	      alert.setContentText(message);
+	      alert.show();
+	}
 	//create the gallery
     public ScrollPane createGallery() {
         TilePane galleryTilePane = new TilePane();
@@ -844,7 +855,7 @@ public class Main extends Application {
         return scrollPane;
     }
 
-  //save an image
+  //save an image to user's computer
   public void saveImage(Stage stage, Image image) throws IOException {
 
       FileChooser fileChooser = new FileChooser();
@@ -857,22 +868,37 @@ public class Main extends Application {
       if (file != null) {
           BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
           ImageIO.write(bImage, "png", file);
-
-          Platform.runLater(() -> addImageToGallery(file.toPath()));
+          
+          saveImageToGallery(bImage);
       }
 
   }
   
+  //save an image to the gallery folder to be later displayed
+  public void saveImageToGallery(BufferedImage bImage) throws IOException {
+	    File galleryFolder = new File("src/application/gallery");
+	    if (!galleryFolder.exists()) {
+	        galleryFolder.mkdirs();
+	    }
+	    
+	    //file name must be unique	
+	    String filename = "Image" + System.currentTimeMillis() + ".png";
+	    File file = new File(galleryFolder, filename);
+	    ImageIO.write(bImage, "png", file);
+
+	    Platform.runLater(() -> addImageToGallery(file));
+	}
+
+  
   //adds an image to the gallery flow pane
-  public void addImageToGallery(Path path) {
-      File file = path.toFile();
+  public void addImageToGallery(File file) {
       Image galleryImage = new Image(file.toURI().toString());
       ImageView galleryImageView = new ImageView(galleryImage);
       galleryImageView.setFitWidth(150);
       galleryImageView.setFitHeight(150);
       galleryImageView.setPreserveRatio(true);
       galleryFlowPane.getChildren().add(galleryImageView);
-}
+  }
 
 
   //generates the image from text input
@@ -903,6 +929,7 @@ public class Main extends Application {
   public byte[] generateImageFromImage(String base64Image, String prompt, String style) {
 	    try {
 	    	
+	    	//convert the base 64 image to a byte array that contains the image data
 	        byte[] imageData = Base64.getDecoder().decode(base64Image);
 	        String negativePrompt = "bad quality, distorted features, cross eyes, six fingers, four fingers, abnormalities, nsfw, no pupils, multiple heads, detached head, inaccurate, multiple faces, face on neck, unnecessary faces, lazy eye, face on chest, bodily abnormalities, faces without heads";
 
@@ -912,7 +939,7 @@ public class Main extends Application {
 
 	        HttpResponse<JsonNode> response = Unirest.post("https://api.stability.ai/v1/generation/" + engine_id + "/image-to-image")
 		              .header("Authorization", "Bearer sk-no6ZZBdGyv8LIVOZi0WGPTlgcQWk8rBzCv8VQKErIIMFGHwY")
-		              .field("image_strength", 0.35)
+		              .field("image_strength", 0.42)
 		              .field("init_image_mode", "IMAGE_STRENGTH")
 		              .field("init_image", imageData, "image.png")
 		              .field("text_prompts[0][text]", prompt + " " + style)
