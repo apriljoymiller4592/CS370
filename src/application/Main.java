@@ -714,6 +714,10 @@ public class Main extends Application {
 		  		{
 		  			showAlert("Error", "You must enter a style!");
 		  		}
+		  		if (uploadedImageFile != null && !prompt.isEmpty())
+		  		{
+		  			showAlert("Error", "Please clear prompt before uploading an image.");
+		  		}
 	      	  	if (isUploaded == false) {
 		            return generateImageFromText(prompt, style);
 	      	  	} else {
