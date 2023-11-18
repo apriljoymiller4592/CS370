@@ -428,12 +428,13 @@ public class Main extends Application {
         ComboBox<String> comboBox = new ComboBox<>();
 
         ObservableList<String> items = FXCollections.observableArrayList(
-        		"Animated",
         		"Abstract",
+        		"Animated",
 	            "Anime",
 	            "Caricature",
 	            "Cartoon",
 	            "Cheery",
+	            "Colorful",
 	            "Fantasy",
 	            "Futuristic",
 	            "Medieval",
@@ -525,6 +526,8 @@ public class Main extends Application {
         Button generateImageButton = new Button("Generate Image");
         centeredGrid.add(generateImageButton, 25, 20);
         
+        //if (!comboBox.getItems().isEmpty())
+        
         
         uploadButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -550,7 +553,7 @@ public class Main extends Application {
                 String prompt = promptTextField.getText();
                 String style = getPrompt(comboBox.getValue());
                 if (style == null || style.isEmpty()) {
-                    showAlert("Error", "Please enter a style");
+                    showAlert("Error", "Please enter a style!");
                     return;
                 }
                 try {
@@ -613,14 +616,14 @@ public class Main extends Application {
 		 String enteredPrompt = "";
 		 
 		 switch (style) {
-	   case "Anime":
-	       enteredPrompt = "anime, japanese cartoon, cute, big eyes";
-	       break;
 	   case "Abstract":
 	       enteredPrompt = "abstract, geometric, julie mehretu";
 	       break;
 	   case "Animated":
 	       enteredPrompt = "animated, animation";
+	       break;
+	   case "Anime":
+	       enteredPrompt = "anime, japanese cartoon, cute, big eyes";
 	       break;
 	   case "Cartoon":
 	       enteredPrompt = "cartoon, 2d animation";
@@ -630,6 +633,9 @@ public class Main extends Application {
 	       break;
 	   case "Cheery":
 	       enteredPrompt = "rainbows, butterflies, unicorn in background, pink fluffy clouds, pink sky, dreamy";
+	       break;
+	   case "Colorful":
+	       enteredPrompt = "vibrant, colorful, saturated bright";
 	       break;
 	   case "Fantasy":
 	       enteredPrompt = "fantasy, mystical, dreamy, colorful, wonderland";
@@ -662,7 +668,7 @@ public class Main extends Application {
 	       enteredPrompt = "psychedelic, trippy, colorful";
 	       break;
 	   case "Scary":
-	  	 enteredPrompt = "scary, creepy, unsettling, frightening";
+	  	 enteredPrompt = "scary, creepy, unsettling, frightening, spiders, bats";
 	  	 break;
 	   case "Surprise":
 	  	 enteredPrompt = "random, weird, funny, 3d geometric objects";
@@ -671,7 +677,7 @@ public class Main extends Application {
 	       enteredPrompt = "surreal, realistic, salvador dali, vladimir kush";
 	       break;
 	   case "Underwater":
-	  	 enteredPrompt = "underwater, ocean, sea";
+	  	 enteredPrompt = "underwater, ocean, under the sea";
 	  	 break;
 	   default:
 	       enteredPrompt = " "; 
@@ -708,10 +714,6 @@ public class Main extends Application {
 		  		{
 		  			showAlert("Error", "You must enter a style!");
 		  		}
-		  		if (uploadedImageFile != null && !prompt.isEmpty())
-		  		{
-		  			showAlert("Error", "Please clear prompt before uploading an image.");
-		  		}
 	      	  	if (isUploaded == false) {
 		            return generateImageFromText(prompt, style);
 	      	  	} else {
@@ -723,7 +725,7 @@ public class Main extends Application {
 		      	    byte[] resizedBytes = baosResized.toByteArray();
 		      	    String encodedImage = Base64.getEncoder().encodeToString(resizedBytes);
 		      	    
-		      	    byte[] imageData = generateImageFromImage(encodedImage, prompt, style);
+		      	    byte[] imageData = generateImageFromImage(encodedImage, style);
 		      	    if (imageData != null) {
 		      	        return new Image(new ByteArrayInputStream(imageData));
 		      	    }
@@ -926,7 +928,7 @@ public class Main extends Application {
       }
   }
   
-  public byte[] generateImageFromImage(String base64Image, String prompt, String style) {
+  public byte[] generateImageFromImage(String base64Image, String style) {
 	    try {
 	    	
 	    	//convert the base 64 image to a byte array that contains the image data
@@ -939,10 +941,10 @@ public class Main extends Application {
 
 	        HttpResponse<JsonNode> response = Unirest.post("https://api.stability.ai/v1/generation/" + engine_id + "/image-to-image")
 		              .header("Authorization", "Bearer sk-no6ZZBdGyv8LIVOZi0WGPTlgcQWk8rBzCv8VQKErIIMFGHwY")
-		              .field("image_strength", 0.42)
+		              .field("image_strength", 0.32)
 		              .field("init_image_mode", "IMAGE_STRENGTH")
 		              .field("init_image", imageData, "image.png")
-		              .field("text_prompts[0][text]", prompt + " " + style)
+		              .field("text_prompts[0][text]", style)
 		              .field("text_prompts[0][weight]", 1)
 		              .field("text_prompts[1][text]", negativePrompt)
 		              .field("text_prompts[1][weight]", -1)
@@ -950,7 +952,7 @@ public class Main extends Application {
 		              .field("clip_guidance_preset", "FAST_BLUE")
 		              .field("sampler", "K_DPM_2_ANCESTRAL")
 		              .field("samples", 3)
-		              .field("steps", 30)
+		              .field("steps", 40)
 		              .asJson();
 
 	        System.out.println(response.getBody());
