@@ -4,17 +4,10 @@ import java.io.InputStream;
 
 import net.coobird.thumbnailator.Thumbnails;
 
-import java.io.InputStreamReader;
-
-
 import javafx.embed.swing.SwingFXUtils;
 
-import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,26 +18,16 @@ import java.security.MessageDigest;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
+
 import java.util.Base64;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
-
 import javax.imageio.ImageIO;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -55,9 +38,6 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.HttpRequest;
-import com.mashape.unirest.request.body.MultipartBody;
-import com.mashape.unirest.request.body.RequestBodyEntity;
 
 //import application.WebcamCapture.VideoFeedTaker;
 import javafx.event.ActionEvent;
@@ -70,7 +50,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -79,7 +58,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -90,13 +68,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.text.Font;
@@ -133,7 +107,7 @@ public class Main extends Application {
     public void createHomePage() 
     {
         GridPane gridPane = new GridPane();
-        Scene homeScene = new Scene(gridPane, 850, 850);
+        Scene homeScene = new Scene(gridPane, 950, 950);
 
         Text sceneTitle = new Text("Hello, ArtFace!");
         sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
@@ -227,7 +201,7 @@ public class Main extends Application {
 	  Button signUpButton = new Button("Sign up");
 	  signUpGrid.add(signUpButton, 0, 6);
 	
-	  Scene signUpScene = new Scene(mainGrid, 850, 850);
+	  Scene signUpScene = new Scene(mainGrid, 950, 950);
 	
 	  signUpButton.setOnAction(new EventHandler<ActionEvent>() {
 	  @Override
@@ -331,7 +305,7 @@ public class Main extends Application {
       // Sign-in button
       Button signInBtn2 = new Button("Sign in");
       signInGrid.add(signInBtn2, 1, 4);
-      Scene signInScene = new Scene(mainGrid, 850, 850);
+      Scene signInScene = new Scene(mainGrid, 950, 950);
     signInBtn2.setOnAction(new EventHandler<ActionEvent>() {
     @Override
     public void handle(ActionEvent event) {
@@ -394,7 +368,7 @@ public class Main extends Application {
       Button uploadProfileBtn = new Button("Upload Profile Photo");
       profileGrid.add(uploadProfileBtn, 0,2);
 
-      Scene profileScene = new Scene(profileGrid, 850, 850);
+      Scene profileScene = new Scene(profileGrid, 950, 950);
 
       uploadProfileBtn.setAlignment(Pos.TOP_CENTER);
       
@@ -417,6 +391,7 @@ public class Main extends Application {
       primaryStage.show();
 
     }
+    
 
     //create the page to generate an image
     public void createImageGenerationPage(Scene scene) {
@@ -425,33 +400,111 @@ public class Main extends Application {
     	GridPane mainGrid = new GridPane();
         mainGrid.setStyle("-fx-background-color: plum;");
         mainGrid.setPadding(new Insets(15, 15, 15, 15));
-        ComboBox<String> comboBox = new ComboBox<>();
+        HBox hbox = new HBox();
+        hbox.setSpacing(10);
+        hbox.setPadding(new Insets(15, 20, 10, 15));
+        ComboBox<String> timesComboBox = new ComboBox<>();
+        ComboBox<String> themesComboBox = new ComboBox<>();
+        ComboBox<String> cartoonComboBox = new ComboBox<>();
+        ComboBox<String> artComboBox = new ComboBox<>();
+        ComboBox<String> placesComboBox = new ComboBox<>();
+        ComboBox<String> mediaComboBox = new ComboBox<>();
 
-        ObservableList<String> items = FXCollections.observableArrayList(
-        		"Abstract",
-        		"Animated",
-	            "Anime",
-	            "Caricature",
-	            "Cartoon",
-	            "Cheery",
-	            "Colorful",
-	            "Fantasy",
-	            "Futuristic",
-	            "Medieval",
-	            "Nature",
-	            "Outer space",
-	            "Painting",
-	            "Pointilism",
-	            "Psychedelic",
-	            "Prehistoric",
-	            "Scary",
-	            "Surprise",
-	            "Surreal",
-	            "Underwater"      
+        ObservableList<String> timesItems = FXCollections.observableArrayList(
+        		"-",
+        		"50's Diner",
+        		"90's Kids",
+        		"Futuristic",
+        		"Prehistoric",
+        		"Medieval",
+        		"Renaissance",
+        		"Roaring 20's",
+        		"Victorian"     		   		
         );
         
-        comboBox.setItems(items);
-
+        ObservableList<String> themesItems = FXCollections.observableArrayList(
+        		 "-",
+        	     "Cheery",
+        	     "Christmas",
+        	     "Colorful",
+        	     "Cyberpunk",
+        	     "Dreamy",
+        	     "Fanstasy",
+        	     "Halloween",
+        	     "Jungle",
+        	     "Nature",
+        	     "Outer space",
+        	     "Painting",
+        	     "Psychedelic",
+        	     "Scary",
+        	     "Steampunk",
+        	     "Surprise",
+        	     "Underwater",
+        	     "Western"
+        );
+        
+        ObservableList<String> cartoonItems = FXCollections.observableArrayList(
+        		"-",
+	       	    "Anime",
+	       	    "Animated",
+	       	    "Cartoon",
+	       	    "Caricature",
+	       	    "Claymation",
+	       	    "Comic",
+	       	    "Doodle",
+	            "Manga"      	     
+        );
+        
+        ObservableList<String> artItems = FXCollections.observableArrayList(
+        		"-",
+	       	    "Abstract",
+	       	    "Conceptual",
+	       	    "Cubism",
+	       	    "Contemporary",
+	       	    "Futurism",
+	            "Impressionism",
+	      	    "Modern",
+	      	    "Neoclassic",
+	      	    "Pop Art",
+	      	    "Rococo",
+	            "Surrealism"
+        );
+        
+        ObservableList<String> placesItems = FXCollections.observableArrayList(
+        		"-",
+       	        "American Spirit",
+       	        "Ancient Egypt",
+       	        "Antarctica",
+       	        "Bejing",
+       	        "Greece",
+       	        "London",
+       	        "Paris"
+        );
+        
+        ObservableList<String> mediaItems = FXCollections.observableArrayList(
+        		"-",
+          	    "Kim Kardashian",
+          	    "Brad Pitt",
+          	    "Ariana Grande",
+          	    "Chris Evans",
+          	    "Emma Watson",
+          	    "Jim Carrey",
+          	    "Leonardo DiCaprio",
+          	    "Lady Gaga",
+          	    "Snoop Dogg",
+          	    "Angelina Jolie",
+          	    "Megan Fox",
+          	    "Nicolas Cage"
+        );
+        
+        
+        timesComboBox.setItems(timesItems);
+        themesComboBox.setItems(themesItems);
+        cartoonComboBox.setItems(cartoonItems);
+        artComboBox.setItems(artItems);
+        placesComboBox.setItems(placesItems);
+        mediaComboBox.setItems(mediaItems);
+        
         //grid to add go to profile button
         GridPane profileGrid = new GridPane();
         profileGrid.setPadding(new Insets(15, 0, 25, 0));
@@ -489,25 +542,55 @@ public class Main extends Application {
         createText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
         centeredGrid.add(createText, 25, 11);
         
-        Text styleText = new Text("First, enter a style:");
+        Text styleText = new Text("First, enter in some style. You can...");
         styleText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
         centeredGrid.add(styleText, 25, 12);
-        centeredGrid.add(comboBox, 25, 13);
+        hbox.getChildren().addAll(timesComboBox, themesComboBox, cartoonComboBox, artComboBox, placesComboBox, mediaComboBox);
+        
+        Text timesText = new Text("Pick a Time Period:");
+        styleText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
+        centeredGrid.add(timesText, 25, 13);
+        centeredGrid.add(timesComboBox, 26, 13);
+        
+        Text themesText = new Text("Pick a Theme:");
+        themesText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
+        centeredGrid.add(themesText, 25, 14);
+        centeredGrid.add(themesComboBox, 26, 14);
+        
+        Text cartoonText = new Text("Pick a Drawing Style:");
+        cartoonText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
+        centeredGrid.add(cartoonText, 25, 15);
+        centeredGrid.add(cartoonComboBox, 26, 15);
+        
+        Text artText = new Text("Pick an Art Style:");
+        artText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
+        centeredGrid.add(artText, 25, 16);
+        centeredGrid.add(artComboBox, 26, 16);
+        
+        Text placesText = new Text("Pick a Place:");
+        placesText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
+        centeredGrid.add(placesText, 25, 17);
+        centeredGrid.add(placesComboBox, 26, 17);
+        
+        Text mediaText = new Text("Pick a Celebrity:");
+        mediaText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
+        centeredGrid.add(mediaText, 25, 18);
+        centeredGrid.add(mediaComboBox, 26, 18);
         
         Text thenText = new Text("Then...");
         thenText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 18));
-        centeredGrid.add(thenText, 25, 14);
+        centeredGrid.add(thenText, 25, 19);
         
         Text uploadImageText = new Text("Upload an Image of Your Smile:");
         uploadImageText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
-        centeredGrid.add(uploadImageText, 25, 15);
+        centeredGrid.add(uploadImageText, 25, 20);
         
         Button uploadButton = new Button("Upload Image");
-        centeredGrid.add(uploadButton, 25, 16);
+        centeredGrid.add(uploadButton, 25, 21);
 
         Text orText = new Text("Or you can...");
         orText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 18));
-        centeredGrid.add(orText, 25, 17);
+        centeredGrid.add(orText, 25, 22);
         
         Text promptText = new Text("Enter a Prompt:");
         TextField promptTextField = new TextField();
@@ -520,23 +603,15 @@ public class Main extends Application {
         });
         
         promptText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
-        centeredGrid.add(promptText, 25, 18);
-        centeredGrid.add(promptTextField, 25, 19);
+        centeredGrid.add(promptText, 25, 23);
+        centeredGrid.add(promptTextField, 25, 24);
 
         Button generateImageButton = new Button("Generate Image");
-        centeredGrid.add(generateImageButton, 25, 20);
-        
-        //if (!comboBox.getItems().isEmpty())
-        
+        centeredGrid.add(generateImageButton, 25, 25);
         
         uploadButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                String style = getPrompt(comboBox.getValue());
-                if (style == null || style.isEmpty()) {
-                    showAlert("Error", "Please enter a style!");
-                    return;
-                }
                 try {
 					chooseFile();
 	            	isUploaded = true;
@@ -551,13 +626,19 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
                 String prompt = promptTextField.getText();
-                String style = getPrompt(comboBox.getValue());
-                if (style == null || style.isEmpty()) {
-                    showAlert("Error", "Please enter a style!");
-                    return;
-                }
+                
+                //Add the other styles and call them in the method. Add together in api call with space in betweeen
+                String timesStyle = getPrompt(timesComboBox.getValue());
+                String themesStyle = getPrompt(themesComboBox.getValue());
+                String cartoonStyle = getPrompt(cartoonComboBox.getValue());
+                String artStyle = getPrompt(artComboBox.getValue());
+                String placesStyle = getPrompt(placesComboBox.getValue());
+                String mediaStyle = getPrompt(mediaComboBox.getValue());
+                
+                String combinedStyles = String.join(" ", timesStyle, themesStyle, cartoonStyle, artStyle, placesStyle, mediaStyle).trim();
+
                 try {
-                	onGenerateImageButtonClicked(prompt, style);
+                	onGenerateImageButtonClicked(prompt, combinedStyles);
                 } catch (Exception e) {       
                     showAlert("Error", "Image could not be generated.");
                     e.printStackTrace();
@@ -572,7 +653,7 @@ public class Main extends Application {
             }
         });
         
-        Scene imageScene = new Scene(mainGrid, 850, 850);
+        Scene imageScene = new Scene(mainGrid, 950, 950);
 
         CreateBackButton(mainGrid, sceneArray[1], 0, 0);
         profileGrid.add(centeredGrid, 0, 1);
@@ -610,78 +691,218 @@ public class Main extends Application {
 	        }
 	    }
 	}
+	
+	/*
+	 */
 
-	//set the image to image generation prompt based on user's input style
+	//get the detailed prompt of each style
 	public String getPrompt(String style) {
-		 String enteredPrompt = "";
+	 String enteredPrompt = "";
+	 
+	 if (style == null)
+	 {
+		 return "";
+	 }
 		 
-		 switch (style) {
+	switch (style) {
+	   case "50's Diner":
+		 enteredPrompt = "1950's diner, 1950's, 50s, diner, milkshake";
+		 break;
+	   case "90's Kids":
+	     enteredPrompt = "1990, 90s, lisa frank, furbies, gameboy, tamagotchi, beanie babies";
+	     break;
 	   case "Abstract":
-	       enteredPrompt = "abstract, geometric, julie mehretu";
-	       break;
+	     enteredPrompt = "abstract, geometric, julie mehretu";
+	     break;
+	   case "American Spirit":
+		 enteredPrompt = "america, USA, soaring bald eagle, red white and blue";
+		 break;
+	   case "Ancient Egypt":
+		 enteredPrompt = "ancient egypt, egypt, pyramids, hieroglyphs";
+		 break;
+	   case "Angelina Jolie":
+		 enteredPrompt = "angelina jolie, celebrity";
+		 break;
 	   case "Animated":
-	       enteredPrompt = "animated, animation";
-	       break;
+	     enteredPrompt = "animated, animation";
+	     break;
 	   case "Anime":
-	       enteredPrompt = "anime, japanese cartoon, cute, big eyes";
-	       break;
+         enteredPrompt = "anime, japanese cartoon, cute, big eyes";
+         break;
+	   case "Antarctica":
+	     enteredPrompt = "antarctica, snow, cold, winter, blizzard";
+	     break;
+	   case "Ariana Grande":
+		 enteredPrompt = "ariana grande, celebrity";
+		 break;
+	   case "Bejing":
+		 enteredPrompt = "bejing, china, great wall of china";
+		 break;
+	   case "Brad Pitt":
+		 enteredPrompt = "brad pitt, celebrity";
+		 break;
 	   case "Cartoon":
-	       enteredPrompt = "cartoon, 2d animation";
-	       break;
+	     enteredPrompt = "cartoon, 2d animation";
+	     break;
 	   case "Caricature":
-	       enteredPrompt = "caricature, exaggerated features";
-	       break;
+	     enteredPrompt = "caricature, exaggerated features";
+	     break;
 	   case "Cheery":
-	       enteredPrompt = "rainbows, butterflies, unicorn in background, pink fluffy clouds, pink sky, dreamy";
-	       break;
+	     enteredPrompt = "rainbows, butterflies, unicorn in background, pink fluffy clouds, pink sky, dreamy";
+	     break;
+	   case "Chris Evans":
+		 enteredPrompt = "chris evans, celebrity";
+		 break;
+	   case "Christmas":
+	     enteredPrompt = "christmas, santa clause, reindeers in sky, snowmen, snowflakes, winter";
+	     break;
+	   case "Claymation":
+		 enteredPrompt = "claymation, clay animation, clay";
+		 break;
 	   case "Colorful":
-	       enteredPrompt = "vibrant, colorful, saturated bright";
-	       break;
+	     enteredPrompt = "vibrant, colorful, saturated bright";
+	     break;
+	   case "Comic":
+		 enteredPrompt = "comic, drawing, newspaper art";
+		 break;
+	   case "Conceptual":
+		 enteredPrompt = "conceptual art, conceptualism";
+		 break;		
+	   case "Contemporary":
+		 enteredPrompt = "contemporary art, contemporary";
+		 break;	
+	   case "Cyberpunk":
+	     enteredPrompt = "cyberpunk, cyborgs, technology, augmented reality, punk rock";
+	     break;
+	   case "Cubism":
+		  enteredPrompt = "cubism, art, cubes";
+		  break;
+	   case "Doodle":
+		 enteredPrompt = "doodle, hand drawn, drawing, sketch";
+		 break;
+	   case "Dreamy":
+	     enteredPrompt = "lovely, nice, dreamy, pastel, whimsical";
+	     break;
+	   case "Emma Watson":
+		  enteredPrompt = "emma watson, celebrity";
+		  break;
 	   case "Fantasy":
-	       enteredPrompt = "fantasy, mystical, dreamy, colorful, wonderland";
-	       break;
+	     enteredPrompt = "fantasy, mystical, dreamy, colorful, wonderland";
+	     break;
 	   case "Futuristic":
 	  	 enteredPrompt = "futuristic, future, realistic, chrome, technology";
 	  	 break;
+	   case "Futurism":
+		 enteredPrompt = "futurism art style, futurism";
+		 break;
+	   case "Greece":
+		 enteredPrompt = "greek, greece, philosophy, socrates";
+		 break;
+	   case "Halloween":
+		 enteredPrompt = "halloween, autumn, pumpkins, scarecrows, black cats";
+     	 break;
+	   case "Impressionism":
+		 enteredPrompt = "impressionism art style, claude monet";
+     	 break;
+	   case "Jim Carrey":
+	     enteredPrompt = "jim carrey, celebrity";
+	     break;
+	   case "Jungle":
+         enteredPrompt = "jungle, forest, leopard in tree, river in background";
+		 break;
+	   case "Kim Kardashian":
+	     enteredPrompt = "kim kardashian, celebrity";
+		 break;
+	   case "Lady Gaga":
+		 enteredPrompt = "lady gaga, celebrity";
+		 break;
+	   case "Leonardo DiCaprio":
+		 enteredPrompt = "leonardo dicaprio, celebrity";
+		 break;
+	   case "London":
+		 enteredPrompt = "london, england, big ben, london bridge, london tower, beefeaters, telephone booths";
+		 break;
+	   case "Manga":
+		 enteredPrompt = "manga, anime, japanese comic";
+		 break;
 	   case "Medieval":
 	  	 enteredPrompt = "medieval times, castles";
 	  	 break;
+	   case "Megan Fox":
+		 enteredPrompt = "megan fox, celebrity";
+		 break;
+	   case "Modern":
+		 enteredPrompt = "modern art, new age";
+		 break;
 	   case "Nature":
 	  	 enteredPrompt = "nature, butterflies, landscape, dreamy";
 	  	 break;
+	   case "Neoclassic":
+		 enteredPrompt = "neoclassical art style, neoclassic";
+		 break;
+	   case "Nicolas Cage":
+		 enteredPrompt = "nicolas cage, celebrity";
+		 break;
 	   case "Outer space":
 	  	 enteredPrompt = "outer space, galaxy, stars, moon, planets";
 	  	 break;
 	   case "Picasso":
-	       enteredPrompt = "in the style of picasso, art";
-	       break;
+	     enteredPrompt = "in the style of picasso, art";
+	     break;
 	   case "Painting":
-	       enteredPrompt = "painting, art, claude monet";
-	       break;
+	     enteredPrompt = "painting, art, claude monet";
+	     break;
+	   case "Paris":
+		 enteredPrompt = "paris, france, eiffel tower, sunset";
+		 break;
 	   case "Pointilism":
-	       enteredPrompt = "pointilism, art";
-	       break;
+	     enteredPrompt = "pointilism, art";
+	     break;
+	   case "Pop Art":
+		 enteredPrompt = "pop art, colorful, andy warhol";
+		 break;
 	   case "Prehistoric":
 	  	 enteredPrompt = "prehistoric, dinosaurs in background, jurassic, t rex, triceratops, brontosaurus";
 	  	 break;
 	   case "Psychedelic":
-	       enteredPrompt = "psychedelic, trippy, colorful";
-	       break;
+	     enteredPrompt = "psychedelic, trippy, colorful";
+	     break;
+	   case "Renaissance":
+	     enteredPrompt = "Renaissance period, classical art, michelangelo";
+	     break;
+	   case "Roaring 20's":
+	     enteredPrompt = "Roaring 20's, 1920's, flapper dancers, boa, jazz";
+	     break;
+	   case "Rococo":
+		 enteredPrompt = "rococo art style, light, fluffy, pastel";
+		 break;
 	   case "Scary":
 	  	 enteredPrompt = "scary, creepy, unsettling, frightening, spiders, bats";
 	  	 break;
+	   case "Snoop Dogg":
+		 enteredPrompt = "snoop dogg, celebrity, rapper";
+		 break;
+	   case "Steampunk":
+		 enteredPrompt = "steampunk, retro, technology, gears";
+		 break;
 	   case "Surprise":
 	  	 enteredPrompt = "random, weird, funny, 3d geometric objects";
 	  	 break;
-	   case "Surreal":
-	       enteredPrompt = "surreal, realistic, salvador dali, vladimir kush";
-	       break;
+	   case "Surrealism":
+	     enteredPrompt = "surreal, realistic, salvador dali, vladimir kush";
+	     break;
 	   case "Underwater":
 	  	 enteredPrompt = "underwater, ocean, under the sea";
 	  	 break;
+	   case "Victorian":
+		 enteredPrompt = "victorian era, great britain";
+		 break;
+	   case "Western":
+		 enteredPrompt = "western theme, country, cowboy";
+		 break;
 	   default:
-	       enteredPrompt = " "; 
-	       break;
+	     enteredPrompt = ""; 
+	     break;
 		 }
 		 
 		 return enteredPrompt;
@@ -700,24 +921,22 @@ public class Main extends Application {
 	    StackPane stack = new StackPane();
 	    grid.add(stack, 0, 1, 2, 1); 
 	
-	    Scene generatedImageScene = new Scene(grid, 850, 850);
+	    Scene generatedImageScene = new Scene(grid, 950, 950);
 	    
 	    ProgressIndicator progressIndicator = new ProgressIndicator();
 	    progressIndicator.setVisible(false);
 	    grid.add(progressIndicator, 0, 2);
+	    
+	    if (style == "")
+	    {
+	    	showAlert("Error", "Please enter a style!");
+	    	return;
+	    }
 	
 	    Task<Image> imageGenerationTask = new Task<>() {
 	        @Override
 	        protected Image call() throws Exception {
 	      	  updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
-		  		if (style == null)
-		  		{
-		  			showAlert("Error", "You must enter a style!");
-		  		}
-		  		if (uploadedImageFile != null && !prompt.isEmpty())
-		  		{
-		  			showAlert("Error", "Please clear prompt before uploading an image.");
-		  		}
 	      	  	if (isUploaded == false) {
 		            return generateImageFromText(prompt, style);
 	      	  	} else {
