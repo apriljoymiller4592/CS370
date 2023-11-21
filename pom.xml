@@ -39,5 +39,6 @@
         <artifactId>thumbnailator</artifactId>
         <version>0.4.14</version> <!-- Make sure to use the latest version -->
     </dependency>
-	</dependencies>
+    </dependencies>
+
 </project>

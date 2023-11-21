@@ -16,13 +16,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 
+import javafx.scene.control.ButtonBar;
+
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.Base64;
-
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.stream.Stream;
@@ -56,11 +59,13 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
+import javafx.util.Pair;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
@@ -68,6 +73,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -104,54 +110,115 @@ public class Main extends Application {
     }
 
     //creates the welcome page
-    public void createHomePage() 
-    {
+    public void createHomePage() {
+        BorderPane borderPane = new BorderPane();
+
         GridPane gridPane = new GridPane();
-        Scene homeScene = new Scene(gridPane, 950, 950);
-
-        Text sceneTitle = new Text("Hello, ArtFace!");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
-        gridPane.add(sceneTitle, 2, 1);
-        gridPane.setStyle("-fx-background-color: teal;");
-
         gridPane.setAlignment(Pos.CENTER);
         gridPane.setHgap(10);
         gridPane.setVgap(10);
         gridPane.setPadding(new Insets(25, 25, 25, 25));
+        gridPane.setStyle("-fx-background-color: teal;");
 
-        //when the sign up button is clicked, go to the sign up page
-        Button signUpBtn = new Button("Sign Up");
-        signUpBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                createSignUpPage();
-            }
-        });
+        Text sceneTitle = new Text("Hello, ArtFace!");
+        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
+        gridPane.add(sceneTitle, 0, 0, 2, 1); // Span 2 columns
 
-        //when the sign in button is clicked, go to the sign in page
-        Button signInBtn = new Button("Sign In");
-        signInBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                createSignInPage();
-            }
-        });
-        
         Image homeImage = new Image("application/Drawing.jpeg");
         ImageView homeImageView = new ImageView(homeImage);
         homeImageView.setFitHeight(200);
         homeImageView.setFitWidth(300);
-        
-        gridPane.add(homeImageView, 2, 0);
+        gridPane.add(homeImageView, 0, 1, 2, 1); 
+
+        Button signUpBtn = new Button("Sign Up");
+        signUpBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                 createSignUpPage();
+            }
+        });
+        gridPane.add(signUpBtn, 0, 2);
+
+        Button signInBtn = new Button("Sign In");
+        signInBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                 createSignInPage();
+            }
+        });
         gridPane.add(signInBtn, 1, 2);
-        gridPane.add(signUpBtn, 3, 2);
+
+        // Create the "Forgot Password?" button
+        Button forgotPasswordBtn = new Button("Forgot Password?");
+        forgotPasswordBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                showForgottenPasswordPrompt();
+            }
+        });
+        
+        HBox bottomBox = new HBox();
+        bottomBox.setAlignment(Pos.BOTTOM_LEFT);
+        bottomBox.getChildren().add(forgotPasswordBtn);
+        bottomBox.setPadding(new Insets(15, 12, 15, 12));
+
+        borderPane.setCenter(gridPane);
+        borderPane.setBottom(bottomBox);
+        borderPane.setStyle("-fx-background-color: orchid;");
+
+        Scene homeScene = new Scene(borderPane, 950, 950);
         sceneArray[0] = homeScene;
         primaryStage.setTitle("ArtFace");
         primaryStage.setScene(homeScene);
         primaryStage.show();
     }
 
-    //create sign up page for users to make an account
+    private void showForgottenPasswordPrompt() {
+        // Create a custom dialog
+        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("Reset Your Password");
+        dialog.setHeaderText("Enter your email and new password:");
+
+        ButtonType resetButtonType = new ButtonType("Reset", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(resetButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField emailField = new TextField();
+        emailField.setPromptText("Email");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("New Password");
+
+        grid.add(new Label("Email:"), 0, 0);
+        grid.add(emailField, 1, 0);
+        grid.add(new Label("New Password:"), 0, 1);
+        grid.add(passwordField, 1, 1);
+
+        dialog.getDialogPane().setContent(grid);
+
+        Platform.runLater(() -> emailField.requestFocus());
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == resetButtonType) {
+                return new Pair<>(emailField.getText(), passwordField.getText());
+            }
+            return null;
+        });
+
+        Optional<Pair<String, String>> result = dialog.showAndWait();
+
+        result.ifPresent(emailPassword -> {
+            String email = emailPassword.getKey();
+            String newPassword = emailPassword.getValue();
+            JavaMail.PasswordResetRequest("april", email, newPassword);
+        });
+    }
+
+
+	//create sign up page for users to make an account
     //TODO: save the username and password into the database for later retrieval
     public void createSignUpPage() 
     {
@@ -609,6 +676,9 @@ public class Main extends Application {
         Button generateImageButton = new Button("Generate Image");
         centeredGrid.add(generateImageButton, 25, 25);
         
+        Button webcamButton = new Button("Take a selfie");
+        centeredGrid.add(webcamButton, 26, 21);
+        
         uploadButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -645,6 +715,7 @@ public class Main extends Application {
                 }
             }
         });
+        
 
         profileButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -653,9 +724,17 @@ public class Main extends Application {
             }
         });
         
+        webcamButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //TODO: IMPLEMENT WEBCAM HERE
+                
+            }
+        });
+        
         Scene imageScene = new Scene(mainGrid, 950, 950);
 
-        CreateBackButton(mainGrid, sceneArray[1], 0, 0);
+        CreateBackButton(mainGrid, sceneArray[0], 0, 0);
         profileGrid.add(centeredGrid, 0, 1);
         mainGrid.add(profileGrid, 0, 1);
         
@@ -927,7 +1006,7 @@ public class Main extends Application {
 	    progressIndicator.setVisible(false);
 	    grid.add(progressIndicator, 0, 2);
 	    
-	    if (style == "")
+	    if (style == "" || style == "------")
 	    {
 	    	showAlert("Error", "Please enter a style!");
 	    	return;
@@ -1127,7 +1206,7 @@ public class Main extends Application {
 
 
   //generates the image from text input
-  public static Image generateImageFromText(String text, String style) throws UnirestException {
+  public Image generateImageFromText(String text, String style) throws UnirestException {
       JSONObject body = new JSONObject();
       body.put("text", text + style);
 
@@ -1146,6 +1225,7 @@ public class Main extends Application {
               return null;
           }
       } else {
+    	  showAlert("Error", "Failed to get image with status " + response.getStatusText());
           System.err.println("Failed to generate image: " + response.getStatusText());
           return null;
       }
@@ -1192,7 +1272,7 @@ public class Main extends Application {
 	            System.err.println("API request failed: " + response.getStatus() + " : " + response.getStatusText());
 	        }
 	    } catch (Exception e) {
-	        e.printStackTrace();
+	        System.err.println("Image could not be generated from image.");
 	    }
 	    return null;
 	} 
@@ -1211,8 +1291,10 @@ public class Main extends Application {
   //generates hash by applying SHA-1 hashing algorithm
   public static String generateHash(String base64Image) throws Exception {
       MessageDigest digest = MessageDigest.getInstance("SHA-1");
+      //convert the base 64 image into a byte array and apply hashing algorithm
       byte[] hashBytes = digest.digest(base64Image.getBytes("UTF-8"));
 
+      //build the hash
       StringBuilder sb = new StringBuilder();
       for (byte b : hashBytes) {
           sb.append(String.format("%02x", b));
@@ -1232,7 +1314,6 @@ public class Main extends Application {
       GridPane.setValignment(backButton, VPos.TOP);
   }
   
-
   //show an error with given title and message
   private void showAlert(String title, String message) {
       Alert alert = new Alert(Alert.AlertType.WARNING);

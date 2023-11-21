@@ -6,6 +6,9 @@ import com.github.sarxos.webcam.*;
 import java.awt.Dimension;
 import java.awt.Image;
 import javax.swing.ImageIcon;
+
+//import org.apache.log4j.BasicConfigurator;
+
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +63,7 @@ public class WebcamCapture {
 	}//end of class
 	public static void main(String[] args) throws IOException{
 		 WebcamCapture webcamCapture = new WebcamCapture(); // Create an instance
+		// BasicConfigurator.configure();
 	    webcamCapture.webcam = Webcam.getDefault(); 
 		
 	    webcamCapture.webcam.addWebcamListener(new WebcamListener(){//the event listener
