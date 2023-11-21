@@ -23,6 +23,7 @@ import javafx.scene.control.ButtonBar;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -88,7 +89,7 @@ import javafx.scene.text.Text;
 //TODO: Make code more modular, separate into classes?
 public class Main extends Application {
      private static final String dbClassname = "com.mysql.cj.jdbc.Driver";
-     private static final String CONNECTION = "jdbc:mysql://127.0.0.1/ArtFaceDB";
+     private static final String CONNECTION = "jdbc:mysql://127.0.0.1/artfacedb";
      private static Stage primaryStage = new Stage();
      private static Scene[] sceneArray = new Scene[5];
      private FlowPane galleryFlowPane = new FlowPane();
@@ -309,22 +310,23 @@ public class Main extends Application {
 	        showAlert("Error", "Please enter your name");
 	        return;
 	      }
-	      createImageGenerationPage(signUpScene);
-	    /*  try {
-	        userCreated = data.newUser(c, enteredUsername, enteredPassword);
+	      
+	      try {
+	        userCreated = data.newUser(c, enteredUsername, enteredPassword, enteredEmail, null);
 	      } catch (ClassNotFoundException | SQLException e) {
 	        // TODO Auto-generated catch block
 	        e.printStackTrace();
-	      }*/
-	     /* System.out.println("userCreated" + userCreated);
+	      }
+	      System.out.println("userCreated" + userCreated);
 	      //if all form fields are valid, go to create image generation page
 	      if(userCreated)
-	        	
+	    	  createImageGenerationPage(signUpScene);
+	      
 	      else
 	      {
 	        userTextField.clear();
 	        showAlert("Error", "Username taken, please enter new username");
-	      }*/
+	      }
 	  }
 	  });
 	
@@ -386,6 +388,8 @@ public class Main extends Application {
         String enteredUsername = userTextField.getText();
         String enteredPassword = passwordField.getText();
 
+		System.out.println("Successfull login");
+		
         //validate credentials
       if (enteredUsername.trim().length() == 0)
       {
@@ -816,9 +820,6 @@ public class Main extends Application {
 	        }
 	    }
 	}
-	
-	/*
-	 */
 
 	//get the detailed prompt of each style
 	public String getPrompt(String style) {
