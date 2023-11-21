@@ -6,6 +6,8 @@ import net.coobird.thumbnailator.Thumbnails;
 
 import javafx.embed.swing.SwingFXUtils;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.ByteArrayInputStream;
@@ -93,6 +95,10 @@ public class Main extends Application {
      private ImageView imageView = new ImageView();
      private static Statement stmt;
      private Image image;
+     GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+     int width = gd.getDisplayMode().getWidth();
+     int height = gd.getDisplayMode().getHeight();
+     
  //    static Webcam webcam;
      static Connection c;
      Database data = new Database();
@@ -112,6 +118,7 @@ public class Main extends Application {
     //creates the welcome page
     public void createHomePage() {
         BorderPane borderPane = new BorderPane();
+       
 
         GridPane gridPane = new GridPane();
         gridPane.setAlignment(Pos.CENTER);
@@ -166,7 +173,7 @@ public class Main extends Application {
         borderPane.setBottom(bottomBox);
         borderPane.setStyle("-fx-background-color: orchid;");
 
-        Scene homeScene = new Scene(borderPane, 950, 950);
+        Scene homeScene = new Scene(borderPane, width, height);
         sceneArray[0] = homeScene;
         primaryStage.setTitle("ArtFace");
         primaryStage.setScene(homeScene);
@@ -268,7 +275,7 @@ public class Main extends Application {
 	  Button signUpButton = new Button("Sign up");
 	  signUpGrid.add(signUpButton, 0, 6);
 	
-	  Scene signUpScene = new Scene(mainGrid, 950, 950);
+	  Scene signUpScene = new Scene(mainGrid, width, height);
 	
 	  signUpButton.setOnAction(new EventHandler<ActionEvent>() {
 	  @Override
@@ -372,7 +379,7 @@ public class Main extends Application {
       // Sign-in button
       Button signInBtn2 = new Button("Sign in");
       signInGrid.add(signInBtn2, 1, 4);
-      Scene signInScene = new Scene(mainGrid, 950, 950);
+      Scene signInScene = new Scene(mainGrid, width, height);
     signInBtn2.setOnAction(new EventHandler<ActionEvent>() {
     @Override
     public void handle(ActionEvent event) {
@@ -435,7 +442,7 @@ public class Main extends Application {
       Button uploadProfileBtn = new Button("Upload Profile Photo");
       profileGrid.add(uploadProfileBtn, 0,2);
 
-      Scene profileScene = new Scene(profileGrid, 950, 950);
+      Scene profileScene = new Scene(profileGrid, width, height);
 
       uploadProfileBtn.setAlignment(Pos.TOP_CENTER);
       
@@ -459,35 +466,80 @@ public class Main extends Application {
 
     }
     
-
-    //create the page to generate an image
-    public void createImageGenerationPage(Scene scene) {
-
-    	//main grid to hold back button
-    	GridPane mainGrid = new GridPane();
-        mainGrid.setStyle("-fx-background-color: plum;");
-        mainGrid.setPadding(new Insets(15, 15, 15, 15));
-        HBox hbox = new HBox();
-        hbox.setSpacing(10);
-        hbox.setPadding(new Insets(15, 20, 10, 15));
-        ComboBox<String> timesComboBox = new ComboBox<>();
-        ComboBox<String> themesComboBox = new ComboBox<>();
-        ComboBox<String> cartoonComboBox = new ComboBox<>();
-        ComboBox<String> artComboBox = new ComboBox<>();
-        ComboBox<String> placesComboBox = new ComboBox<>();
-        ComboBox<String> mediaComboBox = new ComboBox<>();
-
-        ObservableList<String> timesItems = FXCollections.observableArrayList(
+    public ObservableList<String> getMediaItems()
+    {
+        ObservableList<String> mediaItems = FXCollections.observableArrayList(
         		"-",
-        		"50's Diner",
-        		"90's Kids",
-        		"Futuristic",
-        		"Prehistoric",
-        		"Medieval",
-        		"Renaissance",
-        		"Roaring 20's",
-        		"Victorian"     		   		
+          	    "Kim Kardashian",
+          	    "Brad Pitt",
+          	    "Ariana Grande",
+          	    "Chris Evans",
+          	    "Emma Watson",
+          	    "Jim Carrey",
+          	    "Leonardo DiCaprio",
+          	    "Lady Gaga",
+          	    "Snoop Dogg",
+          	    "Angelina Jolie",
+          	    "Megan Fox",
+          	    "Nicolas Cage"
         );
+        return mediaItems;
+    }
+    
+    public ObservableList<String> getPlacesItems()
+    {
+        ObservableList<String> placesItems = FXCollections.observableArrayList(
+        		"-",
+       	        "American Spirit",
+       	        "Ancient Egypt",
+       	        "Antarctica",
+       	        "Bejing",
+       	        "Greece",
+       	        "London",
+       	        "Paris"
+        );
+        return placesItems;
+    }
+    
+    public ObservableList<String> getArtItems()
+    {
+        
+        ObservableList<String> artItems = FXCollections.observableArrayList(
+        		"-",
+	       	    "Abstract",
+	       	    "Conceptual",
+	       	    "Cubism",
+	       	    "Contemporary",
+	       	    "Futurism",
+	            "Impressionism",
+	      	    "Modern",
+	      	    "Neoclassic",
+	      	    "Pop Art",
+	      	    "Rococo",
+	            "Surrealism"
+        );
+        return artItems;
+    }
+
+    public ObservableList<String> getCartoonItems()
+    {
+        
+        ObservableList<String> cartoonItems = FXCollections.observableArrayList(
+        		"-",
+	       	    "Anime",
+	       	    "Animated",
+	       	    "Cartoon",
+	       	    "Caricature",
+	       	    "Claymation",
+	       	    "Comic",
+	       	    "Doodle",
+	            "Manga"      	     
+        );
+        return cartoonItems;
+    }
+    
+    public ObservableList<String> getThemesItems()
+    {
         
         ObservableList<String> themesItems = FXCollections.observableArrayList(
         		 "-",
@@ -509,61 +561,48 @@ public class Main extends Application {
         	     "Underwater",
         	     "Western"
         );
-        
-        ObservableList<String> cartoonItems = FXCollections.observableArrayList(
+        return themesItems;
+    }
+    
+    public ObservableList<String> getTimesItems()
+    {
+        ObservableList<String> timesItems = FXCollections.observableArrayList(
         		"-",
-	       	    "Anime",
-	       	    "Animated",
-	       	    "Cartoon",
-	       	    "Caricature",
-	       	    "Claymation",
-	       	    "Comic",
-	       	    "Doodle",
-	            "Manga"      	     
+        		"50's Diner",
+        		"90's Kids",
+        		"Futuristic",
+        		"Prehistoric",
+        		"Medieval",
+        		"Renaissance",
+        		"Roaring 20's",
+        		"Victorian"     		   		
         );
+        return timesItems;
+    }
+    
+    //create the page to generate an image
+    public void createImageGenerationPage(Scene scene) {
+
+    	//main grid to hold back button
+    	GridPane mainGrid = new GridPane();
+        mainGrid.setStyle("-fx-background-color: plum;");
+        mainGrid.setPadding(new Insets(15, 15, 15, 15));
+        HBox hbox = new HBox();
+        hbox.setSpacing(10);
+        hbox.setPadding(new Insets(15, 20, 10, 15));
+        ComboBox<String> timesComboBox = new ComboBox<>();
+        ComboBox<String> themesComboBox = new ComboBox<>();
+        ComboBox<String> cartoonComboBox = new ComboBox<>();
+        ComboBox<String> artComboBox = new ComboBox<>();
+        ComboBox<String> placesComboBox = new ComboBox<>();
+        ComboBox<String> mediaComboBox = new ComboBox<>();
         
-        ObservableList<String> artItems = FXCollections.observableArrayList(
-        		"-",
-	       	    "Abstract",
-	       	    "Conceptual",
-	       	    "Cubism",
-	       	    "Contemporary",
-	       	    "Futurism",
-	            "Impressionism",
-	      	    "Modern",
-	      	    "Neoclassic",
-	      	    "Pop Art",
-	      	    "Rococo",
-	            "Surrealism"
-        );
-        
-        ObservableList<String> placesItems = FXCollections.observableArrayList(
-        		"-",
-       	        "American Spirit",
-       	        "Ancient Egypt",
-       	        "Antarctica",
-       	        "Bejing",
-       	        "Greece",
-       	        "London",
-       	        "Paris"
-        );
-        
-        ObservableList<String> mediaItems = FXCollections.observableArrayList(
-        		"-",
-          	    "Kim Kardashian",
-          	    "Brad Pitt",
-          	    "Ariana Grande",
-          	    "Chris Evans",
-          	    "Emma Watson",
-          	    "Jim Carrey",
-          	    "Leonardo DiCaprio",
-          	    "Lady Gaga",
-          	    "Snoop Dogg",
-          	    "Angelina Jolie",
-          	    "Megan Fox",
-          	    "Nicolas Cage"
-        );
-        
+        ObservableList<String> mediaItems = getMediaItems();
+        ObservableList<String> placesItems = getPlacesItems();
+        ObservableList<String> artItems = getArtItems();
+        ObservableList<String> cartoonItems = getCartoonItems();
+        ObservableList<String> themesItems = getThemesItems();
+        ObservableList<String> timesItems = getTimesItems();
         
         timesComboBox.setItems(timesItems);
         themesComboBox.setItems(themesItems);
@@ -705,14 +744,8 @@ public class Main extends Application {
                 String placesStyle = getPrompt(placesComboBox.getValue());
                 String mediaStyle = getPrompt(mediaComboBox.getValue());
                 
-                String combinedStyles = String.join(" ", timesStyle, themesStyle, cartoonStyle, artStyle, placesStyle, mediaStyle).trim();
-
-                try {
-                	onGenerateImageButtonClicked(prompt, combinedStyles);
-                } catch (Exception e) {       
-                    showAlert("Error", "Image could not be generated.");
-                    e.printStackTrace();
-                }
+                combineStyles(prompt, timesStyle, themesStyle, cartoonStyle, artStyle, placesStyle, mediaStyle);
+                
             }
         });
         
@@ -732,7 +765,7 @@ public class Main extends Application {
             }
         });
         
-        Scene imageScene = new Scene(mainGrid, 950, 950);
+        Scene imageScene = new Scene(mainGrid, width, height);
 
         CreateBackButton(mainGrid, sceneArray[0], 0, 0);
         profileGrid.add(centeredGrid, 0, 1);
@@ -742,6 +775,19 @@ public class Main extends Application {
         primaryStage.setScene(imageScene);
         primaryStage.show();
   }
+    
+    public void combineStyles(String prompt, String timesStyle, String themesStyle, String cartoonStyle, String artStyle, String placesStyle, String mediaStyle)
+    {
+        //combine the styles to pass into image generation style
+        String combinedStyles = String.join(" ", timesStyle, themesStyle, cartoonStyle, artStyle, placesStyle, mediaStyle).trim();
+
+        try {
+        	onGenerateImageButtonClicked(prompt, combinedStyles);
+        } catch (Exception e) {       
+            showAlert("Error", "Image could not be generated.");
+            e.printStackTrace();
+        }
+    }
     
     //prompts user to upload profile picture
 	private void uploadProfilePhoto(ImageView profileImageView, ImageView defaultImageView, GridPane profileGrid, int row, int column) {
@@ -1000,7 +1046,7 @@ public class Main extends Application {
 	    StackPane stack = new StackPane();
 	    grid.add(stack, 0, 1, 2, 1); 
 	
-	    Scene generatedImageScene = new Scene(grid, 950, 950);
+	    Scene generatedImageScene = new Scene(grid, width, height);
 	    
 	    ProgressIndicator progressIndicator = new ProgressIndicator();
 	    progressIndicator.setVisible(false);
