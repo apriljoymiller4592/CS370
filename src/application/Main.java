@@ -1133,7 +1133,7 @@ public class Main extends Application {
         galleryTilePane.setAlignment(Pos.CENTER);
 
         //get the files from the gallery folder and display them
-        try (Stream<Path> paths = Files.walk(Paths.get("src/application/gallery"))) {
+        try (Stream<Path> paths = Files.walk(Paths.get("application/gallery"))) {
             paths.filter(Files::isRegularFile).forEach(path -> {
                 File file = path.toFile();
                 Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
