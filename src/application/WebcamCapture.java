@@ -40,11 +40,15 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
-public class WebcamCapture {
-	Webcam webcam;
-	//private javax.swing.JLabel imageHolder;
+public class WebcamCapture{
+	private Webcam webcam;
 	
 	
+	static {
+        // Initialize SLF4J here
+        org.slf4j.LoggerFactory.getILoggerFactory();
+    }
+	/*
 	class VideoFeedTaker extends Thread{
 		
 		//@Override
@@ -61,8 +65,28 @@ public class WebcamCapture {
 			}		
 		}
 	}//end of class
-	public static void main(String[] args) throws IOException{
+	*/
+	
+	public void TakePicture() throws IOException {
 		 WebcamCapture webcamCapture = new WebcamCapture(); // Create an instance
+			// BasicConfigurator.configure();
+		    webcamCapture.webcam = Webcam.getDefault();
+		    
+		    webcamCapture.webcam.open();
+			//need to use diffrent name every time or it will replace
+			
+			//takes a picture
+			ImageIO.write(webcamCapture.webcam.getImage(),"JPG",new File("firstCapture.jpg"));
+			webcamCapture.webcam.close();
+			System.out.println("took a picture");
+	}
+	
+	public void VideoFeed() {
+		
+	}
+	
+	public static void main(String[] args){
+		 /*WebcamCapture webcamCapture = new WebcamCapture(); // Create an instance
 		// BasicConfigurator.configure();
 	    webcamCapture.webcam = Webcam.getDefault(); 
 		
@@ -104,8 +128,18 @@ public class WebcamCapture {
 		
 		//takes a picture
 		ImageIO.write(webcamCapture.webcam.getImage(),"JPG",new File("firstCapture.jpg"));
-		webcamCapture.webcam.close();
+		webcamCapture.webcam.close();*/
+		
+		
+		/*try {
+			WebcamCapture picture = new WebcamCapture();
+			picture.TakePicture();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}*/
+		
 	}
+	
 	
 }
 

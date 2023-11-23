@@ -765,7 +765,12 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
                 //TODO: IMPLEMENT WEBCAM HERE
-                
+            	try {
+            		WebcamCapture picture = new WebcamCapture();
+    				picture.TakePicture();
+            	} catch(IOException e) {
+            		e.printStackTrace();
+            	}
             }
         });
         
