@@ -10,19 +10,20 @@ import java.util.Scanner;
 
 import java.io.File;//new
 public class Database {
+	public int count;
 	public Boolean newUser(Connection c, String newUserName, String newPassword, String NewEmail) throws ClassNotFoundException, SQLException
 	{	
-		int searchCount = 0;
+		count = 0;
 		System.out.println(newUserName + newPassword);
 		Statement stmt = c.createStatement();
 		String sqlSearch = "SELECT * FROM user WHERE userName = '"+ newUserName+"'";
 		ResultSet x = stmt.executeQuery(sqlSearch);
 		while(x.next())
 		{
-			searchCount++;
+			count++;
 		}
 			
-		if(searchCount == 0)//if x = 1 then it went through
+		if(count == 0)//if x = 1 then it went through
 		{
 			String sqlInput = "INSERT INTO USER VALUES('"+newUserName+"','"+newPassword+"', NULL,'"+NewEmail+"')";
 			stmt.executeUpdate(sqlInput);
@@ -36,6 +37,22 @@ public class Database {
 		}
 		
 	}
+	
+	public Boolean checkUser(Connection c, String userName, String password) throws ClassNotFoundException, SQLException
+	{
+		count = 0;
+		Statement stmt = c.createStatement();
+		String sqlSearch = "SELECT * FROM user WHERE userName = '"+ userName+"' AND Password = '"+password+"'";
+		ResultSet x = stmt.executeQuery(sqlSearch);
+		while(x.next())
+		{
+			count++;
+		}
+		if(count == 1)
+			return true;
+		return false;
+	}
+	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException{
 
 	}

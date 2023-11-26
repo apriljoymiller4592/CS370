@@ -104,6 +104,7 @@ public class Main extends Application {
      static Connection c;
      Database data = new Database();
      public Boolean userCreated = false;
+     public Boolean userLogin = false;
      public Boolean isUploaded = false;
      private File uploadedImageFile;
 
@@ -401,10 +402,17 @@ public class Main extends Application {
         showAlert("Error", "Please enter a password longer than 5 characters.");
         return;
       }
-        //successful login
-       System.out.println("Successfull login");
-       createImageGenerationPage(signInScene);	
-        
+      try {
+	        userLogin = data.checkUser(c, enteredUsername, enteredPassword);
+	      } catch (ClassNotFoundException | SQLException e) {
+	        // TODO Auto-generated catch block
+	        e.printStackTrace();
+	      }
+      if(userLogin)
+    	  createImageGenerationPage(signInScene);
+      else
+        showAlert("Error", "Incorrect username or password, please try again."); 
+      
     }
     });
 
