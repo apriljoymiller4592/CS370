@@ -312,7 +312,7 @@ public class Main extends Application {
 	      }
 	      
 	      try {
-	        userCreated = data.newUser(c, enteredUsername, enteredPassword, enteredEmail, null);
+	        userCreated = data.newUser(c, enteredUsername, enteredPassword, enteredEmail);
 	      } catch (ClassNotFoundException | SQLException e) {
 	        // TODO Auto-generated catch block
 	        e.printStackTrace();
