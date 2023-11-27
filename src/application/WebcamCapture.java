@@ -1,48 +1,29 @@
 package application;
 
-//import com.github.sarxos.webcam.Webcam;
-import com.github.sarxos.webcam.*;
-
-import java.awt.Dimension;
-import java.awt.Image;
-import javax.swing.ImageIcon;
+//import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 //import org.apache.log4j.BasicConfigurator;
 
 import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+//import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.Webcam;
 
-import javafx.application.Application;
-import javafx.application.Platform;
-
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
+import javafx.scene.image.Image;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class WebcamCapture{
 	private Webcam webcam;
-	
+	//private final ImageView imageView = new ImageView();
 	
 	static {
         // Initialize SLF4J here
@@ -56,6 +37,7 @@ public class WebcamCapture{
 			while(true) {
 				try {
 					Image image = webcam.getImage();
+					imageView.setImage(image));
 					//imageHolder.setIcon(new ImageIcon(image));
 					
 					Thread.sleep(60);
@@ -64,10 +46,15 @@ public class WebcamCapture{
 				}	
 			}		
 		}
+		
+		 
 	}//end of class
 	*/
 	
-	public void TakePicture() throws IOException {
+	
+	
+	
+	public Image TakePicture() throws IOException {
 		 WebcamCapture webcamCapture = new WebcamCapture(); // Create an instance
 			// BasicConfigurator.configure();
 		    webcamCapture.webcam = Webcam.getDefault();
@@ -76,14 +63,77 @@ public class WebcamCapture{
 			//need to use diffrent name every time or it will replace
 			
 			//takes a picture
-			ImageIO.write(webcamCapture.webcam.getImage(),"JPG",new File("firstCapture.jpg"));
+			/*ImageIO.write(webcamCapture.webcam.getImage(),"JPG",new File("firstCapture.jpg"));
 			webcamCapture.webcam.close();
 			System.out.println("took a picture");
+			*/
+		    File imageFile = new File("firstCapture.jpg");
+		    BufferedImage bufferedImage = webcamCapture.webcam.getImage();
+	        ImageIO.write(bufferedImage, "JPG", imageFile);
+
+	        webcamCapture.webcam.close();
+	        System.out.println("Took a picture");
+
+	        // Read the image file and return the Image
+	        return new Image(imageFile.toURI().toString());
 	}
 	
-	public void VideoFeed() {
-		
-	}
+	public void VideoFeed(){
+	    // Initialize webcam
+        webcam = Webcam.getDefault();
+        if (webcam == null) {
+            System.out.println("No webcam found.");
+            return;
+        }
+
+        //webcam.open();
+
+        // Create a new stage for the popup
+        Stage popupStage = new Stage();
+        popupStage.setTitle("Picture Popup");
+
+        
+        
+        // Create content for the popup
+        Label label = new Label("take picture popup window");
+        
+        ImageView imageView = new ImageView();
+        imageView.setFitHeight(200);
+        imageView.setFitWidth(200);
+        
+        Button takePictureButton = new Button("Take Picture");
+        
+        
+        takePictureButton.setOnAction(e -> {
+			try {
+				Image pic = TakePicture();
+				imageView.setImage(pic);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+		});
+        
+        VBox popupLayout = new VBox(10);
+        
+        
+        popupLayout.getChildren().addAll(label,imageView, takePictureButton);
+        popupLayout.setAlignment(Pos.CENTER);
+        
+        
+        // Set the scene for the popup stage
+        Scene popupScene = new Scene(popupLayout,300,250);
+        popupStage.setScene(popupScene);
+
+
+        // Show the popup stage
+        popupStage.show();
+
+     }
+	
+	
+	
 	
 	public static void main(String[] args){
 		 /*WebcamCapture webcamCapture = new WebcamCapture(); // Create an instance

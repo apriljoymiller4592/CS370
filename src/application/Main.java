@@ -776,6 +776,12 @@ public class Main extends Application {
             	try {
             		WebcamCapture picture = new WebcamCapture();
     				picture.TakePicture();
+            	
+            	WebcamCapture cam = new WebcamCapture();
+            	cam.VideoFeed();
+            	/*try {
+            		WebcamCapture picture = new WebcamCapture();
+    				picture.TakePicture();*/
             	} catch(IOException e) {
             		e.printStackTrace();
             	}
