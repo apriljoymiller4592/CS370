@@ -67,7 +67,15 @@ public class WebcamCapture{
 			webcamCapture.webcam.close();
 			System.out.println("took a picture");
 			*/
-		    File imageFile = new File("firstCapture.jpg");
+		    
+		    // Generate a unique file name, e.g., based on timestamp
+	        //String fileName = "capture_" + System.currentTimeMillis() + ".jpg";
+		    
+		    // Create the directory if it doesn't exist
+	        File imageDirectory = new File("CS370Project/WebcamPic");
+	        imageDirectory.mkdirs();
+	        
+		    File imageFile = new File("CS370Project/WebcamPic","FaceOfArt.jpg");
 		    BufferedImage bufferedImage = webcamCapture.webcam.getImage();
 	        ImageIO.write(bufferedImage, "JPG", imageFile);
 
@@ -98,8 +106,8 @@ public class WebcamCapture{
         Label label = new Label("take picture popup window");
         
         ImageView imageView = new ImageView();
-        imageView.setFitHeight(200);
-        imageView.setFitWidth(200);
+        imageView.setFitHeight(300);
+        imageView.setFitWidth(300);
         
         Button takePictureButton = new Button("Take Picture");
         
@@ -115,15 +123,25 @@ public class WebcamCapture{
 			
 		});
         
+        Button UsePictureButton = new Button("Use Picture");
+        
+        
+        UsePictureButton.setOnAction(e -> {
+			//call api and turn to basex64 here
+        	Main mainClass = new Main();
+        	
+			
+		});
+        
         VBox popupLayout = new VBox(10);
         
         
-        popupLayout.getChildren().addAll(label,imageView, takePictureButton);
+        popupLayout.getChildren().addAll(label,imageView, takePictureButton,UsePictureButton);
         popupLayout.setAlignment(Pos.CENTER);
         
         
         // Set the scene for the popup stage
-        Scene popupScene = new Scene(popupLayout,300,250);
+        Scene popupScene = new Scene(popupLayout,200,200);
         popupStage.setScene(popupScene);
 
 
