@@ -94,6 +94,7 @@ public class Main extends Application {
      private static Scene[] sceneArray = new Scene[5];
      private FlowPane galleryFlowPane = new FlowPane();
      private ImageView imageView = new ImageView();
+     private WebcamCapture cam = new WebcamCapture();
      private static Statement stmt;
      private Image image;
      GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -106,8 +107,10 @@ public class Main extends Application {
      public Boolean userCreated = false;
      public Boolean userLogin = false;
      public Boolean isUploaded = false;
+     private Boolean webcamClicked = false;
      private File uploadedImageFile;
-
+     
+    
     public void start(Stage primaryStage) {
         try {
             this.primaryStage = primaryStage;
@@ -773,8 +776,7 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
                 //TODO: IMPLEMENT WEBCAM HERE
-            	
-            	WebcamCapture cam = new WebcamCapture();
+            	webcamClicked = true;
             	cam.VideoFeed();
             	
             }
@@ -1074,9 +1076,32 @@ public class Main extends Application {
 	        @Override
 	        protected Image call() throws Exception {
 	      	  updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
-	      	  	if (isUploaded == false) {
-		            return generateImageFromText(prompt, style);
-	      	  	} else {
+	      	  	
+	      	  	if(cam.takePicture&& webcamClicked){//if picture was taken
+	      	  		cam.takePicture = false;
+	      	  		webcamClicked = false;
+	      	  		//"CS370Project/WebcamPic/FaceOfArt.jpg"
+	      	  		System.out.println("a picture was taken");
+	      	  		
+	      	  		ByteArrayOutputStream baosResized = new ByteArrayOutputStream();
+	      	  		Thumbnails.of("CS370Project/WebcamPic/FaceOfArt.jpg")
+	      	              .forceSize(1024, 1024)
+	      	              .toOutputStream(baosResized);
+
+	      	  		byte[] resizedBytes = baosResized.toByteArray();
+	      	  		String encodedImage = Base64.getEncoder().encodeToString(resizedBytes);
+	      	    
+	      	  		byte[] imageData = generateImageFromImage(encodedImage, style);
+	      
+	      	  		if (imageData != null) {
+	      	  			return new Image(new ByteArrayInputStream(imageData));
+	      	  		}
+	      	  		
+	      	  		
+	      	  	}else if (isUploaded == false) {//picture uplaod 
+	      	  		System.out.println("normal generate");
+	      	  		return generateImageFromText(prompt, style);
+	      	  	}else {
 	      	        ByteArrayOutputStream baosResized = new ByteArrayOutputStream();
 		      	    Thumbnails.of(uploadedImageFile)
 		      	              .forceSize(1024, 1024)
@@ -1401,4 +1426,6 @@ public class Main extends Application {
 
     //c.close();
   }
+  
+  
 }

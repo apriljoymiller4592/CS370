@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 
 public class WebcamCapture{
 	private Webcam webcam;
+	public boolean takePicture = false;
 	//private final ImageView imageView = new ImageView();
 	
 	static {
@@ -61,12 +62,7 @@ public class WebcamCapture{
 		    
 		    webcamCapture.webcam.open();
 			//need to use diffrent name every time or it will replace
-			
-			//takes a picture
-			/*ImageIO.write(webcamCapture.webcam.getImage(),"JPG",new File("firstCapture.jpg"));
-			webcamCapture.webcam.close();
-			System.out.println("took a picture");
-			*/
+		
 		    
 		    // Generate a unique file name, e.g., based on timestamp
 	        //String fileName = "capture_" + System.currentTimeMillis() + ".jpg";
@@ -75,6 +71,7 @@ public class WebcamCapture{
 	        File imageDirectory = new File("CS370Project/WebcamPic");
 	        imageDirectory.mkdirs();
 	        
+	        //takes a picture
 		    File imageFile = new File("CS370Project/WebcamPic","FaceOfArt.jpg");
 		    BufferedImage bufferedImage = webcamCapture.webcam.getImage();
 	        ImageIO.write(bufferedImage, "JPG", imageFile);
@@ -127,9 +124,13 @@ public class WebcamCapture{
         
         
         UsePictureButton.setOnAction(e -> {
-			//call api and turn to basex64 here
-        	Main mainClass = new Main();
-        	
+			
+        	File fileName = new File("CS370Project/WebcamPic/FaceOfArt.jpg");
+        	if(!fileName.exists())
+        		return;
+        	takePicture = true;
+        	//String encodedString = "CS370Project/WebcamPic/FaceOfArt.jpg";
+        	popupStage.hide();
 			
 		});
         
@@ -149,6 +150,8 @@ public class WebcamCapture{
         popupStage.show();
 
      }
+	
+	
 	
 	
 	
