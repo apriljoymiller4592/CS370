@@ -1,14 +1,10 @@
 package application;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
 import java.util.Scanner;
-
-
-import java.io.File;//new
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
 public class Database {
 	public int count;
 	public Boolean newUser(Connection c, String newUserName, String newPassword, String NewEmail) throws ClassNotFoundException, SQLException
@@ -51,6 +47,29 @@ public class Database {
 		if(count == 1)
 			return true;
 		return false;
+	}
+	
+	//this function allows the main function to pass through a generated image in a BufferedImage format for insertion
+	//into our SQL server
+	public boolean insertImage(Connection c, String userName, BufferedImage buffImg)
+	{	
+		try {
+			//convert generated BufferedImage into a Blob for our SQL DB
+			ByteArrayOutputStream imgOutStream = new ByteArrayOutputStream();
+			ImageIO.write(buffImg, "png", imgOutStream);
+			byte[] imgByteArray = imgOutStream.toByteArray();
+			
+			Statement stmt = c.createStatement();	//create statement
+			String sqlExec = "INSERT INTO Saves VALUES ('" +userName +"','" +imgByteArray +"')";	//create command
+			stmt.executeUpdate(sqlExec);	//execute command
+		}
+		
+		catch(Exception ex)
+		{
+			System.out.println(ex);
+			return false;
+		}
+		return true;
 	}
 	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException{
