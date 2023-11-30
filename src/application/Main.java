@@ -759,8 +759,14 @@ public class Main extends Application {
                 String placesStyle = getPrompt(placesComboBox.getValue());
                 String mediaStyle = getPrompt(mediaComboBox.getValue());
                 
-                combineStyles(prompt, timesStyle, themesStyle, cartoonStyle, artStyle, placesStyle, mediaStyle);
-                
+                String combinedStyles = combineStyles(prompt, timesStyle, themesStyle, cartoonStyle, artStyle, placesStyle, mediaStyle);
+
+                try {
+                	onGenerateImageButtonClicked(prompt, combinedStyles);
+                } catch (Exception e) {       
+                    showAlert("Error", "Image could not be generated.");
+                    e.printStackTrace();
+                }
             }
         });
         
@@ -775,35 +781,47 @@ public class Main extends Application {
         webcamButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                //TODO: IMPLEMENT WEBCAM HERE
             	webcamClicked = true;
             	cam.VideoFeed();
             	
             }
         });
         
+
+        profileGrid.add(centeredGrid, 0, 1);
+        
+        // HBox for the bottom left "Log Out" button
+        HBox bottomLeftBox = new HBox();
+        bottomLeftBox.setAlignment(Pos.BOTTOM_LEFT);
+        bottomLeftBox.setPadding(new Insets(10, 0, 0, 10));
+
+        Button logOutButton = new Button("Log Out");
+        logOutButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                // Handle the log out action
+            }
+        });
+        bottomLeftBox.getChildren().add(logOutButton);
+
+        // Add the profile grid and bottom left box to the main grid
+        mainGrid.add(profileGrid, 0, 1);
+        mainGrid.add(bottomLeftBox, 0, 3);
+        
         Scene imageScene = new Scene(mainGrid, width, height);
 
         CreateBackButton(mainGrid, sceneArray[0], 0, 0);
-        profileGrid.add(centeredGrid, 0, 1);
-        mainGrid.add(profileGrid, 0, 1);
-        
         sceneArray[3] = imageScene;
         primaryStage.setScene(imageScene);
         primaryStage.show();
   }
     
-    public void combineStyles(String prompt, String timesStyle, String themesStyle, String cartoonStyle, String artStyle, String placesStyle, String mediaStyle)
+    public String combineStyles(String prompt, String timesStyle, String themesStyle, String cartoonStyle, String artStyle, String placesStyle, String mediaStyle)
     {
         //combine the styles to pass into image generation style
         String combinedStyles = String.join(" ", timesStyle, themesStyle, cartoonStyle, artStyle, placesStyle, mediaStyle).trim();
-
-        try {
-        	onGenerateImageButtonClicked(prompt, combinedStyles);
-        } catch (Exception e) {       
-            showAlert("Error", "Image could not be generated.");
-            e.printStackTrace();
-        }
+        
+        return combinedStyles;
     }
     
     //prompts user to upload profile picture
@@ -1327,7 +1345,7 @@ public class Main extends Application {
 
 	        HttpResponse<JsonNode> response = Unirest.post("https://api.stability.ai/v1/generation/" + engine_id + "/image-to-image")
 		              .header("Authorization", "Bearer sk-no6ZZBdGyv8LIVOZi0WGPTlgcQWk8rBzCv8VQKErIIMFGHwY")
-		              .field("image_strength", 0.32)
+		              .field("image_strength", 0.48)
 		              .field("init_image_mode", "IMAGE_STRENGTH")
 		              .field("init_image", imageData, "image.png")
 		              .field("text_prompts[0][text]", style)
