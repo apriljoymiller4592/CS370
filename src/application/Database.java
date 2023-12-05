@@ -3,6 +3,10 @@ import java.sql.*;
 import java.util.Properties;
 import java.util.Scanner;
 import javax.imageio.ImageIO;
+
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+
 import java.awt.image.BufferedImage;
 import java.io.*;
 public class Database {
@@ -59,9 +63,13 @@ public class Database {
 			ImageIO.write(buffImg, "png", imgOutStream);
 			byte[] imgByteArray = imgOutStream.toByteArray();
 			
-			Statement stmt = c.createStatement();	//create statement
-			String sqlExec = "INSERT INTO Saves VALUES ('" +userName +"','" +imgByteArray +"')";	//create command
-			stmt.executeUpdate(sqlExec);	//execute command
+			String sqlExec = "INSERT INTO Saves (UserName, image) VALUES (?,?);"; //create execution statement
+			PreparedStatement stmt = c.prepareStatement(sqlExec);	//prepare statement
+			stmt.setString (1, userName);	//set username
+			stmt.setBytes(2, imgByteArray); //set image
+			stmt.executeUpdate();	//execute
+			
+			return true;
 		}
 		
 		catch(Exception ex)
@@ -69,7 +77,32 @@ public class Database {
 			System.out.println(ex);
 			return false;
 		}
-		return true;
+	}
+	
+	//this function adds the users profile picture to the database
+	public boolean insertProfilePic(Connection c, String userName, Image profilePic)
+	{
+		try {
+			//convert javafx image into a bufferedimage to use w same logic as insertImage()
+			BufferedImage buffImg = SwingFXUtils.fromFXImage(profilePic, null);
+			//convert generated BufferedImage into a Blob for our SQL DB
+			ByteArrayOutputStream imgOutStream = new ByteArrayOutputStream();
+			ImageIO.write(buffImg, "png", imgOutStream);
+			byte[] imgByteArray = imgOutStream.toByteArray();
+			
+			String sqlExec = "UPDATE User SET ProfilePic = ? WHERE UserName = ?";	//create exec statement
+			PreparedStatement stmt = c.prepareStatement(sqlExec);	//prepare statement
+			stmt.setBytes(1, imgByteArray);	//add pic
+			stmt.setString(2, userName);	//for user
+			stmt.executeUpdate();	//execute statement
+			
+			return true;
+		}
+		catch (Exception ex)
+		{
+			System.out.println(ex);
+			return false;
+		}
 	}
 	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException{
