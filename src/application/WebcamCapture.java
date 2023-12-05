@@ -52,8 +52,8 @@ public class WebcamCapture{
 					Image image = convertToJavaFXImage(bufferedImage);
 					imageView.setImage(image);
 					
-					//frames per second
-					Thread.sleep(60);
+					//frames per second less = better
+					Thread.sleep(30);
 				}catch(InterruptedException ex) {
 					ex.printStackTrace();
 				}

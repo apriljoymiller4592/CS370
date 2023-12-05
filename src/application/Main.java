@@ -1116,10 +1116,10 @@ public class Main extends Application {
 	      	  		}
 	      	  		
 	      	  		
-	      	  	}else if (isUploaded == false) {//picture uplaod 
+	      	  	}else if (isUploaded == false) {//no picture upload
 	      	  		System.out.println("normal generate");
 	      	  		return generateImageFromText(prompt, style);
-	      	  	}else {
+	      	  	}else {//uploaded image
 	      	        ByteArrayOutputStream baosResized = new ByteArrayOutputStream();
 		      	    Thumbnails.of(uploadedImageFile)
 		      	              .forceSize(1024, 1024)
