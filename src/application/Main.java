@@ -4,7 +4,10 @@ import java.io.InputStream;
 
 import net.coobird.thumbnailator.Thumbnails;
 
-import javafx.embed.swing.SwingFXUtils;
+//import javafx.embed.swing.SwingFXUtils;
+
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -1234,7 +1237,7 @@ public class Main extends Application {
         galleryTilePane.setAlignment(Pos.CENTER);
 
         //get the files from the gallery folder and display them
-        try (Stream<Path> paths = Files.walk(Paths.get("application/gallery"))) {
+        try (Stream<Path> paths = Files.walk(Paths.get("src/application/gallery"))) {
             paths.filter(Files::isRegularFile).forEach(path -> {
                 File file = path.toFile();
                 Image galleryImage = new Image(file.toURI().toString(), 100, 0, true, true);
@@ -1271,12 +1274,33 @@ public class Main extends Application {
       File file = fileChooser.showSaveDialog(stage);
 
       if (file != null) {
-          BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+          BufferedImage bImage = convertToBufferedImage(image);//SwingFXUtils.fromFXImage(image, null);
           ImageIO.write(bImage, "png", file);
           
           saveImageToGallery(bImage);
       }
 
+  }
+  
+  //image to buffered image converter
+  public static BufferedImage convertToBufferedImage(Image javafxImage) {
+      int width = (int) javafxImage.getWidth();
+      int height = (int) javafxImage.getHeight();
+
+      BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+      PixelReader pixelReader = javafxImage.getPixelReader();
+
+      for (int x = 0; x < width; x++) {
+          for (int y = 0; y < height; y++) {
+              // Extract ARGB components from JavaFX Image
+              int argb = pixelReader.getArgb(x, y);
+
+              // Write ARGB value to BufferedImage
+              bufferedImage.setRGB(x, y, argb);
+          }
+      }
+
+      return bufferedImage;
   }
   
   //save an image to the gallery folder to be later displayed
