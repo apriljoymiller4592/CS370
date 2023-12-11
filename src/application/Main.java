@@ -791,8 +791,7 @@ public class Main extends Application {
             	try {
 					cam.VideoFeed();
 				} catch (WebcamException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					showAlert("Error", "Webcam could not be accessed at this time.");
 				}
             	
             }
@@ -811,6 +810,8 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
                 // Handle the log out action
+                primaryStage.setScene(sceneArray[0]);
+
             }
         });
         bottomLeftBox.getChildren().add(logOutButton);
