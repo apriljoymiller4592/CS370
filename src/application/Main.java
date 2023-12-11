@@ -40,15 +40,11 @@ import javax.imageio.ImageIO;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
-//import com.github.sarxos.webcam.Webcam;
-//import com.github.sarxos.webcam.WebcamEvent;
-//import com.github.sarxos.webcam.WebcamListener;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-//import application.WebcamCapture.VideoFeedTaker;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -104,7 +100,6 @@ public class Main extends Application {
      int width = gd.getDisplayMode().getWidth();
      int height = gd.getDisplayMode().getHeight();
      
- //    static Webcam webcam;
      static Connection c;
      Database data = new Database();
      public Boolean userCreated = false;
@@ -117,7 +112,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         try {
             this.primaryStage = primaryStage;
-            createHomePage();
+            createHomePage();//start of program
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -149,7 +144,7 @@ public class Main extends Application {
         signUpBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                 createSignUpPage();
+                 createSignUpPage();//changes screen to signup screen
             }
         });
         gridPane.add(signUpBtn, 0, 2);
@@ -158,7 +153,7 @@ public class Main extends Application {
         signInBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                 createSignInPage();
+                 createSignInPage();//changrs screen to sign in screen
             }
         });
         gridPane.add(signInBtn, 1, 2);
@@ -201,7 +196,7 @@ public class Main extends Application {
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
-
+        //user enter email and password that get sent to our email
         TextField emailField = new TextField();
         emailField.setPromptText("Email");
         PasswordField passwordField = new PasswordField();
@@ -228,7 +223,7 @@ public class Main extends Application {
         result.ifPresent(emailPassword -> {
             String email = emailPassword.getKey();
             String newPassword = emailPassword.getValue();
-            JavaMail.PasswordResetRequest("april", email, newPassword);
+            JavaMail.PasswordResetRequest("april", email, newPassword);//email request
         });
     }
 
@@ -318,7 +313,7 @@ public class Main extends Application {
 	        return;
 	      }
 	      
-	      try {
+	      try {//enter info into database
 	        userCreated = data.newUser(c, enteredUsername, enteredPassword, enteredEmail);
 	      } catch (ClassNotFoundException | SQLException e) {
 	        // TODO Auto-generated catch block
@@ -483,7 +478,7 @@ public class Main extends Application {
       primaryStage.show();
 
     }
-    
+    //option prompts for the generate image
     public ObservableList<String> getMediaItems()
     {
         ObservableList<String> mediaItems = FXCollections.observableArrayList(
@@ -736,6 +731,7 @@ public class Main extends Application {
         Button webcamButton = new Button("Take a selfie");
         centeredGrid.add(webcamButton, 26, 21);
         
+      //for uploading a image from local file
         uploadButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -781,7 +777,7 @@ public class Main extends Application {
             }
         });
         
-        webcamButton.setOnAction(new EventHandler<ActionEvent>() {
+        webcamButton.setOnAction(new EventHandler<ActionEvent>() {//button to start webcam
             @Override
             public void handle(ActionEvent event) {
             	webcamClicked = true;
@@ -792,7 +788,7 @@ public class Main extends Application {
         
 
         profileGrid.add(centeredGrid, 0, 1);
-        
+        //button currently not working the back button has same function
         // HBox for the bottom left "Log Out" button
         HBox bottomLeftBox = new HBox();
         bottomLeftBox.setAlignment(Pos.BOTTOM_LEFT);
@@ -1138,7 +1134,7 @@ public class Main extends Application {
 	      	  	}
 			return null;
 	    }
-	        
+	        //displays the image
 	        @Override
 	        protected void succeeded() {
 	            Platform.runLater(() -> {
@@ -1160,7 +1156,7 @@ public class Main extends Application {
 		                  primaryStage.show();
 		                }
 		            });
-		
+		            //opens the file explorer to save image,save into gallery and db
 		            Button saveButton = new Button("Save Image");
 		            grid.add(saveButton, 0, 3);
 		            saveButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -1176,7 +1172,7 @@ public class Main extends Application {
 		            });
 	            });
 	        }
-	
+	        //something gone wrong
 	        @Override
 	        protected void failed() {
 	            super.failed();
