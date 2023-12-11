@@ -2,6 +2,8 @@ package application;
 
 import java.io.InputStream;
 
+import application.JavaMail;
+
 import net.coobird.thumbnailator.Thumbnails;
 
 //import javafx.embed.swing.SwingFXUtils;
@@ -26,7 +28,6 @@ import javafx.scene.control.ButtonBar;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -34,12 +35,17 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import com.github.sarxos.webcam.WebcamException;
+//import com.github.sarxos.webcam.Webcam;
+//import com.github.sarxos.webcam.WebcamEvent;
+//import com.github.sarxos.webcam.WebcamListener;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -224,6 +230,7 @@ public class Main extends Application {
             String email = emailPassword.getKey();
             String newPassword = emailPassword.getValue();
             JavaMail.PasswordResetRequest("april", email, newPassword);//email request
+            //JavaMail.PasswordResetRequest("april", email, newPassword);
         });
     }
 
@@ -781,7 +788,12 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
             	webcamClicked = true;
-            	cam.VideoFeed();
+            	try {
+					cam.VideoFeed();
+				} catch (WebcamException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             	
             }
         });
@@ -845,8 +857,7 @@ public class Main extends Application {
 	
 	          profileGrid.add(imageViewUpl, column, row);
 	        } catch (Exception e) {
-	            e.printStackTrace();
-	            System.err.println("Uploaded image is null.");
+	        	showAlert("Error", "Uploaded image is null.");
 	        }
 	    }
 	}
@@ -1064,7 +1075,6 @@ public class Main extends Application {
 		 return enteredPrompt;
 	}
 	
-	
 	//when the generate image button is clicked, a new scene will pop up with the generated image
 	public void onGenerateImageButtonClicked(String prompt, String style) {
 	    GridPane grid = new GridPane();
@@ -1088,7 +1098,7 @@ public class Main extends Application {
 	    	showAlert("Error", "Please enter a style!");
 	    	return;
 	    }
-	
+	    
 	    Task<Image> imageGenerationTask = new Task<>() {
 	        @Override
 	        protected Image call() throws Exception {
@@ -1115,10 +1125,10 @@ public class Main extends Application {
 	      	  		}
 	      	  		
 	      	  		
-	      	  	}else if (isUploaded == false) {//no picture upload
+	      	  	} else if (isUploaded == false) {//no picture upload
 	      	  		System.out.println("normal generate");
 	      	  		return generateImageFromText(prompt, style);
-	      	  	}else {//uploaded image
+	      	  	} else{
 	      	        ByteArrayOutputStream baosResized = new ByteArrayOutputStream();
 		      	    Thumbnails.of(uploadedImageFile)
 		      	              .forceSize(1024, 1024)
@@ -1131,10 +1141,19 @@ public class Main extends Application {
 		      	    if (imageData != null) {
 		      	        return new Image(new ByteArrayInputStream(imageData));
 		      	    }
+		      	    webcamClicked = false;	      	  		
+	      	  		Image webcamImage = encodeImage(style);
+	      	  		return webcamImage;
+	      	  	} if (isUploaded == false) {
+	      	  		System.out.println("normal generate");
+	      	  		return generateImageFromText(prompt, style);
+	      	  	}else {
+	      	  		Image uploadImage = encodeImage(style);
+	      	  		return uploadImage;
 	      	  	}
-			return null;
-	    }
-	        //displays the image
+
+	        }
+
 	        @Override
 	        protected void succeeded() {
 	            Platform.runLater(() -> {
@@ -1166,7 +1185,6 @@ public class Main extends Application {
 		                    	saveImage(primaryStage, genImageView.getImage());
 		                    } catch (IOException e) {
 		                    	showAlert("Error!", "Photo could not be saved at this time.");
-		                    	System.err.println("Photo could not be saved.");
 		                    }
 		                }
 		            });
@@ -1190,6 +1208,24 @@ public class Main extends Application {
 	        primaryStage.setScene(generatedImageScene);
 	        primaryStage.show();
 	    });
+	}
+	
+	//method to encode the image uploaded by the user
+	public Image encodeImage(String style) throws Exception
+	{
+	    ByteArrayOutputStream baosResized = new ByteArrayOutputStream();
+  	    Thumbnails.of(uploadedImageFile)
+  	              .forceSize(1024, 1024)
+  	              .toOutputStream(baosResized);
+
+  	    byte[] resizedBytes = baosResized.toByteArray();
+  	    String encodedImage = Base64.getEncoder().encodeToString(resizedBytes);
+  	    
+  	    byte[] imageData = generateImageFromImage(encodedImage, style);
+  	    if (imageData != null) {
+  	        return new Image(new ByteArrayInputStream(imageData));
+  	    }
+		return null;
 	}
 	
     
@@ -1463,7 +1499,5 @@ public class Main extends Application {
     launch(args);
 
     //c.close();
-  }
-  
-  
+  }    
 }
