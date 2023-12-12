@@ -21,17 +21,9 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-//import javafx.application.Platform;
-//import javafx.embed.swing.SwingFXUtils;//issue with this library
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
-
 public class WebcamCapture{
 	private Webcam webcam;
 	public boolean takePicture = false;
-	private boolean isVideoFeed = true;
-	ImageView imageView = new ImageView();
-    
 	//private final ImageView imageView = new ImageView();
 	
 	static {
@@ -39,51 +31,23 @@ public class WebcamCapture{
         org.slf4j.LoggerFactory.getILoggerFactory();
     }
 	/*
-	
 	class VideoFeedTaker extends Thread{
 		
 		//@Override
 		public void run() {
 			while(true) {
-			webcam.open();
-			while(isVideoFeed) {
 				try {
 					Image image = webcam.getImage();
 					imageView.setImage(image));
 					//imageHolder.setIcon(new ImageIcon(image));
 					
-					BufferedImage bufferedImage = webcam.getImage();
-					
-					Image image = convertToJavaFXImage(bufferedImage);
-					imageView.setImage(image);
-					
-					//frames per second
 					Thread.sleep(60);
 				}catch(InterruptedException ex) {
 					Logger.getLogger(WebcamCapture.class.getName()).log(Level.SEVERE,null,ex);
 				}	
 			}		
-					ex.printStackTrace();
-				}
-				
-			}
-			webcam.close();
 		}
 		
-			//part of the library to convert to Image
-		 private Image convertToJavaFXImage(BufferedImage bufferedImage) {
-		        WritableImage writableImage = new WritableImage(bufferedImage.getWidth(), bufferedImage.getHeight());
-		        PixelWriter pixelWriter = writableImage.getPixelWriter();
-
-		        for (int x = 0; x < bufferedImage.getWidth(); x++) {
-		            for (int y = 0; y < bufferedImage.getHeight(); y++) {
-		                pixelWriter.setArgb(x, y, bufferedImage.getRGB(x, y));
-		            }
-		        }
-
-		        return writableImage;
-		    }
-	
 		 
 	}//end of class
 	*/
@@ -98,6 +62,12 @@ public class WebcamCapture{
 		    
 		    webcamCapture.webcam.open();
 			//need to use diffrent name every time or it will replace
+			
+			//takes a picture
+			/*ImageIO.write(webcamCapture.webcam.getImage(),"JPG",new File("firstCapture.jpg"));
+			webcamCapture.webcam.close();
+			System.out.println("took a picture");
+			*/
 		
 		    
 		    // Generate a unique file name, e.g., based on timestamp
@@ -139,7 +109,6 @@ public class WebcamCapture{
         Label label = new Label("take picture popup window");
         
         ImageView imageView = new ImageView();
-        //ImageView imageView = new ImageView();
         imageView.setFitHeight(300);
         imageView.setFitWidth(300);
         
@@ -148,7 +117,6 @@ public class WebcamCapture{
         
         takePictureButton.setOnAction(e -> {
 			try {
-				isVideoFeed = false;
 				Image pic = TakePicture();
 				imageView.setImage(pic);
 			} catch (IOException e1) {
@@ -162,42 +130,34 @@ public class WebcamCapture{
         
         
         UsePictureButton.setOnAction(e -> {
+			//call api and turn to basex64 here
+        	Main mainClass = new Main();
+        	
 			
         	File fileName = new File("CS370Project/WebcamPic/FaceOfArt.jpg");
         	if(!fileName.exists())
         		return;
         	takePicture = true;
         	//String encodedString = "CS370Project/WebcamPic/FaceOfArt.jpg";
-        	Main mainclass = new Main();
-        	mainclass.showSuccessAlert("picture successful", "Click Generate Button to Continue");
         	popupStage.hide();
-        	
 			
 		});
-        //exit event
-        popupStage.setOnHiding(event -> {
-            System.out.println("Popup is closed");
-            webcam.close();
-            isVideoFeed = false;
-        });
         
         VBox popupLayout = new VBox(10);
+        
         
         popupLayout.getChildren().addAll(label,imageView, takePictureButton,UsePictureButton);
         popupLayout.setAlignment(Pos.CENTER);
         
-        //starts the videofeed
-        //new VideoFeedTaker().start();
         
         // Set the scene for the popup stage
-        Scene popupScene = new Scene(popupLayout,420,420);
+        Scene popupScene = new Scene(popupLayout,200,200);
         popupStage.setScene(popupScene);
 
 
         // Show the popup stage
         popupStage.show();
 
-        
      }
 	
 	
@@ -262,6 +222,7 @@ public class WebcamCapture{
 	
 	
 }
+
 
 
 

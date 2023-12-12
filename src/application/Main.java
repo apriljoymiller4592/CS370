@@ -99,7 +99,7 @@ public class Main extends Application {
      private static Scene[] sceneArray = new Scene[5];
      private FlowPane galleryFlowPane = new FlowPane();
      private ImageView imageView = new ImageView();
-     //private WebcamCapture cam = new WebcamCapture();
+     private WebcamCapture cam = new WebcamCapture();
      private static Statement stmt;
      private Image image;
      GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
