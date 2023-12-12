@@ -27,14 +27,14 @@ public class MainTest {
 	    Path tempDir;
 
 	    @Before
-	    void setUp() {
+	    public void setUp() {
 	        //set up the ProfilePicHandler with a temporary directory for testing
 	        System.setProperty("user.dir", tempDir.toString());
 	        profilePicHandler = new ProfilePicHandler();
 	    }
 
 	    @Test
-	    void testInitializeCreatesFile() {
+	    public void testInitializeCreatesFile() {
 	        //check that the properties file is created
 	        File propertiesFile = new File(USER_PROFILE_PIC_FILE);
 	        assertTrue(propertiesFile.exists());

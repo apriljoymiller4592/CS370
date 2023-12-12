@@ -1122,20 +1122,15 @@ public class Main extends Application {
 	      	  		//"CS370Project/WebcamPic/FaceOfArt.jpg"
 	      	  		encodeImage(style);
 	      	  		
-	      	  	} else if (isUploaded == false) {//no picture upload
+	      	  	} else if (isUploaded == false) {//no picture upload, text to image
 	      	  		System.out.println("normal generate");
 	      	  		return generateImageFromText(prompt, style);
-	      	  	} else{
-		      	    webcamClicked = false;	      	  		
-	      	  		Image webcamImage = encodeImage(style);
-	      	  		return webcamImage;
-	      	  	} if (isUploaded == false) {
-	      	  		System.out.println("normal generate");
-	      	  		return generateImageFromText(prompt, style);
-	      	  	}else {
+	      	  	
+	      	  	}else {//image to image generation
 	      	  		Image uploadImage = encodeImage(style);
 	      	  		return uploadImage;
 	      	  	}
+				return null;
 
 	        }
 
