@@ -1,6 +1,7 @@
 package application;
 
 import javax.mail.PasswordAuthentication;
+
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -10,7 +11,9 @@ import javax.mail.Session;
 //import javax.activation.*;
 import javax.mail.Authenticator;
 
+//template for sending a email through java
 //https://www.tutorialspoint.com/java/java_sending_email.htm
+
 public class JavaMail {
 
     public static void PasswordResetRequest(String userName, String userEmail, String newPassword) {

@@ -6,6 +6,7 @@ import javax.imageio.ImageIO;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -84,7 +85,7 @@ public class Database {
 	{
 		try {
 			//convert javafx image into a bufferedimage to use w same logic as insertImage()
-			BufferedImage buffImg = SwingFXUtils.fromFXImage(profilePic, null);
+			BufferedImage buffImg = convertToBufferedImage(profilePic);
 			//convert generated BufferedImage into a Blob for our SQL DB
 			ByteArrayOutputStream imgOutStream = new ByteArrayOutputStream();
 			ImageIO.write(buffImg, "png", imgOutStream);
@@ -104,6 +105,70 @@ public class Database {
 			return false;
 		}
 	}
+	
+	  //this function returns a given users profile picture
+	  public Image getProfilePic(Connection c, String userName)
+	  {
+		  try {
+			  String sqlExec = "SELECT ProfilePic FROM User WHERE UserName = ?";
+			  PreparedStatement stmt = c.prepareStatement(sqlExec);	//prepare statement
+			  stmt.setString(1, userName);
+			  ResultSet resultSet = stmt.executeQuery();
+			  
+			  if (resultSet.next()) 
+			  {
+				  byte[] profileData = resultSet.getBytes("ProfilePic");
+				  if (profileData != null)
+				  {
+					  Image profilePic = convertToImage(profileData);
+					  return profilePic;
+				  }
+			  }
+		  }
+		  catch (Exception ex)
+		  {
+			  System.out.println(ex);
+		  }
+		  return null;
+	  }
+	
+	  //image to buffered image converter
+	  public static BufferedImage convertToBufferedImage(Image javafxImage) {
+	      int width = (int) javafxImage.getWidth();
+	      int height = (int) javafxImage.getHeight();
+
+	      BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+	      PixelReader pixelReader = javafxImage.getPixelReader();
+
+	      for (int x = 0; x < width; x++) {
+	          for (int y = 0; y < height; y++) {
+	              // Extract ARGB components from JavaFX Image
+	              int argb = pixelReader.getArgb(x, y);
+
+	              // Write ARGB value to BufferedImage
+	              bufferedImage.setRGB(x, y, argb);
+	          }
+	      }
+
+	      return bufferedImage;
+	  }
+	  
+	  //byte array to Image for SQL
+	  public Image convertToImage(byte[] bytes) {
+		  try {
+			  ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+			  BufferedImage bufferedImage = ImageIO.read(inputStream);
+			  
+			  Image img = SwingFXUtils.toFXImage(bufferedImage, null);
+			  return img;
+		  }
+		  catch (Exception ex)
+		  {
+			  System.out.println(ex);
+		  }
+		  return null;
+	  }
+	  
 	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException{
 
