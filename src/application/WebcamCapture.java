@@ -21,53 +21,73 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+//import javafx.application.Platform;
+//import javafx.embed.swing.SwingFXUtils;//issue with this library
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+
 public class WebcamCapture{
 	private Webcam webcam;
-	public boolean takePicture = false;
-	//private final ImageView imageView = new ImageView();
+	public boolean takePicture = false;//checks if usePicture button was used
+	private boolean isVideoFeed = true;//start videofeed at popup startup
+	ImageView imageView = new ImageView();//initialize the imageview (to display image/ videofeed)
+    
 	
-	static {
+	static {//extention issue not sure if still need
         // Initialize SLF4J here
         org.slf4j.LoggerFactory.getILoggerFactory();
     }
-	/*
-	class VideoFeedTaker extends Thread{
+	
+	class VideoFeedTaker extends Thread{//thread for videofeed
+		//set up as a class
 		
 		//@Override
 		public void run() {
-			while(true) {
+			webcam.open();//opens the webcam
+			while(isVideoFeed) {//continuously takes a image
 				try {
-					Image image = webcam.getImage();
-					imageView.setImage(image));
-					//imageHolder.setIcon(new ImageIcon(image));
 					
-					Thread.sleep(60);
+					BufferedImage bufferedImage = webcam.getImage();
+					
+					Image image = convertToJavaFXImage(bufferedImage);//convert buffer image to image
+					imageView.setImage(image);//where the videofeed is set
+					
+					//frames per second less = better
+					Thread.sleep(30);
 				}catch(InterruptedException ex) {
-					Logger.getLogger(WebcamCapture.class.getName()).log(Level.SEVERE,null,ex);
-				}	
-			}		
+					ex.printStackTrace();
+				}
+				
+			}
+			webcam.close();
 		}
-		
+			//part of the library to convert to Image
+		 private Image convertToJavaFXImage(BufferedImage bufferedImage) {
+		        WritableImage writableImage = new WritableImage(bufferedImage.getWidth(), bufferedImage.getHeight());
+		        PixelWriter pixelWriter = writableImage.getPixelWriter();
+
+		        for (int x = 0; x < bufferedImage.getWidth(); x++) {//go through pixel by pixel
+		            for (int y = 0; y < bufferedImage.getHeight(); y++) {
+		                pixelWriter.setArgb(x, y, bufferedImage.getRGB(x, y));
+		            }
+		        }
+
+		        return writableImage;//returns a image
+		    }
+	
 		 
-	}//end of class
-	*/
+	}//end of  VideoFeedTaker class
 	
 	
 	
 	
-	public Image TakePicture() throws IOException {
+	public Image TakePicture() throws IOException {//for take picture button
 		 WebcamCapture webcamCapture = new WebcamCapture(); // Create an instance
 			// BasicConfigurator.configure();
 		    webcamCapture.webcam = Webcam.getDefault();
 		    
-		    webcamCapture.webcam.open();
+		    webcamCapture.webcam.open();//already open if video feed is up 
 			//need to use diffrent name every time or it will replace
-			
-			//takes a picture
-			/*ImageIO.write(webcamCapture.webcam.getImage(),"JPG",new File("firstCapture.jpg"));
-			webcamCapture.webcam.close();
-			System.out.println("took a picture");
-			*/
 		
 		    
 		    // Generate a unique file name, e.g., based on timestamp
@@ -92,12 +112,10 @@ public class WebcamCapture{
 	public void VideoFeed(){
 	    // Initialize webcam
         webcam = Webcam.getDefault();
-        if (webcam == null) {
+        if (webcam == null) {//error handleing if device has no camera
             System.out.println("No webcam found.");
             return;
         }
-
-        //webcam.open();
 
         // Create a new stage for the popup
         Stage popupStage = new Stage();
@@ -108,16 +126,17 @@ public class WebcamCapture{
         // Create content for the popup
         Label label = new Label("take picture popup window");
         
-        ImageView imageView = new ImageView();
+        //ImageView imageView = new ImageView();
         imageView.setFitHeight(300);
         imageView.setFitWidth(300);
         
         Button takePictureButton = new Button("Take Picture");
         
-        
+        //event function to handle the takePicture event
         takePictureButton.setOnAction(e -> {
 			try {
-				Image pic = TakePicture();
+				isVideoFeed = false;
+				Image pic = TakePicture();//may cause IO exception, but is where the Image is stored to var
 				imageView.setImage(pic);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
@@ -128,95 +147,51 @@ public class WebcamCapture{
         
         Button UsePictureButton = new Button("Use Picture");
         
-        
+        //use picture button to transfer over to main
         UsePictureButton.setOnAction(e -> {
-			//call api and turn to basex64 here
-        	Main mainClass = new Main();
-        	
 			
         	File fileName = new File("CS370Project/WebcamPic/FaceOfArt.jpg");
         	if(!fileName.exists())
         		return;
         	takePicture = true;
         	//String encodedString = "CS370Project/WebcamPic/FaceOfArt.jpg";
-        	popupStage.hide();
+        	Main mainclass = new Main();
+        	mainclass.showSuccessAlert("picture successful", "Click Generate Button to Continue");
+        	popupStage.hide();//closes the popup
+        	
 			
 		});
         
+        //exit event
+        popupStage.setOnHiding(event -> {
+            System.out.println("Popup is closed");
+            webcam.close();
+            isVideoFeed = true;
+        });
+        //sets up the popup
         VBox popupLayout = new VBox(10);
         
-        
+        //inserts all the displays
         popupLayout.getChildren().addAll(label,imageView, takePictureButton,UsePictureButton);
         popupLayout.setAlignment(Pos.CENTER);
         
+        //starts the videofeed
+        new VideoFeedTaker().start();
         
         // Set the scene for the popup stage
-        Scene popupScene = new Scene(popupLayout,200,200);
+        Scene popupScene = new Scene(popupLayout,420,420);
         popupStage.setScene(popupScene);
 
 
         // Show the popup stage
         popupStage.show();
 
+        
      }
 	
 	
-	
-	
-	
-	
 	public static void main(String[] args){
-		 /*WebcamCapture webcamCapture = new WebcamCapture(); // Create an instance
-		// BasicConfigurator.configure();
-	    webcamCapture.webcam = Webcam.getDefault(); 
 		
-	    webcamCapture.webcam.addWebcamListener(new WebcamListener(){//the event listener
-			
-		
-		
-			@Override
-			public void webcamOpen(WebcamEvent we) {
-				System.out.println("webcam open");
-				VideoFeedTaker feed = webcamCapture.new VideoFeedTaker(); // Create an instance of VideoFeedTaker
-                feed.start();
-			}
-			@Override
-			public void webcamClosed(WebcamEvent we) {
-				System.out.println("webcam closed");
-			}
-			@Override
-			public void webcamDisposed(WebcamEvent we) {
-				System.out.println("webcam disposed");
-			}
-			@Override
-			public void webcamImageObtained(WebcamEvent we) {
-				System.out.println("Image taken");
-			}
-			
-		});
-		
-		for(Dimension supportedSize: webcamCapture.webcam.getViewSizes()) {//gets all the available sizes
-			System.out.println(supportedSize.toString());
-		}//we should make a gui so user can choose
-		
-		webcamCapture.webcam.setViewSize(new Dimension(640,480));//setting the dimension
-		//webcam.setViewSize(WebcamResolution.<method>); another method for setting resolution
-		
-		
-		webcamCapture.webcam.open();
-		//need to use diffrent name every time or it will replace
-		
-		//takes a picture
-		ImageIO.write(webcamCapture.webcam.getImage(),"JPG",new File("firstCapture.jpg"));
-		webcamCapture.webcam.close();*/
-		
-		
-		/*try {
-			WebcamCapture picture = new WebcamCapture();
-			picture.TakePicture();
-		} catch(IOException e) {
-			e.printStackTrace();
-		}*/
 		
 	}
 	
