@@ -97,12 +97,14 @@ public class Main extends Application {
      private static Scene[] sceneArray = new Scene[5];
      private FlowPane galleryFlowPane = new FlowPane();
      private ImageView imageView = new ImageView();
-     private WebcamCapture cam = new WebcamCapture();
+     //private WebcamCapture cam = new WebcamCapture();
      private static Statement stmt;
      private Image image;
      GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
      int width = gd.getDisplayMode().getWidth();
      int height = gd.getDisplayMode().getHeight();
+     private String currentUser;
+     ProfilePicHandler profilePicHandler = new ProfilePicHandler();
      
  //    static Webcam webcam;
      static Connection c;
@@ -289,6 +291,7 @@ public class Main extends Application {
 	  @Override
 	  public void handle(ActionEvent event) {
 	        String enteredUsername = userTextField.getText();
+	        currentUser = enteredUsername;
 	        String enteredPassword = pwBox.getText();
 	        String enteredEmail = emailField.getText();
 	        String enteredName = nameField.getText();
@@ -393,6 +396,7 @@ public class Main extends Application {
     @Override
     public void handle(ActionEvent event) {
         String enteredUsername = userTextField.getText();
+        currentUser = enteredUsername;
         String enteredPassword = passwordField.getText();
 
 		System.out.println("Successfull login");
@@ -445,12 +449,14 @@ public class Main extends Application {
       galleryFlowPane.setHgap(4);
 
         //set default profile picture
-      Image defaultPic = new Image("application/icon.jpeg");
-      ImageView defaultImageView = new ImageView(defaultPic);
-      profileGrid.add(defaultImageView, 0, 1);
-      defaultImageView.setFitWidth(200);
-      defaultImageView.setFitHeight(200);
-      defaultImageView.setPreserveRatio(true);
+      //Image defaultPic = new Image("application/icon.jpeg");
+      //ImageView defaultImageView = new ImageView(defaultPic);
+      Image userProfilePic = profilePicHandler.getProfilePic(currentUser);
+      ImageView userProfileImageView = new ImageView(userProfilePic);
+      profileGrid.add(userProfileImageView, 0, 1);
+      userProfileImageView.setFitWidth(200);
+      userProfileImageView.setFitHeight(200);
+      userProfileImageView.setPreserveRatio(true);
 
       Label profileLabel = new Label("My Profile");
       profileLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
@@ -469,7 +475,7 @@ public class Main extends Application {
       uploadProfileBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-            	uploadProfilePhoto(profileImageView, defaultImageView, profileGrid, 1, 0);
+            	uploadProfilePhoto(profileImageView, userProfileImageView, profileGrid, 1, 0);
             }
       });
 
@@ -846,6 +852,9 @@ public class Main extends Application {
 	          imageViewUpl.setFitWidth(200);
 	          imageViewUpl.setFitHeight(200);
 	          imageViewUpl.setPreserveRatio(true);
+	          
+	          data.insertProfilePic(c, currentUser, image);	//add profile pic to sql server
+	          profilePicHandler.saveProfilePic(currentUser, uploadedImage);	//add profile pic to ProfilePicHandler class
 	
 	          profileGrid.add(imageViewUpl, column, row);
 	        } catch (Exception e) {
@@ -1098,7 +1107,7 @@ public class Main extends Application {
 	        protected Image call() throws Exception {
 	      	  updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
 	      	  	
-	      	  	if(cam.takePicture&& webcamClicked){//if picture was taken
+	      	  /*	if(cam.takePicture&& webcamClicked){//if picture was taken
 	      	  		cam.takePicture = false;
 	      	  		webcamClicked = false;
 	      	  		//"CS370Project/WebcamPic/FaceOfArt.jpg"
@@ -1119,7 +1128,7 @@ public class Main extends Application {
 	      	  		}
 	      	  		
 	      	  		
-	      	  	}else if (isUploaded == false) {//no picture upload
+	      	  	}else */ if (isUploaded == false) {//no picture upload
 	      	  		System.out.println("normal generate");
 	      	  		return generateImageFromText(prompt, style);
 	      	  	}else {//uploaded image
