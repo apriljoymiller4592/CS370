@@ -450,7 +450,7 @@ public class Main extends Application {
       galleryFlowPane.setVgap(4);
       galleryFlowPane.setHgap(4);
 
-        //set default profile picture
+      //set default profile picture
       //Image defaultPic = new Image("application/icon.jpeg");
       //ImageView defaultImageView = new ImageView(defaultPic);
       Image userProfilePic = profilePicHandler.getProfilePic(currentUser);
@@ -880,6 +880,7 @@ public class Main extends Application {
 		 return "";
 	 }
 		 
+	//based on the user's input style, detail the prompt more so that the image comes out better
 	switch (style) {
 	   case "50's Diner":
 		 enteredPrompt = "1950's diner, 1950's, 50s, diner, milkshake";
@@ -1102,12 +1103,14 @@ public class Main extends Application {
 	    progressIndicator.setVisible(false);
 	    grid.add(progressIndicator, 0, 2);
 	    
+	    //require the user to enter a style
 	    if (style == "" || style == "------")
 	    {
 	    	showAlert("Error", "Please enter a style!");
 	    	return;
 	    }
 	    
+	    //start the image generation
 	    Task<Image> imageGenerationTask = new Task<>() {
 	        @Override
 	        protected Image call() throws Exception {
@@ -1117,39 +1120,12 @@ public class Main extends Application {
 	      	  		cam.takePicture = false;
 	      	  		webcamClicked = false;
 	      	  		//"CS370Project/WebcamPic/FaceOfArt.jpg"
-	      	  		System.out.println("a picture was taken");
-	      	  		
-	      	  		ByteArrayOutputStream baosResized = new ByteArrayOutputStream();
-	      	  		Thumbnails.of("CS370Project/WebcamPic/FaceOfArt.jpg")
-	      	              .forceSize(1024, 1024)
-	      	              .toOutputStream(baosResized);
-
-	      	  		byte[] resizedBytes = baosResized.toByteArray();
-	      	  		String encodedImage = Base64.getEncoder().encodeToString(resizedBytes);
-	      	    
-	      	  		byte[] imageData = generateImageFromImage(encodedImage, style);
-	      
-	      	  		if (imageData != null) {
-	      	  			return new Image(new ByteArrayInputStream(imageData));
-	      	  		}
-	      	  		
+	      	  		encodeImage(style);
 	      	  		
 	      	  	} else if (isUploaded == false) {//no picture upload
 	      	  		System.out.println("normal generate");
 	      	  		return generateImageFromText(prompt, style);
 	      	  	} else{
-	      	        ByteArrayOutputStream baosResized = new ByteArrayOutputStream();
-		      	    Thumbnails.of(uploadedImageFile)
-		      	              .forceSize(1024, 1024)
-		      	              .toOutputStream(baosResized);
-	
-		      	    byte[] resizedBytes = baosResized.toByteArray();
-		      	    String encodedImage = Base64.getEncoder().encodeToString(resizedBytes);
-		      	    
-		      	    byte[] imageData = generateImageFromImage(encodedImage, style);
-		      	    if (imageData != null) {
-		      	        return new Image(new ByteArrayInputStream(imageData));
-		      	    }
 		      	    webcamClicked = false;	      	  		
 	      	  		Image webcamImage = encodeImage(style);
 	      	  		return webcamImage;
