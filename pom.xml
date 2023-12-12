@@ -37,8 +37,23 @@
 	<dependency>
 	    <groupId>net.coobird</groupId>
         <artifactId>thumbnailator</artifactId>
-        <version>0.4.14</version> <!-- Make sure to use the latest version -->
+        <version>0.4.14</version>
     </dependency>
+	<dependency>
+	    <groupId>org.junit.jupiter</groupId>
+	    <artifactId>junit-jupiter-api</artifactId>
+	    <version>5.9.0</version>
+	    <scope>test</scope>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.junit.jupiter</groupId>
+	    <artifactId>junit-jupiter-engine</artifactId>
+	    <version>5.9.0</version>
+	    <scope>test</scope>
+	</dependency>
+	
+
     </dependencies>
 
 </project>
