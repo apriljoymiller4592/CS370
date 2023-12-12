@@ -817,6 +817,7 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
                 // Handle the log out action
+            	primaryStage.setScene(sceneArray[2]);
             }
         });
         bottomLeftBox.getChildren().add(logOutButton);
