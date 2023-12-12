@@ -99,7 +99,7 @@ public class Main extends Application {
      private static Scene[] sceneArray = new Scene[5];
      private FlowPane galleryFlowPane = new FlowPane();
      private ImageView imageView = new ImageView();
-     //private WebcamCapture cam = new WebcamCapture();
+     private WebcamCapture cam = new WebcamCapture();
      private static Statement stmt;
      private Image image;
      GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -797,7 +797,8 @@ public class Main extends Application {
             	try {
 					cam.VideoFeed();
 				} catch (WebcamException e) {
-					showAlert("Error", "Webcam could not be accessed at this time.");
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
             	
             }
@@ -816,8 +817,6 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
                 // Handle the log out action
-                primaryStage.setScene(sceneArray[0]);
-
             }
         });
         bottomLeftBox.getChildren().add(logOutButton);
