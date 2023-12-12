@@ -10,12 +10,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bridj.ann.Template;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
@@ -68,7 +64,7 @@ public class MainTest {
 	                    break;
 	                }
 	            }
-	            assertTrue(dbExists, "Database ArtFaceDB does not exist.");
+	            assertTrue("Database ArtFaceDB does not exist.", dbExists);
 
 	        } catch (SQLException e) {
 	            fail("Database check failed: " + e.getMessage());
@@ -90,7 +86,7 @@ public class MainTest {
 				        .header("X-RapidAPI-Host", "open-ai21.p.rapidapi.com")
 				        .body(body.toString())
 				        .asBinary();
-				assertTrue((response.getStatus() == 200), "TXT2IMG API IS OFFLINE OR NONFUNCTIONAL");
+				assertTrue("TXT2IMG API IS OFFLINE OR NONFUNCTIONAL", response.getStatus() == 200);
 			} catch (UnirestException e) {
 				e.printStackTrace();
 			}

@@ -797,8 +797,7 @@ public class Main extends Application {
             	try {
 					cam.VideoFeed();
 				} catch (WebcamException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					showAlert("Error", "Webcam could not be accessed at this time.");
 				}
             	
             }
