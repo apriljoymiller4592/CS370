@@ -55,7 +55,7 @@ public class WebcamCapture{
 					//frames per second less = better
 					Thread.sleep(30);
 				}catch(InterruptedException ex) {
-					ex.printStackTrace();
+					System.err.println("Error loading webcam");
 				}
 				
 			}
